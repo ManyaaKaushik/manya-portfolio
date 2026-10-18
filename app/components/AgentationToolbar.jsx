@@ -3,10 +3,12 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 
-const Agentation = dynamic(
-  () => import('agentation').then(module => module.Agentation),
-  { ssr: false }
-);
+const Agentation = process.env.NODE_ENV === 'development'
+  ? dynamic(
+      () => import('agentation').then(module => module.Agentation),
+      { ssr: false }
+    )
+  : () => null;
 
 export default function AgentationToolbar() {
   const [portalContainer, setPortalContainer] = useState(null);
