@@ -12,7 +12,7 @@ Design hiring teams and collaborators, confirmed by Manya on October 18, 2026.
 Present Manya Kaushik's product design work, journey, collaborators' testimonials, and experiments through an engaging scroll experience. Provide clear paths to case studies, résumé, and contact.
 
 ## Stack
-Static HTML, CSS, and JavaScript. The existing portfolio is a static Framer export; the new garden lives separately in this folder. No build or installation required. Run `node serve.mjs` for local preview.
+Next.js 16 App Router and React 19, as requested by Manya. Server-rendered page content with focused client components for interactive features. Next.js static export preserves the existing hosting model. Install with `pnpm install`, develop with `pnpm dev`, and produce `out/` with `pnpm build`. The original portfolio remains in `../site`.
 
 ## Brand Commitments
 Figma context: https://www.figma.com/design/iXariOVvEL3FH2NnXOEm7f/NID-SEM-4?node-id=1720-7419
@@ -23,3 +23,7 @@ Biography and current Blinkit role supplied in Figma. Project descriptions, artw
 
 ## Capabilities and Constraints
 Responsive portfolio with sticky/parallax opening, sticky project sequence on desktop, manual testimonial navigation, an interactive canvas garden, anchor navigation and motion control. Honors OS reduced-motion preference. Contact uses mailto; no server or contact database. Existing case studies remain external. Original portfolio files are preserved.
+
+## Confirmed growing-garden direction
+
+Manya specified that scroll is time and time is growth. Seven chapters: seed arrival; canopy diary with family stories; root journey; herbarium specimens; quiet pinned collaborator notes; experimental greenhouse; hill-and-sky signoff. Preserve Polymath’s Garden and the Orto Botanico di Padova reference. Keep direct work navigation for hiring teams. Use Lenis. Mobile and reduced-motion paths must remain lighter. CAREY (service design), Solis (IoT), and SCENERIA (TUI) are supplied garden studies, with no supplied outcomes or complete process writeups; use study labels and contact CTA. Three published case studies retain existing links.

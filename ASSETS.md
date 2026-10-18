@@ -24,3 +24,22 @@ Project images copied from the existing `../site/assets/images`:
 Instrument Serif and Instrument Sans fonts copied from the existing portfolio's local font files. Favicon and pixel garden are original code assets made for this implementation.
 
 Production portrait is proportionally resized to 900px wide and encoded as manya.webp (quality 88); original Figma PNG retained locally in ignored original-assets/. No content was altered.
+
+## Growing garden additions
+
+| Shipped asset | Source and treatment |
+| --- | --- |
+| family-grandma.webp | Figma node 1624:24; proportional 1000px long edge, rotated clockwise to match the board orientation, WebP quality 88. |
+| family-together.webp | Figma node 1624:25; proportional 1000px long edge, WebP quality 88. |
+| canopy.webp | Figma reference node 1729:6405; original tree-canopy image, WebP quality 88; softly cropped in CSS. |
+| carey.png | Figma node 1729:6354, dithered botanical. |
+| sceneria.png | Figma node 1729:6362, dithered tree. |
+| hills.webp | Original image created with built-in image generation for this portfolio, proportionally resized to 1672×941 and encoded WebP quality 88. |
+
+Family and canopy PNG sources are preserved locally in ignored original-assets/. No movie posters or film stills are used.
+
+### Exact hill image generation prompt
+
+Create a high-resolution original photographic landscape asset for a sophisticated botanical product designer portfolio website. Wide panoramic landscape, 16:9. A quietly beautiful green rolling hill under a broad soft blue sky with a few sculptural white cumulus clouds. Ground-level perspective from a wild meadow: delicate grass and tiny white daisies along the very bottom edge, a gently curving velvety green hill across the lower 40 percent, airy sky across upper 60 percent. Warm late afternoon sunlight, fresh yellow-green tones, a subtle analog-film photographic softness and tactile natural color. Nostalgic and optimistic without resembling any specific copyrighted wallpaper. Real landscape photography, not an illustration, not cartoon, not 3D render. No people, no buildings, no trees, no signs, no text, no interface. Keep the center sky open and quiet so dark editorial text can be overlaid legibly. Output one polished wide background photograph.
+
+Generation mode: built-in image generation. Shipped path: public/assets/hills.webp. Original generated PNG preserved in original-assets/.

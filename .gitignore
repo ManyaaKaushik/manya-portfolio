@@ -3,3 +3,9 @@
 *.tar
 node_modules/
 original-assets/
+.next/
+out/
+.sites-runtime/
+
+.tools/
+.impeccable/reference/
