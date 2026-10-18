@@ -23,3 +23,9 @@ Published cases appear first in the filterable work collection; CAREY, Solis, an
 Effects clean up animation frames, observers, media listeners and GL resources. No backend or contact database; contact uses mailto. The original portfolio is preserved in `../site`, and earlier implementations remain in Git history.
 
 PRODUCT.md records content constraints; DESIGN.md and `.impeccable/design.json` capture the current system. ASSETS.md records image origins. REFERENCE-ANALYSIS.md records the ffmpeg review of both supplied videos (946 and 334 frames). `.openai/hosting.json` retains the existing private Sites project identity.
+
+## Visual feedback with Agentation
+
+Agentation is installed as a development dependency. Run `pnpm dev` and use its toolbar to select elements, write notes, and copy structured feedback into your coding agent. Feedback stays in your browser by default; no external endpoint is configured. The toolbar is excluded from production through `NODE_ENV` and loads client-side only. It follows the active specimen dialog so modal content can be annotated.
+
+Setup reference: https://www.agentation.com/install
