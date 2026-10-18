@@ -1,0 +1,8 @@
+[build]
+  command = "pnpm run build"
+  publish = "out"
+
+# The site is a pure static export (output: 'export'), so the Next.js
+# Runtime isn't needed; skip it and deploy the generated files as-is.
+[build.environment]
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
