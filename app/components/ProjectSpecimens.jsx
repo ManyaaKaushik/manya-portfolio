@@ -14,7 +14,7 @@ const projects = [
 
 export default function ProjectSpecimens() {
   const [selected,setSelected] = useState(null);
-  const [filter,setFilter] = useState('all');
+  const [filter,setFilter] = useState('work');
   const dialogRef=useRef(null),triggerRef=useRef(null),originRef=useRef({x:50,y:50}),closing=useRef(false);
   useEffect(()=>{
     if(!selected)return;
@@ -63,3 +63,4 @@ export default function ProjectSpecimens() {
     </dialog>
   </>;
 }
+

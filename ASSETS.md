@@ -43,3 +43,14 @@ Family and canopy PNG sources are preserved locally in ignored original-assets/.
 Create a high-resolution original photographic landscape asset for a sophisticated botanical product designer portfolio website. Wide panoramic landscape, 16:9. A quietly beautiful green rolling hill under a broad soft blue sky with a few sculptural white cumulus clouds. Ground-level perspective from a wild meadow: delicate grass and tiny white daisies along the very bottom edge, a gently curving velvety green hill across the lower 40 percent, airy sky across upper 60 percent. Warm late afternoon sunlight, fresh yellow-green tones, a subtle analog-film photographic softness and tactile natural color. Nostalgic and optimistic without resembling any specific copyrighted wallpaper. Real landscape photography, not an illustration, not cartoon, not 3D render. No people, no buildings, no trees, no signs, no text, no interface. Keep the center sky open and quiet so dark editorial text can be overlaid legibly. Output one polished wide background photograph.
 
 Generation mode: built-in image generation. Shipped path: public/assets/hills.webp. Original generated PNG preserved in original-assets/.
+
+## Updated board assets
+
+- blue-clouds.webp — node 1729:6425, blue dithered cloud artwork; lossless WebP at original 1024×579, used as footer sky.
+- dreaming.webp — node 1638:57, Manya behind a laptop; proportional WebP, diary creative spread.
+- sketch-world.webp — node 1622:12, supplied architectural story sketch; proportional 1400px WebP, retains Figma crop in diary.
+- sketch-creature.webp — node 1622:14, supplied creature story sketch; proportional 1400px WebP, retains Figma crop in diary.
+- tiny-glade.webp — node 1637:47, supplied game artwork, small interest sticker in diary.
+- letterboxd.webp — node 1749:7444, supplied Letterboxd icon, small interest sticker in diary.
+
+All PNG originals are preserved in ignored original-assets/. Source reference website screenshots and sunflower/butterfly posters are not used as portfolio screens or personal art. The new blue ASCII sunflower is rendered from the pre-existing supplied sunflower.png using a canvas character sampler, not a raster of another website.

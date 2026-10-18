@@ -20,3 +20,9 @@ Mobile uses the original static dithered plant imagery and a static shader color
 
 ## Content boundary
 CAREY, Solis and SCENERIA are supplied garden studies; they are labelled as studies with no invented outcomes. Scam prevention, Sakhi and Celebto retain real descriptions and published case-study links. Testimonials use the existing source quotes. Family photos come from the user's Figma board. Original hill imagery is generated for this implementation.
+
+## Updated reference review
+
+Reviewed all 334 decoded frames of 20261018-1712-22.9624604.mp4 (11.13 seconds) in sequential contact sheets, using ffmpeg without frame resampling. It shows the Matthew Yu book opening and successive left-bound page rotations, with perspective, separate front/back faces, page stacks, and a stable book location. The implementation uses real front/back page faces for desktop turns, a closed cover, three readable spreads, direct contents tabs, and a lightweight mobile page change. It reuses Manya’s family images, supplied notebook drawings and portrait rather than the reference author’s artwork.
+
+Figma node 1720:7419 was re-read live. Its updated ASCII design style section 1749:7433 uses blue character/dither clouds, a sunflower with blue/yellow pigment, a pixelated butterfly, and clean editorial layouts. These are mood references, not a finished screen to rasterize. The application derives its own ASCII sunflower from the existing supplied botanical and uses the pure blue cloud artwork at the footer. Website screenshots and reference posters remain references rather than page assets. The board’s new content order and supplied personal copy determine the new structure.

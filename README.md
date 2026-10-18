@@ -1,19 +1,25 @@
-# Manya — A Polymath's Garden
+# Manya — A Polymath’s Garden
 
-This is a Next.js 16 App Router project with React 19. Install with `pnpm install`, then run `pnpm dev` and open http://localhost:3001.
+A Next.js 16 App Router portfolio with React 19 and Lenis. Install with `pnpm install`, run `pnpm dev`, and open http://localhost:3001. Build with `pnpm build`; the static export is written to `out/`. `pnpm preview` serves the production export.
 
-Run `pnpm build` for a production build. Next.js exports the portfolio to `out/` for the existing static hosting. Run `pnpm preview` to serve that production export locally.
+## Updated ASCII editorial edition
 
-`app/page.jsx` contains the server-rendered portfolio content. `app/components/` contains the React client components for scrolling, motion preferences, testimonials, and the pixel garden. Shared styles live in `app/world.css`, `app/collections.css`, and `app/responsive.css`, metadata in `app/layout.jsx`, and local images/fonts in `public/assets/`. Effects disconnect observers, listeners, and animation frames on unmount.
+The updated Figma board sets warm paper, blue ASCII/dither imagery, and quiet editorial typography. The opening morphs from a friendly introduction into Manya’s Blinkit work. Desktop uses Lenis and a sampled ASCII sunflower. Mobile and motion-off views present both introductions in reading order.
 
-Created from Manya's Figma narrative/moodboard and the real content in the existing portfolio export. Existing case studies open at manyaa.me; the original `../site` is preserved. The earlier hand-authored HTML implementation is retained in Git history.
+The diary opens from a cover into three spreads: family connections; journey and interests; imaginative stories and supplied notebook drawings. Desktop turns use separate front/back faces and perspective. Mobile and reduced-motion page changes are immediate. Resizing or pausing motion commits any pending turn.
 
-See PRODUCT.md, DESIGN.md and ASSETS.md for content, design decisions and asset provenance. The Sites project identity is tracked in `.openai/hosting.json`; preserve it on later publication.
+Published cases appear first in the filterable work collection; CAREY, Solis, and SCENERIA remain clearly labelled garden studies. Immersive previews reverse on exit; full published case studies remain at manyaa.me. The experiments area includes a desktop WebGL patch, prompt interaction, Sakhi link, and two honest spaces for forthcoming project videos. Writing links to Manya’s supplied Medium profile. Quiet collaborator notes lead to the click-to-plant footer, which also supports a keyboard planting button.
 
-## Growing garden experience
+## Source map
 
-Lenis drives wheel smoothing and anchor navigation. The journey moves through seed, canopy diary, roots, project specimens, collaborator notes, experimental greenhouse, and hills. Published cases and garden studies are clearly labelled and filterable. Specimen previews open with a color-field zoom and reverse on close; detailed case studies remain at manyaa.me.
+- `app/page.jsx`: server-rendered content and section order.
+- `app/components/`: focused client interactions plus server-rendered testimonials.
+- `app/world.css`: typography, navigation, introductory morph and diary.
+- `app/collections.css`: shared specimen, case and experiment mechanics.
+- `app/editorial.css`: current collection, writing and footer presentation.
+- `app/responsive.css`: responsive and reduced-motion paths.
+- `public/assets/`: local image/font assets. No temporary Figma URLs at runtime.
 
-The diary uses supplied family photos. Desktop botanical reveals resolve ASCII into pigment into imagery; mobile uses static source art. The WebGL patch runs only on eligible desktop screens while visible and motion is enabled. Pause and OS reduced-motion preferences retain all content and controls.
+Effects clean up animation frames, observers, media listeners and GL resources. No backend or contact database; contact uses mailto. The original portfolio is preserved in `../site`, and earlier implementations remain in Git history.
 
-`REFERENCE-ANALYSIS.md` records the 946-frame ffmpeg review and motion choices.
+PRODUCT.md records content constraints; DESIGN.md and `.impeccable/design.json` capture the current system. ASSETS.md records image origins. REFERENCE-ANALYSIS.md records the ffmpeg review of both supplied videos (946 and 334 frames). `.openai/hosting.json` retains the existing private Sites project identity.

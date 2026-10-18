@@ -1,6 +1,7 @@
 import 'lenis/dist/lenis.css';
 import './world.css';
 import './collections.css';
+import './editorial.css';
 import './responsive.css';
 
 export const metadata = {
@@ -9,7 +10,7 @@ export const metadata = {
   description: 'Manya Kaushik is a product designer connecting systems, people, and possibility. Step into a garden of thoughtful work and curious experiments.',
 };
 
-export const viewport = { themeColor: '#f5f4ec' };
+export const viewport = { themeColor: '#f6f4eb' };
 
 export default function RootLayout({ children }) {
   return (

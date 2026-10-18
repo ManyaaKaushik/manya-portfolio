@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 const MotionContext = createContext(false);
 export const useMotionPaused = () => useContext(MotionContext);
-const chapters = [ ['arrival','The seed'], ['about','Inside the canopy'], ['roots','The roots'], ['work','The specimens'], ['pollinators','Seeds from others'], ['greenhouse','The greenhouse'], ['beyond','Beyond the hills'] ];
+const chapters = [ ['arrival','Hello, I’m Manya'], ['about','A few pages of me'], ['work','Selected work'], ['greenhouse','Experiments'], ['blogs','Writing'], ['pollinators','Kind words'], ['beyond','Plant a flower'] ];
 
 export default function ScrollExperience({children}) {
  const [paused,setPaused]=useState(false);
@@ -41,6 +41,13 @@ export default function ScrollExperience({children}) {
     const pinned=section.hasAttribute('data-pinned')&&!mobile&&!paused;
     const p=pinned?clamp(-r.top/Math.max(1,r.height-vh)):clamp((vh*.8-r.top)/Math.max(1,r.height+vh*.3));
     section.style.setProperty('--local',p.toFixed(4));
+    if(section.id==='arrival'){
+     const showBoth=mobile||paused||reduced.matches;
+     section.classList.toggle('is-introduced',p>.35);
+     const welcome=section.querySelector('.welcome-copy'),professional=section.querySelector('.professional-copy');
+     if(welcome){welcome.inert=!showBoth&&p>.35;welcome.setAttribute('aria-hidden',String(!showBoth&&p>.35));}
+     if(professional){professional.inert=!showBoth&&p<=.35;professional.setAttribute('aria-hidden',String(!showBoth&&p<=.35));}
+    }
     if(section.id==='roots')section.style.setProperty('--root-progress',clamp((vh*.8-r.top)/(r.height-vh*.35)).toFixed(4));
    });
    const next=Math.min(4,Math.floor(maxGrowth.current*5));

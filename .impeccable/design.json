@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-18T17:40:52.827Z",
+  "generatedAt": "2026-10-18T18:17:09.864Z",
   "title": "Design System: A Polymath's Garden",
   "extensions": {
     "colorMeta": {
@@ -8,117 +8,145 @@
         "role": "neutral",
         "displayName": "Paper",
         "tonalRamp": [
-          "oklch(15% 0.0134 97.44)",
-          "oklch(26% 0.0134 97.44)",
-          "oklch(38% 0.0134 97.44)",
-          "oklch(49% 0.0134 97.44)",
-          "oklch(61% 0.0134 97.44)",
-          "oklch(72% 0.0134 97.44)",
-          "oklch(84% 0.0134 97.44)",
-          "oklch(95% 0.0134 97.44)"
+          "oklch(15% 0.0121 96.42)",
+          "oklch(26% 0.0121 96.42)",
+          "oklch(38% 0.0121 96.42)",
+          "oklch(49% 0.0121 96.42)",
+          "oklch(61% 0.0121 96.42)",
+          "oklch(72% 0.0121 96.42)",
+          "oklch(84% 0.0121 96.42)",
+          "oklch(95% 0.0121 96.42)"
         ]
       },
       "ink": {
-        "role": "primary",
+        "role": "neutral",
         "displayName": "Ink",
         "tonalRamp": [
-          "oklch(15% 0.0340 138.41)",
-          "oklch(26% 0.0340 138.41)",
-          "oklch(38% 0.0340 138.41)",
-          "oklch(49% 0.0340 138.41)",
-          "oklch(61% 0.0340 138.41)",
-          "oklch(72% 0.0340 138.41)",
-          "oklch(84% 0.0340 138.41)",
-          "oklch(95% 0.0340 138.41)"
+          "oklch(15% 0.0312 256.26)",
+          "oklch(26% 0.0312 256.26)",
+          "oklch(38% 0.0312 256.26)",
+          "oklch(49% 0.0312 256.26)",
+          "oklch(61% 0.0312 256.26)",
+          "oklch(72% 0.0312 256.26)",
+          "oklch(84% 0.0312 256.26)",
+          "oklch(95% 0.0312 256.26)"
         ]
       },
-      "olive": {
+      "blue": {
         "role": "primary",
-        "displayName": "Olive",
+        "displayName": "Blue",
         "tonalRamp": [
-          "oklch(15% 0.0576 126.81)",
-          "oklch(26% 0.0576 126.81)",
-          "oklch(38% 0.0576 126.81)",
-          "oklch(49% 0.0576 126.81)",
-          "oklch(61% 0.0576 126.81)",
-          "oklch(72% 0.0576 126.81)",
-          "oklch(84% 0.0576 126.81)",
-          "oklch(95% 0.0576 126.81)"
+          "oklch(15% 0.1510 263.66)",
+          "oklch(26% 0.1510 263.66)",
+          "oklch(38% 0.1510 263.66)",
+          "oklch(49% 0.1510 263.66)",
+          "oklch(61% 0.1510 263.66)",
+          "oklch(72% 0.1510 263.66)",
+          "oklch(84% 0.1510 263.66)",
+          "oklch(95% 0.1510 263.66)"
         ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Muted",
         "tonalRamp": [
-          "oklch(15% 0.0304 131.23)",
-          "oklch(26% 0.0304 131.23)",
-          "oklch(38% 0.0304 131.23)",
-          "oklch(49% 0.0304 131.23)",
-          "oklch(61% 0.0304 131.23)",
-          "oklch(72% 0.0304 131.23)",
-          "oklch(84% 0.0304 131.23)",
-          "oklch(95% 0.0304 131.23)"
-        ]
-      },
-      "soil": {
-        "role": "neutral",
-        "displayName": "Soil",
-        "tonalRamp": [
-          "oklch(15% 0.0206 99.58)",
-          "oklch(26% 0.0206 99.58)",
-          "oklch(38% 0.0206 99.58)",
-          "oklch(49% 0.0206 99.58)",
-          "oklch(61% 0.0206 99.58)",
-          "oklch(72% 0.0206 99.58)",
-          "oklch(84% 0.0206 99.58)",
-          "oklch(95% 0.0206 99.58)"
+          "oklch(15% 0.0311 257.08)",
+          "oklch(26% 0.0311 257.08)",
+          "oklch(38% 0.0311 257.08)",
+          "oklch(49% 0.0311 257.08)",
+          "oklch(61% 0.0311 257.08)",
+          "oklch(72% 0.0311 257.08)",
+          "oklch(84% 0.0311 257.08)",
+          "oklch(95% 0.0311 257.08)"
         ]
       },
       "line": {
         "role": "neutral",
         "displayName": "Line",
         "tonalRamp": [
-          "oklch(15% 0.0301 115.41)",
-          "oklch(26% 0.0301 115.41)",
-          "oklch(38% 0.0301 115.41)",
-          "oklch(49% 0.0301 115.41)",
-          "oklch(61% 0.0301 115.41)",
-          "oklch(72% 0.0301 115.41)",
-          "oklch(84% 0.0301 115.41)",
-          "oklch(95% 0.0301 115.41)"
+          "oklch(15% 0.0093 258.34)",
+          "oklch(26% 0.0093 258.34)",
+          "oklch(38% 0.0093 258.34)",
+          "oklch(49% 0.0093 258.34)",
+          "oklch(61% 0.0093 258.34)",
+          "oklch(72% 0.0093 258.34)",
+          "oklch(84% 0.0093 258.34)",
+          "oklch(95% 0.0093 258.34)"
         ]
       },
-      "focus": {
+      "navigation-paper": {
         "role": "neutral",
-        "displayName": "Focus",
+        "displayName": "Navigation Paper",
         "tonalRamp": [
-          "oklch(15% 0.1073 45.43)",
-          "oklch(26% 0.1073 45.43)",
-          "oklch(38% 0.1073 45.43)",
-          "oklch(49% 0.1073 45.43)",
-          "oklch(61% 0.1073 45.43)",
-          "oklch(72% 0.1073 45.43)",
-          "oklch(84% 0.1073 45.43)",
-          "oklch(95% 0.1073 45.43)"
+          "oklch(15% 0.0121 96.42)",
+          "oklch(26% 0.0121 96.42)",
+          "oklch(38% 0.0121 96.42)",
+          "oklch(49% 0.0121 96.42)",
+          "oklch(61% 0.0121 96.42)",
+          "oklch(72% 0.0121 96.42)",
+          "oklch(84% 0.0121 96.42)",
+          "oklch(95% 0.0121 96.42)"
         ]
       },
-      "canopy": {
-        "role": "neutral",
-        "displayName": "Canopy",
+      "diary-field": {
+        "role": "secondary",
+        "displayName": "Diary Field",
         "tonalRamp": [
-          "oklch(15% 0.0529 119.58)",
-          "oklch(26% 0.0529 119.58)",
-          "oklch(38% 0.0529 119.58)",
-          "oklch(49% 0.0529 119.58)",
-          "oklch(61% 0.0529 119.58)",
-          "oklch(72% 0.0529 119.58)",
-          "oklch(84% 0.0529 119.58)",
-          "oklch(95% 0.0529 119.58)"
+          "oklch(15% 0.0086 247.92)",
+          "oklch(26% 0.0086 247.92)",
+          "oklch(38% 0.0086 247.92)",
+          "oklch(49% 0.0086 247.92)",
+          "oklch(61% 0.0086 247.92)",
+          "oklch(72% 0.0086 247.92)",
+          "oklch(84% 0.0086 247.92)",
+          "oklch(95% 0.0086 247.92)"
         ]
       },
-      "specimen-paper": {
-        "role": "neutral",
-        "displayName": "Specimen Paper",
+      "diary-cover": {
+        "role": "secondary",
+        "displayName": "Diary Cover",
+        "tonalRamp": [
+          "oklch(15% 0.0251 89.22)",
+          "oklch(26% 0.0251 89.22)",
+          "oklch(38% 0.0251 89.22)",
+          "oklch(49% 0.0251 89.22)",
+          "oklch(61% 0.0251 89.22)",
+          "oklch(72% 0.0251 89.22)",
+          "oklch(84% 0.0251 89.22)",
+          "oklch(95% 0.0251 89.22)"
+        ]
+      },
+      "greenhouse": {
+        "role": "secondary",
+        "displayName": "Greenhouse",
+        "tonalRamp": [
+          "oklch(15% 0.0125 301.28)",
+          "oklch(26% 0.0125 301.28)",
+          "oklch(38% 0.0125 301.28)",
+          "oklch(49% 0.0125 301.28)",
+          "oklch(61% 0.0125 301.28)",
+          "oklch(72% 0.0125 301.28)",
+          "oklch(84% 0.0125 301.28)",
+          "oklch(95% 0.0125 301.28)"
+        ]
+      },
+      "writing-field": {
+        "role": "secondary",
+        "displayName": "Writing Field",
+        "tonalRamp": [
+          "oklch(15% 0.0188 96.87)",
+          "oklch(26% 0.0188 96.87)",
+          "oklch(38% 0.0188 96.87)",
+          "oklch(49% 0.0188 96.87)",
+          "oklch(61% 0.0188 96.87)",
+          "oklch(72% 0.0188 96.87)",
+          "oklch(84% 0.0188 96.87)",
+          "oklch(95% 0.0188 96.87)"
+        ]
+      },
+      "writing-paper": {
+        "role": "secondary",
+        "displayName": "Writing Paper",
         "tonalRamp": [
           "oklch(15% 0.0177 92.68)",
           "oklch(26% 0.0177 92.68)",
@@ -131,157 +159,115 @@
         ]
       },
       "pollinators": {
-        "role": "neutral",
+        "role": "secondary",
         "displayName": "Pollinators",
         "tonalRamp": [
-          "oklch(15% 0.0212 103.89)",
-          "oklch(26% 0.0212 103.89)",
-          "oklch(38% 0.0212 103.89)",
-          "oklch(49% 0.0212 103.89)",
-          "oklch(61% 0.0212 103.89)",
-          "oklch(72% 0.0212 103.89)",
-          "oklch(84% 0.0212 103.89)",
-          "oklch(95% 0.0212 103.89)"
+          "oklch(15% 0.0127 86.83)",
+          "oklch(26% 0.0127 86.83)",
+          "oklch(38% 0.0127 86.83)",
+          "oklch(49% 0.0127 86.83)",
+          "oklch(61% 0.0127 86.83)",
+          "oklch(72% 0.0127 86.83)",
+          "oklch(84% 0.0127 86.83)",
+          "oklch(95% 0.0127 86.83)"
         ]
       },
-      "greenhouse": {
-        "role": "neutral",
-        "displayName": "Greenhouse",
+      "footer-sky": {
+        "role": "secondary",
+        "displayName": "Footer Sky",
         "tonalRamp": [
-          "oklch(15% 0.0357 121.04)",
-          "oklch(26% 0.0357 121.04)",
-          "oklch(38% 0.0357 121.04)",
-          "oklch(49% 0.0357 121.04)",
-          "oklch(61% 0.0357 121.04)",
-          "oklch(72% 0.0357 121.04)",
-          "oklch(84% 0.0357 121.04)",
-          "oklch(95% 0.0357 121.04)"
+          "oklch(15% 0.0059 239.82)",
+          "oklch(26% 0.0059 239.82)",
+          "oklch(38% 0.0059 239.82)",
+          "oklch(49% 0.0059 239.82)",
+          "oklch(61% 0.0059 239.82)",
+          "oklch(72% 0.0059 239.82)",
+          "oklch(84% 0.0059 239.82)",
+          "oklch(95% 0.0059 239.82)"
         ]
       },
       "seed-paper": {
-        "role": "neutral",
+        "role": "secondary",
         "displayName": "Seed Paper",
         "tonalRamp": [
-          "oklch(15% 0.0226 112.27)",
-          "oklch(26% 0.0226 112.27)",
-          "oklch(38% 0.0226 112.27)",
-          "oklch(49% 0.0226 112.27)",
-          "oklch(61% 0.0226 112.27)",
-          "oklch(72% 0.0226 112.27)",
-          "oklch(84% 0.0226 112.27)",
-          "oklch(95% 0.0226 112.27)"
+          "oklch(15% 0.0132 102.01)",
+          "oklch(26% 0.0132 102.01)",
+          "oklch(38% 0.0132 102.01)",
+          "oklch(49% 0.0132 102.01)",
+          "oklch(61% 0.0132 102.01)",
+          "oklch(72% 0.0132 102.01)",
+          "oklch(84% 0.0132 102.01)",
+          "oklch(95% 0.0132 102.01)"
         ]
       },
-      "plant-button": {
-        "role": "primary",
-        "displayName": "Plant Button",
+      "button-text": {
+        "role": "neutral",
+        "displayName": "Button Text",
         "tonalRamp": [
-          "oklch(15% 0.0573 137.85)",
-          "oklch(26% 0.0573 137.85)",
-          "oklch(38% 0.0573 137.85)",
-          "oklch(49% 0.0573 137.85)",
-          "oklch(61% 0.0573 137.85)",
-          "oklch(72% 0.0573 137.85)",
-          "oklch(84% 0.0573 137.85)",
-          "oklch(95% 0.0573 137.85)"
+          "oklch(15% 0.0106 100.82)",
+          "oklch(26% 0.0106 100.82)",
+          "oklch(38% 0.0106 100.82)",
+          "oklch(49% 0.0106 100.82)",
+          "oklch(61% 0.0106 100.82)",
+          "oklch(72% 0.0106 100.82)",
+          "oklch(84% 0.0106 100.82)",
+          "oklch(95% 0.0106 100.82)"
         ]
       },
-      "plant-button-hover": {
+      "button-hover": {
         "role": "primary",
-        "displayName": "Plant Button Hover",
+        "displayName": "Button Hover",
         "tonalRamp": [
-          "oklch(15% 0.0801 128.24)",
-          "oklch(26% 0.0801 128.24)",
-          "oklch(38% 0.0801 128.24)",
-          "oklch(49% 0.0801 128.24)",
-          "oklch(61% 0.0801 128.24)",
-          "oklch(72% 0.0801 128.24)",
-          "oklch(84% 0.0801 128.24)",
-          "oklch(95% 0.0801 128.24)"
-        ]
-      },
-      "plant-button-text": {
-        "role": "primary",
-        "displayName": "Plant Button Text",
-        "tonalRamp": [
-          "oklch(15% 0.0251 104.41)",
-          "oklch(26% 0.0251 104.41)",
-          "oklch(38% 0.0251 104.41)",
-          "oklch(49% 0.0251 104.41)",
-          "oklch(61% 0.0251 104.41)",
-          "oklch(72% 0.0251 104.41)",
-          "oklch(84% 0.0251 104.41)",
-          "oklch(95% 0.0251 104.41)"
+          "oklch(15% 0.1376 263.18)",
+          "oklch(26% 0.1376 263.18)",
+          "oklch(38% 0.1376 263.18)",
+          "oklch(49% 0.1376 263.18)",
+          "oklch(61% 0.1376 263.18)",
+          "oklch(72% 0.1376 263.18)",
+          "oklch(84% 0.1376 263.18)",
+          "oklch(95% 0.1376 263.18)"
         ]
       },
       "note-lilac": {
         "role": "secondary",
         "displayName": "Note Lilac",
         "tonalRamp": [
-          "oklch(15% 0.0165 297.50)",
-          "oklch(26% 0.0165 297.50)",
-          "oklch(38% 0.0165 297.50)",
-          "oklch(49% 0.0165 297.50)",
-          "oklch(61% 0.0165 297.50)",
-          "oklch(72% 0.0165 297.50)",
-          "oklch(84% 0.0165 297.50)",
-          "oklch(95% 0.0165 297.50)"
+          "oklch(15% 0.0189 286.02)",
+          "oklch(26% 0.0189 286.02)",
+          "oklch(38% 0.0189 286.02)",
+          "oklch(49% 0.0189 286.02)",
+          "oklch(61% 0.0189 286.02)",
+          "oklch(72% 0.0189 286.02)",
+          "oklch(84% 0.0189 286.02)",
+          "oklch(95% 0.0189 286.02)"
         ]
       },
       "note-butter": {
         "role": "secondary",
         "displayName": "Note Butter",
         "tonalRamp": [
-          "oklch(15% 0.0708 97.93)",
-          "oklch(26% 0.0708 97.93)",
-          "oklch(38% 0.0708 97.93)",
-          "oklch(49% 0.0708 97.93)",
-          "oklch(61% 0.0708 97.93)",
-          "oklch(72% 0.0708 97.93)",
-          "oklch(84% 0.0708 97.93)",
-          "oklch(95% 0.0708 97.93)"
+          "oklch(15% 0.0698 96.84)",
+          "oklch(26% 0.0698 96.84)",
+          "oklch(38% 0.0698 96.84)",
+          "oklch(49% 0.0698 96.84)",
+          "oklch(61% 0.0698 96.84)",
+          "oklch(72% 0.0698 96.84)",
+          "oklch(84% 0.0698 96.84)",
+          "oklch(95% 0.0698 96.84)"
         ]
       },
       "note-rose": {
         "role": "secondary",
         "displayName": "Note Rose",
         "tonalRamp": [
-          "oklch(15% 0.0249 61.63)",
-          "oklch(26% 0.0249 61.63)",
-          "oklch(38% 0.0249 61.63)",
-          "oklch(49% 0.0249 61.63)",
-          "oklch(61% 0.0249 61.63)",
-          "oklch(72% 0.0249 61.63)",
-          "oklch(84% 0.0249 61.63)",
-          "oklch(95% 0.0249 61.63)"
-        ]
-      },
-      "root-text": {
-        "role": "neutral",
-        "displayName": "Root Text",
-        "tonalRamp": [
-          "oklch(15% 0.0285 93.76)",
-          "oklch(26% 0.0285 93.76)",
-          "oklch(38% 0.0285 93.76)",
-          "oklch(49% 0.0285 93.76)",
-          "oklch(61% 0.0285 93.76)",
-          "oklch(72% 0.0285 93.76)",
-          "oklch(84% 0.0285 93.76)",
-          "oklch(95% 0.0285 93.76)"
-        ]
-      },
-      "hill-sky": {
-        "role": "neutral",
-        "displayName": "Hill Sky",
-        "tonalRamp": [
-          "oklch(15% 0.0383 218.09)",
-          "oklch(26% 0.0383 218.09)",
-          "oklch(38% 0.0383 218.09)",
-          "oklch(49% 0.0383 218.09)",
-          "oklch(61% 0.0383 218.09)",
-          "oklch(72% 0.0383 218.09)",
-          "oklch(84% 0.0383 218.09)",
-          "oklch(95% 0.0383 218.09)"
+          "oklch(15% 0.0222 58.76)",
+          "oklch(26% 0.0222 58.76)",
+          "oklch(38% 0.0222 58.76)",
+          "oklch(49% 0.0222 58.76)",
+          "oklch(61% 0.0222 58.76)",
+          "oklch(72% 0.0222 58.76)",
+          "oklch(84% 0.0222 58.76)",
+          "oklch(95% 0.0222 58.76)"
         ]
       },
       "carey": {
@@ -451,34 +437,20 @@
           "oklch(84% 0.0327 231.73)",
           "oklch(95% 0.0327 231.73)"
         ]
-      },
-      "navigation-paper": {
-        "role": "neutral",
-        "displayName": "Navigation Paper",
-        "tonalRamp": [
-          "oklch(15% 0.0134 97.44)",
-          "oklch(26% 0.0134 97.44)",
-          "oklch(38% 0.0134 97.44)",
-          "oklch(49% 0.0134 97.44)",
-          "oklch(61% 0.0134 97.44)",
-          "oklch(72% 0.0134 97.44)",
-          "oklch(84% 0.0134 97.44)",
-          "oklch(95% 0.0134 97.44)"
-        ]
       }
     },
     "typographyMeta": {
       "display": {
-        "displayName": "Arrival display",
-        "purpose": "Opening welcome heading."
+        "displayName": "Display",
+        "purpose": "Welcome introduction."
       },
       "headline": {
-        "displayName": "Chapter headline",
-        "purpose": "Major narrative headings."
+        "displayName": "Headline",
+        "purpose": "Section headings."
       },
       "title": {
-        "displayName": "Specimen name",
-        "purpose": "Herbarium project label."
+        "displayName": "Title",
+        "purpose": "Work specimen names."
       },
       "body": {
         "displayName": "Body",
@@ -486,195 +458,170 @@
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Underlined links and small navigation."
+        "purpose": "Navigation and underlined actions."
       },
       "quote": {
-        "displayName": "Pressed quotation",
-        "purpose": "Collaborator notes."
+        "displayName": "Quote",
+        "purpose": "Collaborator quotations."
       }
     },
     "shadows": [
       {
-        "name": "diary-book",
-        "value": "0 25px 65px #28392130,0 4px 8px #28392118",
-        "purpose": "Open diary spread."
+        "name": "diary-cover",
+        "value": "15px 22px 45px #26354e2a, inset 8px 0 10px #d6c9ac",
+        "purpose": "Tactile closed book."
       },
       {
-        "name": "diary-photo",
-        "value": "0 7px 18px #53472a26",
-        "purpose": "Family photo prints."
+        "name": "diary-spread",
+        "value": "0 20px 55px #243a5622",
+        "purpose": "Open book depth."
       },
       {
-        "name": "specimen-label",
-        "value": "0 9px 18px #3c4d2710",
-        "purpose": "Paper herbarium labels."
+        "name": "writing-paper",
+        "value": "5px 15px 35px #564b3220",
+        "purpose": "Folded Medium link."
       },
       {
-        "name": "pressed-note",
+        "name": "collaborator-note",
         "value": "0 12px 25px #4e4f3020",
-        "purpose": "Pinned collaborator notes."
-      },
-      {
-        "name": "case-artwork",
-        "value": "0 15px 45px #3c352f18",
-        "purpose": "Project artwork in overlays."
+        "purpose": "Pinned testimonial papers."
       }
     ],
     "motion": [
       {
-        "name": "garden-ease",
+        "name": "ease",
         "value": "cubic-bezier(.16,1,.3,1)",
-        "purpose": "Garden state transitions and opening overlay."
+        "purpose": "Editorial hover and reveal easing."
       },
       {
-        "name": "link-arrow",
-        "value": ".3s",
-        "purpose": "Small directional hover response."
+        "name": "paper-turn",
+        "value": ".8s cubic-bezier(.4,.05,.3,1)",
+        "purpose": "Desktop front/back face turn through 180deg."
       },
       {
-        "name": "specimen-lift",
-        "value": ".7s",
-        "purpose": "Hovering project specimen."
+        "name": "book-open",
+        "value": ".65s cubic-bezier(.16,1,.3,1)",
+        "purpose": "Opening the diary spread."
       },
       {
-        "name": "botanical-hover",
-        "value": ".8s",
-        "purpose": "Plant straightening and scale."
-      },
-      {
-        "name": "diary-page-turn",
-        "value": ".6s",
-        "purpose": "Manual diary spread change."
-      },
-      {
-        "name": "overlay-open",
-        "value": "650ms",
-        "purpose": "Specimen color field reveal."
-      },
-      {
-        "name": "overlay-close",
-        "value": "420ms",
-        "purpose": "Return to the selected specimen."
-      },
-      {
-        "name": "overlay-close-ease",
-        "value": "cubic-bezier(.7,0,.8,.3)",
-        "purpose": "Closing color field."
+        "name": "reading-path",
+        "value": "none",
+        "purpose": "Manual motion-off and OS reduced-motion disable transitions/animations; mobile diary changes immediately."
       }
     ],
     "breakpoints": [
       {
-        "name": "mobile-max",
-        "value": "760px"
+        "name": "wide",
+        "value": "min-width:1700px"
       },
       {
-        "name": "tablet-max",
-        "value": "1100px"
+        "name": "compact",
+        "value": "max-width:1100px"
       },
       {
-        "name": "wide-min",
-        "value": "1700px"
+        "name": "mobile",
+        "value": "max-width:760px"
       }
     ]
   },
   "components": [
     {
-      "name": "Planting pill",
+      "name": "Plant a flower",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Compact primary action for the original pixel experiment.",
-      "html": "<button class=\"ds-control ds-plant\">Plant a seed <span aria-hidden=\"true\">+</span></button>",
-      "css": ".ds-plant{display:inline-flex;align-items:center;gap:20px;background:#3c5334;color:#f3f2df;border:0;border-radius:25px;padding:11px 18px;font:11px \"Instrument Sans\",Arial,sans-serif;cursor:pointer}.ds-plant span{font-size:18px}.ds-plant:hover{background:#647b47}.ds-control:focus-visible{outline:2px solid #a65d3a;outline-offset:6px}"
+      "description": "Keyboard equivalent for the planting canvas.",
+      "html": "<button class=\"ds-button\">Plant a flower <span aria-hidden=\"true\">+</span></button>",
+      "css": ".ds-button{background:var(--blue,#365fba);color:#fffef6;border:0;border-radius:25px;padding:11px 18px;min-height:44px;display:flex;align-items:center;gap:15px;font:12px Instrument Sans,Arial,sans-serif;cursor:pointer}.ds-button:hover{background:#264b9b}.ds-button:active{transform:translateY(1px)}.ds-button:focus-visible,.ds-link:focus-visible,.ds-nav a:focus-visible,.ds-filter:focus-visible,.ds-work:focus-visible,.ds-cover:focus-visible{outline:2px solid var(--blue,#365fba);outline-offset:6px}"
     },
     {
-      "name": "Underlined text action",
+      "name": "Underlined action",
       "kind": "button",
       "refersTo": "text-link",
-      "description": "Direct Work access and quiet narrative links.",
-      "html": "<a class=\"ds-control ds-link\" href=\"#work\">Skip to the work <span aria-hidden=\"true\">↗</span></a>",
-      "css": ".ds-link{display:inline-flex;align-items:center;gap:30px;color:var(--ink,#2c3928);font:12px/1.6 \"Instrument Sans\",Arial,sans-serif;text-decoration:none;border-bottom:1px solid currentColor;padding:5px 0 8px}.ds-link span{font-size:19px;line-height:1;transition:transform .3s cubic-bezier(.16,1,.3,1)}.ds-link:hover span{transform:translate(3px,-3px)}.ds-control:focus-visible{outline:2px solid #a65d3a;outline-offset:6px}"
+      "description": "Quiet editorial action with a moving diagonal arrow.",
+      "html": "<a class=\"ds-link\" href=\"#work\">Take a look at my work <svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M4 16 16 4M4 4h12v12\"/></svg></a>",
+      "css": ".ds-link{display:inline-flex;align-items:center;gap:30px;color:var(--ink,#242f3e);font:12px/1.6 Instrument Sans,Arial,sans-serif;text-decoration:none;border-bottom:1px solid currentColor;padding:6px 0 9px}.ds-link svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.2;transition:transform .3s cubic-bezier(.16,1,.3,1)}.ds-link:hover svg{transform:translate(3px,-3px)}.ds-button:focus-visible,.ds-link:focus-visible,.ds-nav a:focus-visible,.ds-filter:focus-visible,.ds-work:focus-visible,.ds-cover:focus-visible{outline:2px solid var(--blue,#365fba);outline-offset:6px}"
     },
     {
-      "name": "Fixed navigation pill",
+      "name": "Paper navigation",
       "kind": "nav",
       "refersTo": "navigation",
-      "description": "Fast access to About, Work and Résumé.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a class=\"ds-control\" href=\"#about\">About</a><a class=\"ds-control\" href=\"#work\">Work</a><a class=\"ds-control\" href=\"#resume\">Résumé ↗</a></nav>",
-      "css": ".ds-nav{display:inline-flex;gap:28px;align-items:center;padding:12px 24px;border-radius:30px;background:#f4f2e8ed;border:1px solid #68754825;color:var(--ink,#2c3928);font:12px/1.7 \"Instrument Sans\",Arial,sans-serif}.ds-nav a{color:inherit;text-decoration:none}.ds-nav a:hover{text-decoration:underline;text-underline-offset:5px}.ds-control:focus-visible{outline:2px solid #a65d3a;outline-offset:6px}"
+      "description": "Direct Work access on a compact warm-paper pill.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Portfolio\"><a href=\"#work\">Work</a><a href=\"#about\">About</a><a href=\"#resume\">Résumé</a></nav>",
+      "css": ".ds-nav{display:flex;gap:27px;align-items:center;padding:12px 22px;border-radius:28px;background:#f6f4ebf2;color:var(--ink,#242f3e);font:12px Instrument Sans,Arial,sans-serif}.ds-nav a{color:inherit;text-decoration:none}.ds-nav a:hover{color:var(--blue,#365fba)}.ds-button:focus-visible,.ds-link:focus-visible,.ds-nav a:focus-visible,.ds-filter:focus-visible,.ds-work:focus-visible,.ds-cover:focus-visible{outline:2px solid var(--blue,#365fba);outline-offset:6px}"
     },
     {
       "name": "Collection filters",
       "kind": "chip",
       "refersTo": "collection-filter",
-      "description": "Plain text collection selection with a visible active underline.",
-      "html": "<div class=\"ds-filters\" role=\"group\" aria-label=\"Choose a collection\"><button class=\"ds-control\" aria-pressed=\"true\">The whole garden</button><button class=\"ds-control\" aria-pressed=\"false\">Published case studies</button><button class=\"ds-control\" aria-pressed=\"false\">Garden studies</button></div>",
-      "css": ".ds-filters{display:flex;flex-wrap:wrap;gap:25px;padding-bottom:17px;border-bottom:1px solid #677a4730}.ds-filters button{background:none;border:0;font:11px/1.7 \"Instrument Sans\",Arial,sans-serif;padding:6px 0;color:#5c6951;cursor:pointer}.ds-filters button[aria-pressed=true]{border-bottom:1px solid var(--ink,#2c3928);color:var(--ink,#2c3928)}.ds-filters button:hover{color:var(--ink,#2c3928)}.ds-control:focus-visible{outline:2px solid #a65d3a;outline-offset:6px}"
+      "description": "Text-only filters with a selected underline.",
+      "html": "<div class=\"ds-filters\"><button class=\"ds-filter\" aria-pressed=\"true\">All work</button><button class=\"ds-filter\" aria-pressed=\"false\">Case studies</button></div>",
+      "css": ".ds-filters{display:flex;gap:25px;border-bottom:1px solid var(--line,#d3d7dd);padding-bottom:17px}.ds-filter{font:12px Instrument Sans,Arial,sans-serif;padding:6px 0;border:0;background:none;color:#586478;cursor:pointer}.ds-filter[aria-pressed=true]{border-bottom:1px solid var(--ink,#242f3e);color:var(--ink,#242f3e)}.ds-filter:hover{color:var(--blue,#365fba)}.ds-button:focus-visible,.ds-link:focus-visible,.ds-nav a:focus-visible,.ds-filter:focus-visible,.ds-work:focus-visible,.ds-cover:focus-visible{outline:2px solid var(--blue,#365fba);outline-offset:6px}"
     },
     {
-      "name": "Herbarium label",
+      "name": "Specimen label",
       "kind": "card",
       "refersTo": "specimen-label",
-      "description": "The paper identification label beneath a botanical project specimen.",
-      "html": "<button class=\"ds-control ds-specimen\"><span class=\"ds-name\">CAREY</span><span class=\"ds-type\">Service design</span><span class=\"ds-collection\">Garden study <svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M4 16 16 4M5 4h11v11\"/></svg></span></button>",
-      "css": ".ds-specimen{display:block;width:265px;position:relative;text-align:left;background:#f7f3e6;padding:18px 20px;border:0;border-top:1px solid #65734328;box-shadow:0 9px 18px #3c4d2710;color:#4d405f;cursor:pointer;transition:transform .7s cubic-bezier(.16,1,.3,1)}.ds-specimen:before{content:\"\";position:absolute;left:50%;top:-10px;width:1px;height:13px;background:#7b8362}.ds-name{display:block;font:30px/1.1 \"Instrument Serif\",Georgia,serif;letter-spacing:-.02em}.ds-type{display:block;font:10px/1.7 \"Instrument Sans\",Arial,sans-serif;margin-top:6px}.ds-collection{display:flex;justify-content:space-between;gap:20px;font:9px/1.7 \"Instrument Sans\",Arial,sans-serif;color:#6e735b;margin-top:18px}.ds-collection svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.1}.ds-specimen:hover{transform:translateY(-8px)}.ds-control:focus-visible{outline:2px solid #a65d3a;outline-offset:6px}"
+      "description": "Flat ruled work metadata beneath botanical artwork.",
+      "html": "<button class=\"ds-work\"><span class=\"ds-work-name\">Sakhi</span><span class=\"ds-work-type\">Agentic AI · Voice interfaces</span><span class=\"ds-work-meta\">Case study ↗</span></button>",
+      "css": ".ds-work{text-align:left;width:265px;background:transparent;border:0;border-top:1px solid var(--line,#d3d7dd);padding:18px 0 0;color:var(--ink,#242f3e);cursor:pointer;transition:transform .7s cubic-bezier(.16,1,.3,1)}.ds-work:hover{transform:translateY(-8px)}.ds-work-name{display:block;font:31px/1.1 Instrument Serif,Georgia,serif;letter-spacing:-.02em}.ds-work-type{display:block;font:11px Instrument Sans,Arial,sans-serif;color:#596372;margin-top:6px}.ds-work-meta{display:block;font:10px Instrument Sans,Arial,sans-serif;color:#596372;margin-top:15px}.ds-button:focus-visible,.ds-link:focus-visible,.ds-nav a:focus-visible,.ds-filter:focus-visible,.ds-work:focus-visible,.ds-cover:focus-visible{outline:2px solid var(--blue,#365fba);outline-offset:6px}"
     },
     {
-      "name": "Pressed collaborator note",
+      "name": "Collaborator paper",
       "kind": "card",
       "refersTo": "pressed-note",
-      "description": "Tactile quiet paper for a real collaborator quotation.",
-      "html": "<article class=\"ds-note\"><span class=\"ds-pin\" aria-hidden=\"true\"></span><blockquote>“Dependable and curious, she brings clarity, care, and great energy to every project.”</blockquote><p><strong>Aastha Lathia</strong><span>Co-worker, IIT Delhi</span></p></article>",
-      "css": ".ds-note{position:relative;max-width:290px;min-height:370px;padding:38px 30px 100px;background:#e2dfeb;color:var(--ink,#2c3928);box-shadow:0 12px 25px #4e4f3020;transform:rotate(-4deg)}.ds-note blockquote{margin:0;font:28px/1.2 \"Instrument Serif\",Georgia,serif;letter-spacing:-.01em}.ds-note p{font:11px/1.7 \"Instrument Sans\",Arial,sans-serif;margin:25px 0 0}.ds-note strong{display:block;font-weight:500}.ds-note p span{display:block;font-size:9px;opacity:.85}.ds-pin{position:absolute;width:6px;height:6px;border-radius:50%;background:#756647;top:17px;left:50%;box-shadow:1px 3px 5px #5b542e40}"
+      "description": "Tactile lilac note; source quotes and names are supplied in the app.",
+      "html": "<article class=\"ds-note\"><span class=\"ds-pin\" aria-hidden=\"true\"></span><blockquote>Thoughtful collaboration.</blockquote><p>Collaborator note</p></article>",
+      "css": ".ds-note{position:relative;width:260px;padding:38px 30px 100px;min-height:350px;background:#e2e2f0;color:var(--ink,#242f3e);box-shadow:0 12px 25px #4e4f3020;transform:rotate(-4deg)}.ds-note blockquote{margin:0;font:28px/1.2 Instrument Serif,Georgia,serif;letter-spacing:-.01em}.ds-note p{font:12px Instrument Sans,Arial,sans-serif;margin:25px 0 0}.ds-pin{position:absolute;width:6px;height:6px;border-radius:50%;background:#756647;top:17px;left:50%;box-shadow:1px 3px 5px #5b542e40}"
     },
     {
-      "name": "Diary page control",
-      "kind": "button",
-      "refersTo": "diary-control",
-      "description": "Manual navigation between personal diary spreads.",
-      "html": "<button class=\"ds-control ds-diary\">Turn a page <span aria-hidden=\"true\">→</span></button>",
-      "css": ".ds-diary{font:11px/1.7 \"Instrument Sans\",Arial,sans-serif;padding:5px 9px;border:0;background:#f4f2e8ba;border-radius:20px;color:var(--ink,#2c3928);cursor:pointer}.ds-diary span{margin-left:12px}.ds-diary:hover{background:var(--paper,#f4f2e8)}.ds-control:focus-visible{outline:2px solid #a65d3a;outline-offset:6px}"
+      "name": "Diary cover",
+      "kind": "custom",
+      "description": "Cream paper book with blue serif title and a responsive hover tilt.",
+      "html": "<button class=\"ds-cover\"><span class=\"ds-corner\">a personal diary</span><span class=\"ds-title\">A few pages<br>of being Manya.</span><span class=\"ds-open\">Open the diary ↗</span></button>",
+      "css": ".ds-cover{width:355px;min-height:510px;text-align:left;background:#eee7d5;padding:40px 30px 25px;border:0;border-radius:3px 13px 13px 3px;box-shadow:15px 22px 45px #26354e2a,inset 8px 0 10px #d6c9ac;transform:rotate(-5deg);transition:transform .6s cubic-bezier(.16,1,.3,1);cursor:pointer}.ds-cover:hover{transform:rotate(-2deg) translateY(-5px)}.ds-corner{display:block;font:10px Instrument Sans,Arial,sans-serif;color:#61718b;margin-bottom:19px}.ds-title{display:block;font:62px/.95 Instrument Serif,Georgia,serif;letter-spacing:-.025em;color:var(--blue,#365fba)}.ds-open{display:block;margin-top:80px;text-align:right;font:11px Instrument Sans,Arial,sans-serif;color:var(--ink,#242f3e)}.ds-button:focus-visible,.ds-link:focus-visible,.ds-nav a:focus-visible,.ds-filter:focus-visible,.ds-work:focus-visible,.ds-cover:focus-visible{outline:2px solid var(--blue,#365fba);outline-offset:6px}"
     }
   ],
   "narrative": {
     "northStar": "A Polymath's Garden",
-    "overview": "A personal botanical world where scroll is time and time is growth. Warm paper, olive ink, family photographs, dithered plants and quiet editorial type make the portfolio feel like a diary discovered inside a garden. Nature provides the setting: leaves overhead, roots below, flowers and grass in the foreground, then a green hill under blue sky and clouds.\n\nThe garden moves through seed arrival, canopy diary, underground roots, herbarium work, pressed collaborator notes, an experimental greenhouse and the hills beyond. Continuous dawn-to-noon atmosphere and warm late-afternoon landscape light hold the scenes together. Hiring teams can skip directly to Work; fixed navigation and the growing vine keep the story navigable. The Orto Botanico di Padova inspiration remains explicit. Asset provenance belongs in ASSETS.md and factual claims remain grounded in PRODUCT.md.",
+    "overview": "A Polymath’s Garden is a personal editorial world on warm paper: blue ink, ASCII and dithered botanical imagery, generous serif headlines, and small, precise sans-serif annotations. Botanical curiosity remains the identity; the current world expresses it through illustrated artifacts and paper rather than literal landscape scenery.\n\nThe interface pairs a friendly welcome with professional clarity. Spacious sections hold readable copy, tactile diary pages, quiet work labels, pastel collaborator notes, and a participatory flower garden. Motion creates continuity, while direct Work access and complete static reading paths keep the portfolio useful to hiring teams.",
     "keyCharacteristics": [
-      "Warm personal diary with real family photographs.",
-      "Quiet Instrument Serif and Instrument Sans editorial hierarchy.",
-      "ASCII, sampled pigment, dithered botanical collage, pixel planting and shader light.",
-      "A continuous natural environment with scroll-linked growth.",
-      "Direct Work access, keyboard navigation, lighter mobile scenes and readable motion-off flow."
+      "Warm paper and blue editorial emphasis.",
+      "Instrument Serif headlines with Instrument Sans reading and labels.",
+      "Sampled ASCII botanicals, supplied photographs, notebook sketches and dithered cloud artwork.",
+      "Paper depth concentrated in the diary, writing card and collaborator notes.",
+      "Direct navigation, keyboard interaction and lighter mobile and motion-off paths."
     ],
     "rules": [
       {
-        "name": "The Paper and Plant Rule",
-        "body": "Keep botanical color in the framing and emphasis; preserve quiet reading surfaces around body copy and case-study artwork.",
+        "name": "The Blue Thread Rule",
+        "body": "Use blue for identity, emphasis, navigation and focus; preserve project-specific colors inside their case previews.",
         "section": "colors"
       },
       {
-        "name": "The Two Voices Rule",
-        "body": "Use serif for expressive narrative and sans-serif for reading, controls, attribution, and metadata.",
-        "section": "typography"
+        "name": "The Paper Artifact Rule",
+        "body": "Concentrate shadows, small rotations and folds on meaningful paper artifacts; keep work labels and section backgrounds quiet.",
+        "section": "elevation"
       },
       {
-        "name": "The Quiet Depth Rule",
-        "body": "Let collage, overlap, and tonal fields establish hierarchy before adding shadows.",
-        "section": "elevation"
+        "name": "The Complete Reading Rule",
+        "body": "Both introductions and all diary content remain available when motion is paused, reduced or simplified for mobile.",
+        "section": "components"
       }
     ],
     "dos": [
-      "**Do** preserve the garden world, warm paper, botanical greens and expressive serif/sans pairing.",
-      "**Do** use real family photographs and case-study artwork with provenance recorded in ASSETS.md.",
-      "**Do** retain fixed navigation, direct Work anchors and the published-case-study filter.",
-      "**Do** preserve all reading content and functional controls when motion is paused or reduced.",
-      "**Do** label supplied garden studies and original browser experiments honestly."
+      "Do use the current stylesheet cascade as authority: world, collections, editorial, then responsive.",
+      "Do keep blue emphasis, warm paper, local typefaces and generous editorial whitespace.",
+      "Do preserve real family photographs, supplied sketches and original project identity colors.",
+      "Do keep direct Work navigation, visible focus and keyboard equivalents for planting and diary controls.",
+      "Do show forthcoming films as honest placeholders and link writing to the supplied Medium profile.",
+      "Do commit pending diary turns when motion pauses or the viewport changes."
     ],
     "donts": [
-      "**Don't** turn the garden into unrelated panels with disconnected entrance effects.",
-      "**Don't** obscure copy with plants, textures or animated layers.",
-      "**Don't** carry desktop sticky scenes, botanical canvas resolution or animated shader rendering into the mobile layout.",
-      "**Don't** invent project outcomes, endorsements or process detail.",
-      "**Don't** require animation, hovering or a long scroll to reach the published work."
+      "Don’t reintroduce the earlier literal canopy, underground roots or hill panorama as the current visual world.",
+      "Don’t turn every work item into a raised, rounded dashboard card.",
+      "Don’t hide either introduction or diary content behind animation in the static reading path.",
+      "Don’t reuse reference website screenshots or posters as portfolio artwork.",
+      "Don’t invent case outcomes, endorsements, article titles or unavailable video footage."
     ]
   }
 }

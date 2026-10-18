@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import PixelGarden from './PixelGarden';
 import { useMotionPaused } from './ScrollExperience';
 
 const vertex='attribute vec2 position;varying vec2 uv;void main(){uv=position*.5+.5;gl_Position=vec4(position,0.,1.);}';
@@ -47,5 +46,5 @@ function ShaderPatch(){
 const prompts=['What if technology felt as familiar as a conversation with Grandma?','What if a tiny daily ritual could grow into something meaningful?','What if an interface started with someone’s voice, rather than a screen?','What if the most useful design decision was to leave something out?'];
 export default function Greenhouse(){
  const [prompt,setPrompt]=useState(0);
- return <div className="greenhouse-plots"><ShaderPatch/><PixelGarden/><div className="what-if"><h3>Curiosity is a practice.</h3><p aria-live="polite">{prompts[prompt]}</p><button className="underlined" onClick={()=>setPrompt(p=>(p+1)%prompts.length)}>Ask another “what if” <span aria-hidden="true">↗</span></button><span className="experiment-note">Small browser experiments, made for this garden.</span></div><a className="ai-plot" href="https://manyaa.me/works/sakhi" target="_blank" rel="noopener noreferrer"><span className="ascii-voice" aria-hidden="true">{'..|.||..|||.||||.|||..||.|..'}</span><h3>When an idea<br /><em>finds its voice.</em></h3><p>Sakhi · Agentic AI & voice-led bookkeeping</p><span className="underlined">Explore human–AI collaboration <span aria-hidden="true">↗</span></span></a></div>;
+ return <div className="greenhouse-plots"><ShaderPatch/><div className="experiment-column"><div className="what-if"><h3>Curiosity is a practice.</h3><p aria-live="polite">{prompts[prompt]}</p><button className="underlined" onClick={()=>setPrompt(p=>(p+1)%prompts.length)}>Ask another “what if” <span aria-hidden="true">↗</span></button></div><a className="ai-plot" href="https://manyaa.me/works/sakhi" target="_blank" rel="noopener noreferrer"><span className="ascii-voice" aria-hidden="true">{'..|.||..|||.||||.|||..||.|..'}</span><h3>When an idea<br /><em>finds its voice.</em></h3><p>Sakhi · Agentic AI & voice-led bookkeeping</p><span className="underlined">Explore human–AI collaboration <span aria-hidden="true">↗</span></span></a></div></div>;
 }
