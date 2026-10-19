@@ -1,28 +1,26 @@
 # Manya — A Polymath’s Garden
 
-A Next.js 16 App Router portfolio with React 19 and Lenis. Install with `pnpm install`, run `pnpm dev`, and open http://localhost:3001. Build with `pnpm build`; the static export is written to `out/`. `pnpm preview` serves the production export.
+A Next.js 16 App Router portfolio with React 19, Tailwind CSS v4, Motion and Lenis. Install with `pnpm install`, run `pnpm dev`, and open http://localhost:3001. Build with `pnpm build`; the static export is written to `out/`. `pnpm preview` serves the production export.
 
-## Updated ASCII editorial edition
+## October 19 redesign — the exploded specimen
 
-The updated Figma board sets warm paper, blue ASCII/dither imagery, and quiet editorial typography. The opening morphs from a friendly introduction into Manya’s Blinkit work. Desktop uses Lenis and a sampled ASCII sunflower. Mobile and motion-off views present both introductions in reading order.
+The opening is a scroll-linked canvas: a 120-frame sunflower specimen separates into florets, disc, petals, bracts, stem and leaves, then reassembles. Four story beats appear in sync with it. All frames preload behind a progress loader first. Below the fold: the selected work (three published case studies with a cursor badge, plus an index of garden studies), the about section as settling diary pages, experiments (WebGL colour field, “what if” prompts, Sakhi voice card, two forthcoming film slots), writing and kind words, then contact with the pixel garden.
 
-The diary opens from a cover into three spreads: family connections; journey and interests; imaginative stories and supplied notebook drawings. Desktop turns use separate front/back faces and perspective. Mobile and reduced-motion page changes are immediate. Resizing or pausing motion commits any pending turn.
+Stack: Next.js 16 App Router (static export) · React 19 · TypeScript · Tailwind CSS v4 · Motion · Lenis · Lucide icons · self-hosted Instrument Serif / Instrument Sans / JetBrains Mono (Fontsource).
 
-Published cases appear first in the filterable work collection; CAREY, Solis, and SCENERIA remain clearly labelled garden studies. Immersive previews reverse on exit; full published case studies remain at manyaa.me. The experiments area includes a desktop WebGL patch, prompt interaction, Sakhi link, and two honest spaces for forthcoming project videos. Writing links to Manya’s supplied Medium profile. Quiet collaborator notes lead to the click-to-plant footer, which also supports a keyboard planting button.
+The adapted prompt (start frame, exploded end frame, motion, code editor) lives in `docs/scrollytelling-prompt.md`. Regenerate frames with `pnpm sequence` (1200px, `public/sequence/`) and `pnpm sequence:small` (760px, `public/sequence/sm/`).
 
 ## Source map
 
-- `app/page.jsx`: server-rendered content and section order.
-- `app/components/`: focused client interactions plus server-rendered testimonials.
-- `app/world.css`: typography, navigation, introductory morph and diary.
-- `app/collections.css`: shared specimen, case and experiment mechanics.
-- `app/editorial.css`: current collection, writing and footer presentation.
-- `app/responsive.css`: responsive and reduced-motion paths.
-- `public/assets/`: local image/font assets. No temporary Figma URLs at runtime.
+- `app/page.tsx`: section order.
+- `app/components/HelianthusScroll.tsx`: sticky canvas, frame preloader, camera path, story beats and plate HUD.
+- `app/components/{Nav,Work,About,Experiments,Words,Contact}.tsx`: page sections; `ui.tsx` holds shared reveal and heading primitives; `SmoothScroll.tsx` provides Lenis and Motion config.
+- `app/lib/content.ts`: links, projects, studies, testimonials and prompts.
+- `app/globals.css`: Tailwind theme tokens and base styles.
+- `scripts/render-sequence.mjs`: deterministic procedural renderer for the specimen frames.
+- `public/assets/`: local images. `public/sequence/`: rendered frames.
 
-Effects clean up animation frames, observers, media listeners and GL resources. No backend or contact database; contact uses mailto. The original portfolio is preserved in `../site`, and earlier implementations remain in Git history.
-
-PRODUCT.md records content constraints; DESIGN.md and `.impeccable/design.json` capture the current system. ASSETS.md records image origins. REFERENCE-ANALYSIS.md records the ffmpeg review of both supplied videos (946 and 334 frames). `.openai/hosting.json` retains the existing private Sites project identity.
+No backend or contact database; contact uses mailto. Reduced motion is honoured: Lenis turns off, and Motion reduces transforms. Earlier implementations remain in Git history.
 
 ## Visual feedback with Agentation
 

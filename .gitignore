@@ -9,3 +9,5 @@ out/
 
 .tools/
 .impeccable/reference/
+*.tsbuildinfo
+next-env.d.ts

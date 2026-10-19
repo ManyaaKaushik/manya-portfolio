@@ -24,7 +24,6 @@ export default function AgentationToolbar() {
   }, []);
 
   return <>
-    <style>{'@media(min-width:761px){body:has(.portfolio-agentation) .motion-toggle{bottom:80px}}'}</style>
     <Agentation
       appName="Manya — A Polymath’s Garden"
       className="portfolio-agentation"

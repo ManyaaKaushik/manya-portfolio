@@ -1,0 +1,177 @@
+@import 'tailwindcss';
+@import 'lenis/dist/lenis.css';
+
+@theme {
+  --color-paper: #f6f4eb;
+  --color-paper-deep: #efebdd;
+  --color-paper-light: #fbfaf4;
+  --color-ink: #1c2333;
+  --color-ink-soft: #3d4658;
+  --color-muted: #646c7c;
+  --color-line: #dedacb;
+  --color-line-strong: #c9c4b1;
+  --color-blue: #365fba;
+  --color-blue-deep: #24438a;
+  --color-blue-mist: #e4e9f4;
+  --color-gold: #c98f27;
+  --color-gold-soft: #f1dfae;
+  --color-sage: #6f8248;
+  --color-lilac: #e6e3f0;
+  --color-butter: #f0e4b4;
+  --color-rose: #efdfd4;
+
+  --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Instrument Sans Variable', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --shadow-paper: 0 1px 1px rgb(40 36 20 / 0.04), 0 8px 24px -6px rgb(40 36 20 / 0.10), 0 28px 60px -20px rgb(40 36 20 / 0.14);
+  --shadow-lift: 0 1px 1px rgb(28 35 51 / 0.05), 0 18px 40px -12px rgb(28 35 51 / 0.22);
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scrollbar-gutter: stable;
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-paper);
+    font-feature-settings: 'ss01', 'cv11';
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--color-blue);
+    color: var(--color-paper-light);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  img {
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+}
+
+@property --fold {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 56px;
+}
+
+@layer components {
+  /* A paper card with a dog-eared corner. The corner is clipped away, so whatever sits
+     behind the card shows through; the flap is drawn over it and unfolds on hover. */
+  .paper-fold-card {
+    --fold: 56px;
+    clip-path: polygon(0 0, calc(100% - var(--fold)) 0, 100% var(--fold), 100% 100%, 0 100%);
+    transition: --fold 0.8s var(--ease-out-expo);
+  }
+  .group:hover .paper-fold-card,
+  .group:focus-visible .paper-fold-card {
+    --fold: 0px;
+  }
+  .paper-fold-flap {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: var(--fold);
+    height: var(--fold);
+    border-bottom-left-radius: 4px;
+    background: linear-gradient(to bottom left, transparent 50%, #e8e2cd 50%, #f1ecdb 100%);
+    filter: drop-shadow(-2px 3px 3px rgb(40 36 20 / 0.12));
+  }
+
+  /* Pressed-paper notes: fibrous grain, a little tooth, and uneven light across the sheet */
+  .paper-texture {
+    isolation: isolate;
+  }
+  .paper-texture::before,
+  .paper-texture::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .paper-texture::before {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03 .22' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .34 0 0 0 0 .22 -2.4 0 0 0 1.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .26 0 0 0 0 .18 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 320px 320px, 160px 160px;
+    mix-blend-mode: multiply;
+    opacity: 0.16;
+  }
+  .paper-texture::after {
+    background:
+      radial-gradient(120% 90% at 20% 0%, rgb(255 255 255 / 0.45), transparent 55%),
+      radial-gradient(90% 70% at 100% 100%, rgb(90 70 30 / 0.08), transparent 60%),
+      linear-gradient(to bottom, transparent 92%, rgb(90 70 30 / 0.05));
+  }
+
+  /* Serif display with a hand-set feel: tight tracking, italic blue emphasis */
+  .display em,
+  .serif-em em {
+    font-style: italic;
+    color: var(--color-blue);
+    padding-right: 0.04em;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  /* Paper grain over everything — keeps flat colour from feeling digital */
+  .grain {
+    pointer-events: none;
+    position: fixed;
+    inset: -50%;
+    z-index: 60;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .1 0 0 0 0 .12 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 100% 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.5s var(--ease-out-expo);
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+    background-position: 0% 100%;
+  }
+  .hairline-x {
+    background-image: linear-gradient(90deg, transparent, var(--color-line-strong) 12%, var(--color-line-strong) 88%, transparent);
+    height: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
