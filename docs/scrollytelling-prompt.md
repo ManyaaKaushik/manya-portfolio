@@ -1,5 +1,9 @@
 # Scrollytelling prompt — adapted for Manya’s portfolio
 
+> Superseded: the hero is now a real-time three.js scene built on a 3D scan (see the README).
+> This prompt and the frame-sequence approach it describes are kept for reference; the renderer
+> and frames are in Git history.
+
 The generic “exploding product” prompt, filled in for this site. The product is a **sunflower
 specimen (Helianthus annuus)**: Manya’s Polymath’s Garden identity, and a metaphor for product
 design as a system of parts. Dark mode became the brand’s warm paper, because the page and
