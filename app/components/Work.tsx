@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform, useVelocity } from 'motion/react';
-import { ArrowUpRight, MessageCircle, Sprout } from 'lucide-react';
+import { ArrowUpRight, Sprout } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { caseStudies, domains, links, studies, type CaseStudy } from '../lib/content';
 import { MaskHeading, Reveal, SectionLabel } from './ui';
@@ -114,9 +114,6 @@ function CaseCard({ study, flip }: { study: CaseStudy; flip: boolean }) {
             className="size-full rounded-[14px] object-cover shadow-[0_30px_60px_-25px_rgb(28_35_51/0.45),0_0_0_1px_rgb(28_35_51/0.06)] transition-transform duration-[1.2s] ease-out-expo group-hover:scale-[1.035]"
           />
         </motion.div>
-        <span className="absolute left-5 top-5 hidden font-mono md:block text-[11px] tracking-[0.14em] uppercase" style={{ color: study.ink }}>
-          {study.index} / 03
-        </span>
         <AnimatePresence>
           {hover && (
             <motion.span
@@ -207,7 +204,7 @@ function StudiesIndex() {
               href={`${links.email}?subject=${encodeURIComponent(`Let’s talk about ${s.name}`)}`}
               onPointerEnter={() => setActive(i)}
               onFocus={() => setActive(null)}
-              className="group relative grid grid-cols-[auto_1fr_auto] items-center gap-4 overflow-hidden px-3 py-7 md:grid-cols-[80px_1.2fr_1fr_auto] md:gap-8 md:px-6 md:py-9"
+              className="group relative grid grid-cols-[auto_1fr] items-center gap-4 overflow-hidden px-3 py-7 md:grid-cols-[80px_1.2fr_1fr] md:gap-8 md:px-6 md:py-9"
             >
               <span
                 className="absolute inset-0 origin-bottom scale-y-0 transition-transform duration-700 ease-out-expo group-hover:scale-y-100"
@@ -222,13 +219,7 @@ function StudiesIndex() {
                 {s.type}
                 <span className="mt-1 block text-[13px] text-muted">{s.description}</span>
               </span>
-              <span className="relative flex items-center gap-2 text-[14px] font-medium">
-                <span className="hidden lg:inline">Ask me about it</span>
-                <span className="flex size-10 items-center justify-center rounded-full border border-ink/15 bg-paper-light/60 transition-colors duration-300 group-hover:bg-ink group-hover:text-paper-light">
-                  <MessageCircle className="size-4" strokeWidth={1.75} />
-                </span>
-              </span>
-              <img src={s.plant} alt="" className="relative col-span-3 -mb-2 mt-2 h-28 w-auto justify-self-start object-contain mix-blend-multiply md:hidden" loading="lazy" />
+              <img src={s.plant} alt="" className="relative col-span-2 -mb-2 mt-2 h-28 w-auto justify-self-start object-contain mix-blend-multiply md:hidden" loading="lazy" />
             </a>
           </Reveal>
         ))}

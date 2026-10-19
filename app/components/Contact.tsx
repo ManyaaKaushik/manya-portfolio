@@ -31,7 +31,7 @@ export default function Contact() {
 
   return (
     <section id="contact" aria-labelledby="contact-title" className="relative overflow-hidden">
-      <DitherSky className="pointer-events-none absolute inset-x-0 top-0 h-[78vh] w-full opacity-[0.6]" />
+      <DitherSky className="pointer-events-none absolute inset-x-0 top-0 h-[78vh] w-full opacity-[0.32] [mask-image:linear-gradient(to_bottom,black_35%,transparent)]" />
 
       <div className="relative mx-auto max-w-[1360px] px-5 pb-10 pt-32 md:px-10 md:pt-48">
         <div className="text-center">

@@ -15,7 +15,7 @@ export default function About() {
           <div className="md:col-span-5">
             <div className="md:sticky md:top-28">
               <SectionLabel n="03">About</SectionLabel>
-              <MaskHeading id="about-title" className="mt-6 text-[clamp(46px,6vw,96px)] leading-[0.94]">
+              <MaskHeading id="about-title" className="mt-6 text-[clamp(40px,4.6vw,72px)] leading-[0.96]">
                 <>A few pages</>
                 <em>of being Manya.</em>
               </MaskHeading>

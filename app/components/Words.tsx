@@ -11,7 +11,7 @@ const tilts = [-2.2, 1.4, -1];
 /** Writing + collaborator notes: the words section. */
 export default function Words() {
   return (
-    <section aria-labelledby="words-title" className="relative bg-paper-deep/60">
+    <section aria-labelledby="words-title" className="section-texture relative bg-paper-deep/60">
       <div className="hairline-x" />
       <div className="mx-auto max-w-[1360px] px-5 py-28 md:px-10 md:py-40">
         {/* writing */}

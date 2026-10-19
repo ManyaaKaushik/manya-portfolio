@@ -1,7 +1,7 @@
 import About from './components/About';
 import Contact from './components/Contact';
 import Experiments from './components/Experiments';
-import HelianthusScroll from './components/HelianthusScroll';
+import SunflowerScroll from './components/SunflowerScroll';
 import Nav from './components/Nav';
 import SmoothScroll from './components/SmoothScroll';
 import Words from './components/Words';
@@ -15,7 +15,7 @@ export default function Page() {
       </a>
       <Nav />
       <main id="main">
-        <HelianthusScroll />
+        <SunflowerScroll />
         <Work />
         <About />
         <Experiments />

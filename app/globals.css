@@ -125,6 +125,27 @@
       linear-gradient(to bottom, transparent 92%, rgb(90 70 30 / 0.05));
   }
 
+  /* Laid paper for a whole section: chain and laid lines, fibres, and soft mottling */
+  .section-texture {
+    isolation: isolate;
+  }
+  .section-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(60% 40% at 15% 20%, rgb(150 125 70 / 0.10), transparent 70%),
+      radial-gradient(50% 45% at 85% 75%, rgb(150 125 70 / 0.08), transparent 70%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .26 0 0 0 0 .18 0 0 0 .45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      repeating-linear-gradient(90deg, rgb(110 95 60 / 0.045) 0 1px, transparent 1px 38px),
+      repeating-linear-gradient(0deg, rgb(110 95 60 / 0.025) 0 1px, transparent 1px 4px);
+    background-size: auto, auto, 180px 180px, auto, auto;
+    mix-blend-mode: multiply;
+    opacity: 0.7;
+  }
+
   /* Serif display with a hand-set feel: tight tracking, italic blue emphasis */
   .display em,
   .serif-em em {
@@ -174,4 +195,34 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* Development-only sunflower tweak panel (lil-gui); folders re-declare lil-gui's vars, so theme them too */
+.lil-gui.sunflower-dev,
+.sunflower-dev .lil-gui {
+  --background-color: transparent;
+  --text-color: var(--color-ink);
+  --title-background-color: var(--color-paper-deep);
+  --title-text-color: var(--color-ink);
+  --widget-color: var(--color-paper-deep);
+  --hover-color: #e6e1cf;
+  --focus-color: #ddd7c1;
+  --number-color: #3d4fb8;
+  --string-color: #3d4fb8;
+  --font-family: var(--font-mono);
+  --font-size: 11px;
+  --widget-height: 22px;
+  --name-width: 48%;
+}
+.lil-gui.sunflower-dev {
+  background: rgb(251 250 244 / 0.94);
+  border: 1px solid rgb(28 35 51 / 0.1);
+  border-radius: 10px;
+  overflow: auto;
+  box-shadow: 0 12px 40px -16px rgb(28 35 51 / 0.35);
+  backdrop-filter: blur(8px);
+}
+.lil-gui.sunflower-dev > .lil-title {
+  border-radius: 10px 10px 0 0;
+  letter-spacing: 0.06em;
 }
