@@ -1,10 +1,11 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowUp, ArrowUpRight, BookOpen, Check, Copy, FileText, Mail, Plus, RotateCcw } from 'lucide-react';
+import { ArrowUp, ArrowUpRight, BookOpen, Check, Copy, FileText, Mail, Plus, RotateCcw, Sun, Sunset } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { links } from '../lib/content';
 import DitherSky from './DitherSky';
+import ShaderField from './ShaderField';
 import { scrollToId, useLenis } from './SmoothScroll';
 import { LinkedInGlyph, MaskHeading, Reveal, SectionLabel, SunflowerGlyph } from './ui';
 
@@ -142,6 +143,7 @@ function PixelGarden() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const api = useRef<{ plant: (x: number) => void; clear: () => void } | null>(null);
   const [count, setCount] = useState(0);
+  const [palette, setPalette] = useState(0);
   const max = 28;
 
   useEffect(() => {
@@ -163,7 +165,9 @@ function PixelGarden() {
       frame = 0;
       ctx.clearRect(0, 0, w, h);
       const ground = h - 26;
-      // soil
+      // soil: a solid bed, so the light field only shows above ground
+      ctx.fillStyle = '#e2dac3';
+      ctx.fillRect(0, ground + 6, w, h - ground - 6);
       for (let x = 0; x < w; x += P) {
         const n = Math.sin(x * 0.37) * Math.sin(x * 0.11);
         px(x, ground + 6 + (n > 0.3 ? P : 0), P, n > 0 ? '#cfc6ac' : '#d9d1b8');
@@ -258,21 +262,40 @@ function PixelGarden() {
     <div className="overflow-hidden rounded-[24px] bg-paper-light shadow-[0_0_0_1px_rgb(28_35_51/0.06),0_30px_60px_-30px_rgb(28_35_51/0.25)]">
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <p className="font-serif text-[22px] leading-none">A small space to grow.</p>
-        <button type="button" onClick={() => api.current?.clear()} className="group flex items-center gap-1.5 text-[13px] font-medium text-muted transition-colors hover:text-ink">
-          <RotateCcw className="size-3.5 transition-transform duration-500 ease-out-expo group-hover:-rotate-180" strokeWidth={1.75} />
-          Start afresh
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => setPalette(p => 1 - p)}
+            aria-pressed={palette === 1}
+            className="flex items-center gap-1.5 text-[13px] font-medium text-muted transition-colors hover:text-ink"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span key={palette} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.3 }}>
+                {palette ? <Sunset className="size-3.5" strokeWidth={1.75} /> : <Sun className="size-3.5" strokeWidth={1.75} />}
+              </motion.span>
+            </AnimatePresence>
+            {palette ? 'Dusk light' : 'Noon light'}
+          </button>
+          <button type="button" onClick={() => api.current?.clear()} className="group flex items-center gap-1.5 text-[13px] font-medium text-muted transition-colors hover:text-ink">
+            <RotateCcw className="size-3.5 transition-transform duration-500 ease-out-expo group-hover:-rotate-180" strokeWidth={1.75} />
+            Start afresh
+          </button>
+        </div>
       </div>
-      <canvas
-        ref={canvasRef}
-        onClick={e => {
-          const r = e.currentTarget.getBoundingClientRect();
-          api.current?.plant((e.clientX - r.left) / r.width);
-        }}
-        role="img"
-        aria-label="An interactive pixel garden. Use the Plant a seed button or tap the soil to add flowers."
-        className="block h-[300px] w-full cursor-crosshair bg-[linear-gradient(to_bottom,#f3f1e6,#fbfaf4)] md:h-[340px]"
-      />
+      <div className="relative">
+        {/* a playful light behind the soil; pollen scatters from the pointer */}
+        <ShaderField palette={palette} className="absolute inset-0 size-full" />
+        <canvas
+          ref={canvasRef}
+          onClick={e => {
+            const r = e.currentTarget.getBoundingClientRect();
+            api.current?.plant((e.clientX - r.left) / r.width);
+          }}
+          role="img"
+          aria-label="An interactive pixel garden over a flowing colour field. Use the Plant a seed button or tap the soil to add flowers."
+          className="relative block h-[300px] w-full cursor-crosshair md:h-[340px]"
+        />
+      </div>
       <div className="flex items-center justify-between gap-4 border-t border-line px-5 py-4">
         <p className="text-[14px] text-muted" aria-live="polite">
           {status}
