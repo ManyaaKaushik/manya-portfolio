@@ -129,13 +129,18 @@ export const whatIfs = [
   'What if the most useful design decision was to leave something out?',
 ];
 
-export const domains = [
-  'Quick commerce',
-  'Supply chain',
-  'Agentic AI',
-  'Healthcare',
-  'Travel',
-  'Music & entertainment',
-  'Responsible tech',
-  'Voice interfaces',
+/** Skills, as listed on the résumé. */
+export const skills = [
+  'User experience design',
+  'Interaction design',
+  'Systems thinking',
+  'Design systems',
+  'Interface design',
+  'Prototyping',
+  'UX research',
+  'Service design',
+  'UX strategy',
+  'Usability testing',
+  'Data visualisation',
+  'Sound design',
 ];

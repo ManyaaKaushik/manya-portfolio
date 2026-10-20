@@ -1,121 +1,36 @@
 'use client';
 
-import { motion, useScroll, useTransform } from 'motion/react';
-import { Clapperboard, Cpu, Gamepad2, GraduationCap, Megaphone, Music2, PenLine, Plane, Search, Sparkles } from 'lucide-react';
-import { useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { MaskHeading, Reveal, SectionLabel } from './ui';
+
+/*
+ * About: a scrapbook diary whose pages turn like paper. The pages are ordinary markup
+ * rendered once into a hidden template; page-flip works on clones of them, so it can move
+ * and fold the DOM freely without fighting React. Photos that haven't been added yet fall
+ * back to a dashed paper slot with their caption, so the diary never shows a broken image.
+ */
+
+const D = '/assets/diary';
 
 export default function About() {
   return (
-    <section id="about" aria-labelledby="about-title" className="relative mt-36 bg-paper-deep/60 md:mt-48">
+    <section id="about" aria-labelledby="about-title" className="relative mt-36 overflow-hidden bg-[#e8edf2] md:mt-48">
       <div className="hairline-x" />
-      <div className="mx-auto max-w-[1360px] px-5 pb-28 pt-24 md:px-10 md:pb-40 md:pt-36">
-        <div className="grid gap-14 md:grid-cols-12 md:gap-10">
-          {/* sticky portrait column */}
-          <div className="md:col-span-5">
-            <div className="md:sticky md:top-28">
-              <SectionLabel n="03">About</SectionLabel>
-              <MaskHeading id="about-title" className="mt-6 text-[clamp(40px,4.6vw,72px)] leading-[0.96]">
-                <>A few pages</>
-                <em>of being Manya.</em>
-              </MaskHeading>
-              <Reveal delay={0.1}>
-                <p className="mt-6 max-w-[38ch] text-[17px] leading-[1.65] text-ink-soft">
-                  Designer, daydreamer, collector of little things. There’s a person behind every decision — here are a few of her pages.
-                </p>
-              </Reveal>
-              <Portrait />
-            </div>
+      <div className="mx-auto max-w-[1360px] px-5 pb-24 pt-24 md:px-10 md:pb-32 md:pt-32">
+        <div className="grid gap-6 md:grid-cols-12 md:items-end">
+          <div className="md:col-span-7">
+            <SectionLabel n="03">About</SectionLabel>
+            <MaskHeading id="about-title" className="mt-6 text-[clamp(40px,4.6vw,72px)] leading-[0.96]">
+              <>A few pages</>
+              <em>of being Manya.</em>
+            </MaskHeading>
           </div>
-
-          {/* diary pages */}
-          <div className="space-y-10 md:col-span-7 md:space-y-14 md:pt-40">
-            <DiaryPage date="Notes on being human" tilt={-1.4}>
-              <PageTitle>
-                My favourite kind <em>of connection.</em>
-              </PageTitle>
-              <PageText>
-                If you’d asked my Grandma, she’d say I taught her how to shop from Amazon. If you ask my Mom, she’d say I helped her unlock the Smart TV’s magic.
-              </PageText>
-              <div className="mt-8 grid grid-cols-2 gap-4 md:gap-6">
-                <Polaroid src="/assets/family-grandma.webp" alt="Manya’s grandma at a café" caption="little lessons, over a big conversation." rotate={-3} ratio="aspect-[3/4]" />
-                <div className="flex flex-col justify-between gap-4">
-                  <Polaroid src="/assets/family-together.webp" alt="Manya and her grandma sharing a ride" caption="bringing worlds together." rotate={2.5} ratio="aspect-[4/3]" />
-                  <p className="font-serif text-[22px] leading-[1.15] text-ink md:text-[26px]">
-                    Small frictions. <em className="text-blue">Human possibilities.</em>
-                  </p>
-                </div>
-              </div>
-              <PageText className="mt-8">
-                With classmates, you’ll find me talking about designing with AI, or design in everyday life. Human–AI collaboration or cross-generational tech lessons — I love the space in between.
-              </PageText>
-            </DiaryPage>
-
-            <DiaryPage date="Journey into design" tilt={1.2}>
-              <PageTitle>
-                It started with <em>a few questions.</em>
-              </PageTitle>
-              <PageText>
-                How do people think, act, and feel around technology? Posters for college clubs and audits for digital platforms led me into this world.
-              </PageText>
-              <Journey />
-              <PageText className="mt-8">Moving from Electronics to design taught me how systems and empathy can coexist.</PageText>
-            </DiaryPage>
-
-            <DiaryPage date="Off the clock, still curious" tilt={-0.8}>
-              <PageTitle>
-                Who am I without <em>the things I love?</em>
-              </PageTitle>
-              <ul className="mt-6 flex flex-wrap gap-2">
-                {[
-                  [Music2, 'Dance & singing'],
-                  [Plane, 'Travel'],
-                  [PenLine, 'Writing'],
-                  [Clapperboard, 'Films that stay'],
-                ].map(([Icon, label]) => {
-                  const I = Icon as typeof Music2;
-                  return (
-                    <li key={label as string} className="flex items-center gap-2 rounded-full border border-ink/10 bg-paper-light px-3.5 py-2 text-[14px] text-ink-soft">
-                      <I className="size-4 text-blue" strokeWidth={1.75} />
-                      {label as string}
-                    </li>
-                  );
-                })}
-              </ul>
-              <div className="mt-8 grid grid-cols-3 gap-3 md:gap-4">
-                <Sticker tone="bg-butter" rotate={-4} title="Interstellar" note="big questions." />
-                <Sticker tone="bg-rose" rotate={3} title="Inside Out" note="big feelings." />
-                <Sticker tone="bg-lilac" rotate={-2} title="meme-reference" note="enthusiast." />
-              </div>
-              <div className="mt-8 flex items-center gap-4 rounded-2xl border border-ink/[0.07] bg-paper-light/80 p-4">
-                <img src="/assets/tiny-glade.webp" alt="Tiny Glade" className="size-14 rounded-xl object-cover" loading="lazy" />
-                <img src="/assets/letterboxd.webp" alt="Letterboxd" className="size-12 rounded-xl object-cover" loading="lazy" />
-                <p className="text-[15px] leading-snug text-ink-soft">
-                  <Gamepad2 className="mr-1.5 inline size-4 -translate-y-px text-blue" strokeWidth={1.75} />A little <em className="font-serif text-[18px] text-ink">It Takes Two</em>, a little Tiny Glade — and movie reviews on Letterboxd.
-                </p>
-              </div>
-            </DiaryPage>
-
-            <DiaryPage date="A place for wild dreams" tilt={1}>
-              <PageTitle>
-                I turn my dreams <em>into imaginative stories.</em>
-              </PageTitle>
-              <figure className="mt-7 overflow-hidden rounded-xl">
-                <img src="/assets/dreaming.webp" alt="Manya imagining stories behind her laptop" className="w-full object-cover" loading="lazy" />
-              </figure>
-              <PageText className="mt-6">A notebook. A thought. A world that doesn’t exist yet. Sometimes that’s all it takes to begin.</PageText>
-              <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-6">
-                <Polaroid src="/assets/sketch-world.webp" alt="Manya’s blue architectural drawing and story notes" rotate={-2.5} ratio="aspect-[3/4]" />
-                <p className="text-center font-serif text-[22px] leading-[1.1] md:text-[28px]">
-                  What if?
-                  <br />
-                  <em className="text-blue">what else?</em>
-                </p>
-                <Polaroid src="/assets/sketch-creature.webp" alt="Manya’s imagined creature with handwritten story notes" rotate={3} ratio="aspect-[3/4]" />
-              </div>
-            </DiaryPage>
-          </div>
+          <Reveal delay={0.1} className="md:col-span-4 md:col-start-9">
+            <p className="text-[17px] leading-[1.65] text-ink-soft">Open the diary — drag a page corner, click a page, or use the arrows.</p>
+          </Reveal>
         </div>
+        <Diary />
       </div>
       <div className="hairline-x" />
     </section>
@@ -123,124 +38,523 @@ export default function About() {
 }
 
 /* ------------------------------------------------------------------------ */
+/*  The book                                                                 */
+/* ------------------------------------------------------------------------ */
 
-function Portrait() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
-  const rotate = useTransform(scrollYProgress, [0, 1], [-5, 2]);
+type Flip = import('page-flip/dist/js/page-flip.module.js').PageFlip;
+
+function Diary() {
+  const templateRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const flipRef = useRef<Flip | null>(null);
+  const [page, setPage] = useState(0);
+  const [count, setCount] = useState(PAGES.length);
+  const [portrait, setPortrait] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    let host: HTMLDivElement | null = null;
+    (async () => {
+      const { PageFlip } = await import('page-flip/dist/js/page-flip.module.js');
+      if (cancelled || !stageRef.current || !templateRef.current) return;
+      // page-flip removes its root on destroy, so give it one React doesn't own
+      host = document.createElement('div');
+      stageRef.current.appendChild(host);
+      const pages = Array.from(templateRef.current.children).map(n => n.cloneNode(true) as HTMLElement);
+      pages.forEach(p => {
+        host!.appendChild(p);
+        p.querySelectorAll('img').forEach(img => {
+          // load every page up front so a turning page never flashes an empty frame
+          img.loading = 'eager';
+          const miss = () => img.closest('[data-photo]')?.classList.add('is-missing');
+          if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) miss();
+          img.addEventListener('error', miss, { once: true });
+        });
+      });
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // the whole spread should fit on screen with the arrows below it
+      const maxHeight = Math.round(Math.min(720, Math.max(420, innerHeight - 190)));
+      const maxWidth = Math.round((maxHeight * 460) / 620);
+      stageRef.current.style.maxWidth = `${maxWidth * 2}px`;
+      const flip = new PageFlip(host, {
+        width: 460,
+        height: 620,
+        size: 'stretch',
+        minWidth: 280,
+        maxWidth,
+        minHeight: 380,
+        maxHeight,
+        showCover: true,
+        usePortrait: true,
+        autoSize: true,
+        drawShadow: true,
+        maxShadowOpacity: 0.45,
+        flippingTime: reduced ? 1 : 1000,
+        mobileScrollSupport: true,
+        clickEventForward: true,
+        showPageCorners: true,
+        swipeDistance: 30,
+      });
+      flip.loadFromHTML(pages);
+      flipRef.current = flip;
+      setCount(flip.getPageCount());
+      setPortrait(flip.getOrientation() === 'portrait');
+      flip.on('flip', e => setPage(e.data as number));
+      flip.on('changeOrientation', e => setPortrait(e.data === 'portrait'));
+    })();
+    return () => {
+      cancelled = true;
+      flipRef.current?.destroy();
+      flipRef.current = null;
+      host?.remove();
+    };
+  }, []);
+
+  // keyboard: arrows turn pages while the book is focused
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight') flipRef.current?.flipNext();
+    if (e.key === 'ArrowLeft') flipRef.current?.flipPrev();
+  };
+
+  const atStart = page === 0;
+  const atEnd = portrait ? page >= count - 1 : page >= count - 2;
+  const label = PAGES[page]?.title ?? '';
+
   return (
-    <Reveal delay={0.2} className="mt-10 hidden md:block">
-      <motion.div ref={ref} style={{ rotate }} className="relative w-[min(300px,70%)] rounded-[6px] bg-paper-light p-3 pb-14 shadow-paper">
-        <span className="absolute -top-3 left-1/2 h-6 w-24 -translate-x-1/2 rotate-[-3deg] bg-gold-soft/80 shadow-sm" aria-hidden="true" />
-        <img src="/assets/manya.webp" alt="Manya Kaushik" className="aspect-[4/5] w-full rounded-[3px] object-cover object-top" />
-        <p className="absolute bottom-4 left-4 font-serif text-[19px] italic text-ink-soft">a work in progress, just like me.</p>
-        <span className="absolute -right-10 -top-6 flex size-20 rotate-12 items-center justify-center rounded-full bg-blue text-center text-[11px] font-medium leading-tight text-paper-light shadow-lift">
-          <Sparkles className="absolute -right-1 -top-1 size-4 text-gold" strokeWidth={2} />
-          so many
-          <br />
-          little worlds
-        </span>
-      </motion.div>
-    </Reveal>
+    <div className="mt-14 md:mt-16">
+      <div
+        tabIndex={0}
+        onKeyDown={onKey}
+        role="group"
+        aria-roledescription="diary"
+        aria-label={`Manya’s diary, ${label}. Use the left and right arrow keys to turn pages.`}
+        className="relative mx-auto max-w-[1120px] outline-none"
+      >
+        {/* soft desk shadow under the book */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-[8%] bottom-[-3%] h-[10%] rounded-[50%] bg-[#243a56]/20 blur-2xl" />
+        <div ref={stageRef} className="diary-stage relative mx-auto" />
+      </div>
+
+      <div className="mt-8 flex items-center justify-center gap-5">
+        <button
+          type="button"
+          onClick={() => flipRef.current?.flipPrev()}
+          disabled={atStart}
+          aria-label="Previous page"
+          className="flex size-11 items-center justify-center rounded-full bg-[#f8f6ef] text-ink shadow-[0_6px_18px_-8px_rgb(36_58_86/0.4)] transition-[opacity,transform] hover:-translate-x-0.5 disabled:opacity-30"
+        >
+          <ChevronLeft className="size-5" strokeWidth={1.75} />
+        </button>
+        <p className="min-w-[13ch] text-center font-hand text-[22px] leading-none text-ink-soft" aria-live="polite">
+          {label}
+        </p>
+        <button
+          type="button"
+          onClick={() => flipRef.current?.flipNext()}
+          disabled={atEnd}
+          aria-label="Next page"
+          className="flex size-11 items-center justify-center rounded-full bg-[#f8f6ef] text-ink shadow-[0_6px_18px_-8px_rgb(36_58_86/0.4)] transition-[opacity,transform] hover:translate-x-0.5 disabled:opacity-30"
+        >
+          <ChevronRight className="size-5" strokeWidth={1.75} />
+        </button>
+      </div>
+
+      {/* the pages, rendered once; page-flip turns clones of these */}
+      <div ref={templateRef} hidden>
+        {PAGES.map(p => (
+          <div key={p.id} className={`diary-page ${p.hard ? 'diary-hard' : ''}`} data-density={p.hard ? 'hard' : 'soft'}>
+            <div className="diary-sheet">{p.body}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
-function DiaryPage({ date, tilt, children }: { date: string; tilt: number; children: React.ReactNode }) {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'start 0.35'] });
-  const rotate = useTransform(scrollYProgress, [0, 1], [tilt * 3, tilt * 0.35]);
-  const y = useTransform(scrollYProgress, [0, 1], [90, 0]);
-  const opacity = useTransform(scrollYProgress, [0, 0.35], [0, 1]);
+/* ------------------------------------------------------------------------ */
+/*  Scrapbook pieces                                                         */
+/* ------------------------------------------------------------------------ */
+
+function Photo({ src, caption, rotate = 0, className = '', ratio = '4/5' }: { src: string; caption?: string; rotate?: number; className?: string; ratio?: string }) {
   return (
-    <motion.article
-      ref={ref}
-      style={{ rotate, y, opacity }}
-      className="relative rounded-[6px] bg-paper-light px-6 py-9 shadow-paper md:px-12 md:py-12"
-    >
-      {/* ruled-paper margin line */}
-      <span className="absolute inset-y-0 left-3 w-px bg-rose md:left-6" aria-hidden="true" />
-      <p className="eyebrow">{date}</p>
+    <figure data-photo className={`polaroid ${className}`} style={{ rotate: `${rotate}deg` }}>
+      <div className="polaroid-img" style={{ aspectRatio: ratio }}>
+        <img src={src} alt={caption ?? ''} loading="lazy" draggable={false} />
+        <span className="polaroid-missing">photo to come</span>
+      </div>
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  );
+}
+
+function Sticker({ children, tone = 'butter', rotate = 0, className = '' }: { children: React.ReactNode; tone?: 'butter' | 'lilac' | 'mint' | 'rose' | 'blue'; rotate?: number; className?: string }) {
+  return (
+    <span className={`sticker sticker-${tone} ${className}`} style={{ rotate: `${rotate}deg` }}>
       {children}
-    </motion.article>
+    </span>
   );
 }
 
-function PageTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="serif-em mt-4 font-serif text-[clamp(32px,3.4vw,48px)] leading-[1.02] tracking-[-0.02em] text-ink">{children}</h3>;
+function Tape({ className = '', rotate = -4 }: { className?: string; rotate?: number }) {
+  return <span aria-hidden="true" className={`tape ${className}`} style={{ rotate: `${rotate}deg` }} />;
 }
 
-function PageText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <p className={`mt-5 max-w-[56ch] text-[16.5px] leading-[1.7] text-ink-soft ${className}`}>{children}</p>;
+function Kicker({ children }: { children: React.ReactNode }) {
+  return <p className="diary-kicker">{children}</p>;
 }
 
-function Polaroid({ src, alt, caption, rotate, ratio }: { src: string; alt: string; caption?: string; rotate: number; ratio: string }) {
-  return (
-    <motion.figure
-      whileHover={{ rotate: 0, scale: 1.03, y: -4 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-      style={{ rotate }}
-      className="rounded-[4px] bg-white p-2 pb-3 shadow-[0_14px_30px_-14px_rgb(40_36_20/0.35),0_0_0_1px_rgb(40_36_20/0.05)]"
-    >
-      <img src={src} alt={alt} className={`${ratio} w-full rounded-[2px] object-cover`} loading="lazy" />
-      {caption && <figcaption className="mt-2 px-1 font-serif text-[15px] italic leading-snug text-muted">{caption}</figcaption>}
-    </motion.figure>
-  );
+function Title({ children }: { children: React.ReactNode }) {
+  return <h3 className="diary-title">{children}</h3>;
 }
 
-function Sticker({ tone, rotate, title, note }: { tone: string; rotate: number; title: string; note: string }) {
-  return (
-    <motion.div
-      whileHover={{ rotate: 0, y: -6 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 18 }}
-      style={{ rotate }}
-      className={`${tone} rounded-[4px] px-3 py-4 shadow-[0_10px_20px_-12px_rgb(40_36_20/0.35)] md:px-4 md:py-5`}
-    >
-      <p className="font-serif text-[19px] leading-none text-ink md:text-[24px]">{title}</p>
-      <p className="mt-1.5 font-serif text-[15px] italic text-ink-soft md:text-[17px]">{note}</p>
-    </motion.div>
-  );
+function Note({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return <p className={`diary-note ${className}`}>{children}</p>;
 }
 
-const steps = [
-  { icon: Cpu, label: 'Electronics', note: 'where it began' },
-  { icon: Megaphone, label: 'Posters & audits', note: 'college clubs, platforms' },
-  { icon: Search, label: 'Curiosity', note: 'people around technology' },
-  { icon: GraduationCap, label: 'Interaction Design', note: 'NID, Bengaluru' },
+/* ------------------------------------------------------------------------ */
+/*  Pages: one idea each                                                     */
+/* ------------------------------------------------------------------------ */
+
+const JOURNEY = [
+  { when: 'as a kid', what: 'Art Attack, religiously', note: 'where glue and glitter began' },
+  { when: '2020', what: 'B.Sc. Electronics', note: 'Sri Venkateswara College, DU' },
+  { when: '2021', what: 'Co-founded Boolean', note: 'the college’s first tech club' },
+  { when: '2022', what: 'UI/UX intern', note: 'IIT Bombay' },
+  { when: '2023', what: 'UX design intern', note: 'IIT Delhi' },
+  { when: '2024', what: 'M.Des Interaction Design', note: 'NID Bengaluru' },
+  { when: '2025', what: 'Product design intern', note: 'Celebto' },
+  { when: 'now', what: 'Product Designer', note: 'Blinkit' },
 ];
 
-function Journey() {
-  return (
-    <ol className="relative mt-9 grid gap-6 sm:grid-cols-4 sm:gap-3">
-      <motion.span
-        aria-hidden="true"
-        initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true, margin: '0px 0px -20% 0px' }}
-        transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute left-5 right-5 top-5 hidden h-px origin-left bg-[repeating-linear-gradient(90deg,var(--color-blue)_0_6px,transparent_6px_11px)] sm:block"
-      />
-      {steps.map(({ icon: Icon, label, note }, i) => (
-        <motion.li
-          key={label}
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '0px 0px -20% 0px' }}
-          transition={{ delay: 0.25 + i * 0.18, duration: 0.8 }}
-          className="relative flex items-center gap-4 sm:block"
-        >
-          <span
-            className={`relative flex size-10 shrink-0 items-center justify-center rounded-full border ${
-              i === steps.length - 1 ? 'border-blue bg-blue text-paper-light' : 'border-ink/15 bg-paper-light text-blue'
-            }`}
-          >
-            <Icon className="size-[18px]" strokeWidth={1.6} />
-          </span>
-          <div className="sm:mt-4">
-            <p className={`text-[15px] font-medium leading-tight ${i === steps.length - 1 ? 'text-blue' : 'text-ink'}`}>{label}</p>
-            <p className="mt-1 text-[13px] text-muted">{note}</p>
+const LOVES = ['Interstellar', 'Fleabag', 'Inside Out', 'Soul', 'Spider-Man', 'Bridgerton', 'Attack on Titan', 'Business Proposal'];
+
+const BRING = [
+  'User experience design',
+  'Design systems',
+  'User research',
+  'Data-driven design',
+  'Visual design',
+  'Strategic thinking',
+  'AI thinking',
+  'Collaboration & communication',
+  'Adaptability',
+];
+
+const READS = [
+  { title: 'Hooked', by: 'Nir Eyal', tone: '#f2c230', ink: '#1c2333' },
+  { title: 'Creative Confidence', by: 'Tom & David Kelley', tone: '#e9f2ec', ink: '#2c7a5a' },
+  { title: 'The Lion, the Witch and the Wardrobe', by: 'C. S. Lewis', tone: '#2e3f6e', ink: '#f3e9cf' },
+];
+
+type Page = { id: string; title: string; hard?: boolean; body: React.ReactNode };
+
+const PAGES: Page[] = [
+  {
+    id: 'cover',
+    title: 'The cover',
+    hard: true,
+    body: (
+      <div className="diary-cover">
+        <p className="diary-cover-label">vol. 01 — notes &amp; keepsakes</p>
+        <h3 className="diary-cover-title">
+          A few pages
+          <br />
+          <em>of being Manya</em>
+        </h3>
+        <figure data-photo className="diary-kid">
+          <img src={`${D}/kid.png`} alt="Manya as a little girl, hands on her hips" loading="lazy" draggable={false} />
+          <span className="polaroid-missing">little Manya</span>
+        </figure>
+        <div className="diary-cover-tag">
+          <Sticker tone="butter" rotate={-3}>
+            Journey of this <b>sunflower</b>
+          </Sticker>
+          <span className="diary-hand mt-[1.5cqw] block text-[4.6cqw] text-[#f3ecd8]/85">(who followed Art Attack religiously as a kid)</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'endpaper',
+    title: 'This diary belongs to…',
+    body: (
+      <div className="flex h-full flex-col items-center justify-center text-center">
+        <p className="diary-hand text-[6.4cqw] text-ink-soft">this diary belongs to</p>
+        <p className="mt-[2cqw] font-serif text-[11cqw] leading-none text-ink">Manya Kaushik</p>
+        <div className="relative mt-[7cqw] w-[86%]">
+          <Tape className="left-[38%] top-[-2.5cqw]" rotate={2} />
+          <figure className="polaroid pb-[3%]" style={{ rotate: '-1.5deg' }}>
+            <img src={`${D}/snapshots.png`} alt="Four snapshots: presenting to a room, sketching at a table, showing an app, and talking with a group" className="block w-full" loading="lazy" draggable={false} />
+          </figure>
+        </div>
+        <div className="mt-[6cqw] flex flex-wrap justify-center gap-[2.4cqw]">
+          <Sticker tone="rose" rotate={-3}>
+            Rooted in empathy
+          </Sticker>
+          <Sticker tone="mint" rotate={2}>
+            Nerd for details
+          </Sticker>
+          <Sticker tone="lilac" rotate={-1}>
+            Eternally curious being
+          </Sticker>
+        </div>
+        <p className="diary-hand mt-[8cqw] text-[5cqw] text-muted">if found, please return to the garden ✿</p>
+      </div>
+    ),
+  },
+  {
+    id: 'journey',
+    title: 'Journey into design',
+    body: (
+      <>
+        <Kicker>p. 01 — how it started</Kicker>
+        <Title>
+          Journey into <em>design</em>
+        </Title>
+        <ol className="diary-timeline">
+          {JOURNEY.map((j, i) => (
+            <li key={j.what} className={i === JOURNEY.length - 1 ? 'is-now' : ''}>
+              <span className="diary-hand">{j.when}</span>
+              <p>
+                <b>{j.what}</b> <span>{j.note}</span>
+              </p>
+            </li>
+          ))}
+        </ol>
+        <Sticker tone="blue" rotate={4} className="absolute bottom-[7cqw] right-[7cqw]">
+          systems + empathy
+        </Sticker>
+      </>
+    ),
+  },
+  {
+    id: 'grandma',
+    title: 'The grandma page',
+    body: (
+      <>
+        <Kicker>p. 02 — my favourite kind of connection</Kicker>
+        <Title>
+          The <em>grandma</em> page
+        </Title>
+        <div className="relative mx-auto mt-[6cqw] w-[82%]">
+          <Tape className="left-[38%] top-[-2.5cqw]" />
+          <Photo src="/assets/family-together.webp" caption="bringing worlds together." rotate={-2} ratio="4/3" />
+        </div>
+        <Note className="mt-[7cqw]">
+          Ask my Grandma and she’ll say I taught her to shop on Amazon. Ask my Mom — I unlocked the Smart TV’s magic.
+        </Note>
+        <Sticker tone="rose" rotate={-5} className="absolute bottom-[7cqw] right-[6cqw]">
+          small frictions, human possibilities
+        </Sticker>
+      </>
+    ),
+  },
+  {
+    id: 'community',
+    title: 'Community & initiatives',
+    body: (
+      <>
+        <Kicker>p. 03 — giving back</Kicker>
+        <Title>
+          Community <em>&amp; initiatives</em>
+        </Title>
+        <ul className="diary-list">
+          <li>
+            Ran an intro UX &amp; Figma workshop — the file went on to be used by <b>230+ learners</b>.
+          </li>
+          <li>
+            Co-founded my college’s <b>first tech club</b>, to bridge skill and opportunity gaps.
+          </li>
+        </ul>
+        <div className="mt-[9cqw] flex items-end justify-center gap-[6cqw]">
+          <div className="text-center" style={{ rotate: '-3deg' }}>
+            <p className="font-serif text-[20cqw] leading-none text-blue">230+</p>
+            <p className="diary-hand text-[5.2cqw] text-ink-soft">learners used the file</p>
           </div>
-        </motion.li>
-      ))}
-    </ol>
-  );
-}
+          <div className="text-center" style={{ rotate: '2deg' }}>
+            <p className="font-serif text-[20cqw] leading-none text-[#c98f27]">1st</p>
+            <p className="diary-hand text-[5.2cqw] text-ink-soft">tech club, co-founded</p>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 'travels',
+    title: 'Work that travels',
+    body: (
+      <>
+        <Kicker>p. 04 — out in the world</Kicker>
+        <Title>
+          Work that <em>travels</em>
+        </Title>
+        <Note>Personal projects I shared found their way to the people behind the products.</Note>
+        <blockquote className="diary-post">
+          <p className="diary-post-head">
+            <span className="diary-post-avatar bg-[#7c5cd6]">F</span>
+            <b>Finch</b>
+          </p>
+          <p>“This is such a sweet review! I’m so glad our app has been able to help you on your journey friend. Thank you so much for sharing! It means the world to our small team 💜”</p>
+        </blockquote>
+        <div className="mt-[5cqw] flex flex-wrap items-center gap-[2.5cqw]">
+          <span className="diary-hand text-[5.4cqw] text-ink-soft">also noticed by</span>
+          <Sticker tone="mint" rotate={-2}>
+            Chris Hulls
+          </Sticker>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 'reads',
+    title: 'Favourite reads',
+    body: (
+      <>
+        <Kicker>p. 05 — on my nightstand</Kicker>
+        <Title>
+          Favourite <em>reads</em>
+        </Title>
+        <div className="mt-[6cqw] flex items-end justify-center gap-[3cqw]">
+          {READS.map((b, i) => (
+            <div key={b.title} className="diary-book" style={{ background: b.tone, color: b.ink, rotate: `${[-5, 2, 6][i]}deg` }}>
+              <span className="diary-book-title">{b.title}</span>
+              <span className="diary-book-by">{b.by}</span>
+            </div>
+          ))}
+        </div>
+        <ul className="diary-list mt-[7cqw]">
+          <li>
+            <b>Lessons of design</b> — Fabricio Teixeira, UX Collective
+          </li>
+          <li>
+            <b>The Download</b> — MIT Technology Review’s newsletter
+          </li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: 'loves',
+    title: 'Who am I without the things I love?',
+    body: (
+      <>
+        <Kicker>p. 06 — off the clock</Kicker>
+        <Title>
+          Who am I without <em>the things I love?</em>
+        </Title>
+        <Note>
+          Beyond design, I can be found binge-watching <b className="text-[#b3261e]">Stranger Things</b>, or —
+        </Note>
+        <div className="relative mt-[7cqw]">
+          <Tape className="left-[8%] top-[-2.5cqw]" rotate={-6} />
+          <Tape className="right-[8%] top-[-2.5cqw]" rotate={5} />
+          <img
+            src={`${D}/loves-strip.png`}
+            alt="Polaroids of Manya creating content, travelling, dancing and playing the ukulele"
+            className="block w-full rounded-[1cqw] shadow-[0_1.4cqw_3cqw_-1.6cqw_rgb(40_36_20/0.4)]"
+            style={{ rotate: '-1deg' }}
+            loading="lazy"
+            draggable={false}
+          />
+        </div>
+        <div className="mt-[6cqw] flex flex-wrap gap-[2.2cqw]">
+          <Sticker tone="butter" rotate={-2}>
+            creating content
+          </Sticker>
+          <Sticker tone="mint" rotate={2}>
+            travelling
+          </Sticker>
+          <Sticker tone="rose" rotate={-1}>
+            dancing
+          </Sticker>
+          <Sticker tone="lilac" rotate={3}>
+            ukulele
+          </Sticker>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 'games',
+    title: 'Films, shows & games',
+    body: (
+      <>
+        <Kicker>p. 07 — the watchlist</Kicker>
+        <Title>
+          Films, shows <em>&amp; games</em>
+        </Title>
+        <div className="mt-[5cqw] flex flex-wrap gap-[2.2cqw]">
+          {LOVES.map((l, i) => (
+            <Sticker key={l} tone={(['butter', 'lilac', 'mint', 'rose', 'blue'] as const)[i % 5]} rotate={[-3, 2, -1, 3, -2][i % 5]}>
+              {l}
+            </Sticker>
+          ))}
+        </div>
+        <p className="diary-hand mt-[7cqw] text-[5.6cqw] text-ink-soft">games I play &amp; where I drop reviews —</p>
+        <div className="mt-[3cqw] flex flex-wrap items-center gap-[4cqw]">
+          <img src={`${D}/gravity-falls.png`} alt="Gravity Falls" className="h-[13cqw] w-auto drop-shadow-[0_1cqw_1.4cqw_rgb(40_36_20/0.35)]" loading="lazy" draggable={false} />
+          <img src="/assets/tiny-glade.webp" alt="Tiny Glade" className="diary-app" loading="lazy" draggable={false} />
+          <img src="/assets/letterboxd.webp" alt="Letterboxd" className="diary-app" loading="lazy" draggable={false} />
+          <Sticker tone="rose" rotate={-4}>
+            It Takes Two
+          </Sticker>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: 'bring',
+    title: 'What I can bring',
+    body: (
+      <>
+        <Kicker>p. 08 — to your team</Kicker>
+        <Title>
+          What I <em>can bring</em>
+        </Title>
+        <Note>Designing for small frictions — clicks, pauses, and glances in between.</Note>
+        <div className="relative mx-auto mt-[4cqw] w-[56%]">
+          <Tape className="left-[34%] top-[-2.5cqw]" rotate={3} />
+          <Photo src={`${D}/bring.jpg`} rotate={1.5} ratio="1/1" />
+        </div>
+        <div className="mt-[4cqw] flex flex-wrap justify-center gap-[1.8cqw]">
+          {BRING.map(b => (
+            <span key={b} className="diary-chip">
+              {b}
+            </span>
+          ))}
+        </div>
+      </>
+    ),
+  },
+  {
+    // inside of the back cover: keeps the page count even, so the back cover closes the book
+    id: 'endpaper-back',
+    title: 'To be continued…',
+    body: (
+      <div className="flex h-full flex-col items-center justify-center text-center">
+        <p className="diary-hand text-[7cqw] text-ink-soft">to be continued…</p>
+        <p className="mt-[3cqw] text-[6cqw] text-[#c98f27]" aria-hidden="true">
+          ✿
+        </p>
+      </div>
+    ),
+  },
+  {
+    id: 'back',
+    title: 'So many more miles to cover…',
+    hard: true,
+    body: (
+      <div className="diary-cover items-center justify-center text-center">
+        <figure data-photo className="polaroid w-[62%]" style={{ rotate: '-2deg' }}>
+          <div className="polaroid-img" style={{ aspectRatio: '1/1' }}>
+            <img src={`${D}/back-cover.jpg`} alt="Little Manya at the steering wheel" loading="lazy" draggable={false} />
+            <span className="polaroid-missing">photo to come</span>
+          </div>
+        </figure>
+        <p className="mt-[8cqw] font-serif text-[8.6cqw] leading-[1.05] text-[#f3ecd8]">
+          So many more <em>miles to cover…</em>
+        </p>
+      </div>
+    ),
+  },
+];

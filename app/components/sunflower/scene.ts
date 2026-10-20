@@ -17,7 +17,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 
 const DISC_R = 0.13;
 const FLORETS = 1100;
-const RING = 21; // ray florets per whorl; two whorls
+const RING = 24; // ray florets per whorl; two whorls
 const BRACTS = 34;
 const STEM_BASE = -1.5;
 const STEM_TOP = 1.0;
@@ -75,26 +75,42 @@ class Spring {
 /*  Camera choreography                                                                     */
 /* ---------------------------------------------------------------------------------------- */
 
-type Shot = { t: number; target: [number, number, number]; az: number; el: number; dist: number; sx: number; sy: number };
+/** Parts of the plant the camera can visit; resolved to world positions every frame. */
+export type Focus = 'head' | 'budLow' | 'budLeft' | 'petal';
+type Shot = { t: number; focus: Focus; off: [number, number, number]; az: number; el: number; dist: number; sx: number; sy: number };
 
-// Beats overlay: .0–.1 intro, .24–.4 copy left, .52–.68 copy right, .86–1 closing.
+/*
+ * The tour. Overlay panels sit on the opposite side of the frame from the subject (sx pushes
+ * the subject sideways, sy up), so the flower never covers the copy.
+ *   .00–.08 arrival, front on       .12–.19 the open head, close (callouts)
+ *   .24–.34 lower bud → Work        .44–.54 left bud → Kind words
+ *   .64–.74 one petal → About       .82–.90 the back of the head
+ *   .90–1   pull away into the page
+ * (the same ranges, for the overlay copy, live in ./stops.ts)
+ */
+
+const O: [number, number, number] = [0, 0, 0];
 const DESKTOP: Shot[] = [
-  { t: 0, target: [0, 0.98, 0.06], az: -8, el: 2, dist: 2.3, sx: 0, sy: -0.27 },
-  { t: 0.12, target: [0, 1.0, 0.08], az: -4, el: 4, dist: 2.1, sx: 0.02, sy: -0.15 },
-  { t: 0.24, target: [0, 1.04, 0.1], az: 26, el: 10, dist: 1.75, sx: 0.2, sy: 0 },
-  { t: 0.4, target: [0, 1.04, 0.1], az: 36, el: 6, dist: 1.6, sx: 0.2, sy: 0 },
-  { t: 0.46, target: [0, 1.02, 0.08], az: 0, el: 10, dist: 2.1, sx: -0.04, sy: 0 },
-  { t: 0.52, target: [0, 1.0, 0.08], az: -40, el: 4, dist: 1.85, sx: -0.24, sy: 0 },
-  { t: 0.68, target: [0, 1.0, 0.08], az: -48, el: -2, dist: 1.75, sx: -0.24, sy: 0.02 },
-  { t: 0.78, target: [0, 0.94, 0.05], az: -24, el: 4, dist: 2.2, sx: 0, sy: 0.08 },
-  { t: 0.88, target: [0, 0.94, 0.05], az: 0, el: 4, dist: 2.6, sx: 0, sy: 0.12 },
-  { t: 1, target: [0, 0.94, 0.05], az: 6, el: 3, dist: 2.7, sx: 0, sy: 0.13 },
+  { t: 0, focus: 'head', off: [0, -0.02, -0.04], az: -8, el: 2, dist: 2.4, sx: 0, sy: -0.36 },
+  { t: 0.08, focus: 'head', off: [0, 0, -0.02], az: -4, el: 4, dist: 2.2, sx: 0.02, sy: -0.24 },
+  { t: 0.14, focus: 'head', off: O, az: 24, el: 8, dist: 1.6, sx: 0.2, sy: 0 },
+  { t: 0.19, focus: 'head', off: O, az: 32, el: 6, dist: 1.5, sx: 0.2, sy: 0 },
+  { t: 0.24, focus: 'budLow', off: O, az: 16, el: 6, dist: 0.95, sx: 0.2, sy: 0 },
+  { t: 0.34, focus: 'budLow', off: O, az: 30, el: 2, dist: 0.85, sx: 0.2, sy: 0 },
+  { t: 0.44, focus: 'budLeft', off: O, az: -20, el: 6, dist: 0.95, sx: -0.2, sy: 0 },
+  { t: 0.54, focus: 'budLeft', off: O, az: -34, el: 2, dist: 0.85, sx: -0.2, sy: 0 },
+  { t: 0.64, focus: 'petal', off: O, az: 22, el: 4, dist: 0.85, sx: 0.22, sy: 0.04 },
+  { t: 0.74, focus: 'petal', off: O, az: 34, el: 2, dist: 0.78, sx: 0.22, sy: 0.04 },
+  { t: 0.82, focus: 'head', off: [0, -0.06, 0], az: 158, el: 8, dist: 2.4, sx: 0.22, sy: 0.08 },
+  { t: 0.9, focus: 'head', off: [0, -0.06, 0], az: 180, el: 6, dist: 2.5, sx: 0.22, sy: 0.08 },
+  { t: 1, focus: 'head', off: [0, -0.1, 0], az: 205, el: 24, dist: 3.6, sx: 0, sy: 0.12 },
 ];
+// On narrow screens the copy sits at the bottom, so the subject moves up instead of aside.
 const MOBILE: Shot[] = DESKTOP.map(s => ({
   ...s,
   sx: 0,
-  sy: s.t === 0 ? -0.1 : s.t === 0.12 ? 0.02 : s.t >= 0.86 ? 0.17 : 0.2,
-  dist: s.dist * (s.dist > 1.85 ? 1.1 : 1.25),
+  sy: s.t === 0 ? -0.1 : s.t === 0.08 ? 0.02 : 0.2,
+  dist: s.dist * (s.dist > 1.85 ? 1.1 : 1.3),
 }));
 
 const catmull = (p0: number, p1: number, p2: number, p3: number, t: number) => {
@@ -102,7 +118,7 @@ const catmull = (p0: number, p1: number, p2: number, p3: number, t: number) => {
   const t3 = t2 * t;
   return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
 };
-function sampleShots(shots: Shot[], p: number) {
+function sampleShots(shots: Shot[], p: number, resolve: (f: Focus) => THREE.Vector3) {
   const n = shots.length;
   let i = 0;
   while (i < n - 2 && p > shots[i + 1].t) i++;
@@ -112,8 +128,9 @@ function sampleShots(shots: Shot[], p: number) {
   const d = shots[Math.min(n - 1, i + 2)];
   const t = clamp((p - b.t) / (c.t - b.t), 0, 1);
   const f = (k: (s: Shot) => number) => catmull(k(a), k(b), k(c), k(d), t);
+  const at = (s: Shot, axis: 0 | 1 | 2) => resolve(s.focus).getComponent(axis) + s.off[axis];
   return {
-    target: [f(s => s.target[0]), f(s => s.target[1]), f(s => s.target[2])] as [number, number, number],
+    target: [f(s => at(s, 0)), f(s => at(s, 1)), f(s => at(s, 2))] as [number, number, number],
     az: f(s => s.az),
     el: f(s => s.el),
     dist: f(s => s.dist),
@@ -129,7 +146,7 @@ function sampleShots(shots: Shot[], p: number) {
 export const DEFAULT_PARAMS = {
   // bloom
   bloomStart: 0.6, // how open the flower is at the top of the page (0 = closed bud)
-  bloomEnd: 0.26, // scroll progress at which it is fully open
+  bloomEnd: 0.14, // scroll progress at which it is fully open
   bloomStiffness: 26,
   bloomDamping: 7.5,
   // feel
@@ -151,12 +168,12 @@ export const DEFAULT_PARAMS = {
   petalLength: 1,
   petalWidth: 1,
   petalArch: 0, // extra curl when open; positive arches the tips back
-  petalBase: '#ad5500',
-  petalMid: '#fdad00',
-  petalTip: '#ffcb27',
-  stemColor: '#33601a',
+  petalBase: '#c86f04',
+  petalMid: '#f9b409',
+  petalTip: '#ffd447',
+  stemColor: '#3c6b22',
   // light
-  exposure: 0.92,
+  exposure: 0.96,
   keyLight: 2.3,
   envLight: 0.32,
   shadow: 0.15,
@@ -175,16 +192,18 @@ export type SunflowerParams = typeof DEFAULT_PARAMS;
 /* ---------------------------------------------------------------------------------------- */
 
 /** A ray petal: length along +Y (0..1), width along X, a shallow channel along the midrib. */
-function petalGeometry(segL = 16, segW = 8) {
+function petalGeometry(segL = 30, segW = 12) {
   const pos: number[] = [];
   const uv: number[] = [];
   const idx: number[] = [];
   for (let i = 0; i <= segL; i++) {
     const v = i / segL;
-    const half = 0.5 * (0.16 + 0.84 * Math.sin(Math.PI * Math.pow(v, 0.78))) * (1 - Math.pow(v, 7));
+    // a slim claw, full shoulders, then a soft rounded point (no hard cut at the tip)
+    const half = 0.5 * (0.14 + 0.86 * Math.sin(Math.PI * Math.pow(v, 0.82))) * Math.sqrt(Math.max(0, 1 - Math.pow(v, 5)));
     for (let j = 0; j <= segW; j++) {
       const xn = (j / segW) * 2 - 1;
-      const z = 0.05 * xn * xn * Math.sin(Math.PI * Math.min(1, v * 1.1)) + 0.006 * Math.sin(v * Math.PI * 3 + xn * 2);
+      // the edges roll up a touch, and the blade carries a faint lengthwise ripple
+      const z = 0.045 * xn * xn * Math.sin(Math.PI * Math.min(1, v * 1.1)) + 0.004 * Math.sin(v * Math.PI * 3 + xn * 2) + 0.012 * Math.pow(Math.abs(xn), 4) * v;
       pos.push(xn * half, v, z);
       uv.push(j / segW, v);
     }
@@ -205,14 +224,14 @@ function petalGeometry(segL = 16, segW = 8) {
 }
 
 /** A broad, serrated, heart-based sunflower leaf, drooping under its own weight. */
-function leafGeometry(segL = 22, segW = 12) {
+function leafGeometry(segL = 40, segW = 16) {
   const pos: number[] = [];
   const uv: number[] = [];
   const idx: number[] = [];
   for (let i = 0; i <= segL; i++) {
     const v = i / segL;
     let half = 0.42 * Math.sin(Math.PI * Math.pow(v, 0.7)) * (1 + 0.35 * Math.pow(1 - v, 3));
-    half *= 1 + 0.05 * Math.sin(v * Math.PI * 22) * smooth(0.12, 0.3, v) * (1 - smooth(0.85, 1, v));
+    half *= 1 + 0.025 * Math.sin(v * Math.PI * 22) * smooth(0.12, 0.3, v) * (1 - smooth(0.85, 1, v));
     for (let j = 0; j <= segW; j++) {
       const xn = (j / segW) * 2 - 1;
       const z = 0.07 * xn * xn - 0.2 * v * v + 0.015 * Math.sin(v * 9 + xn * 3);
@@ -263,7 +282,11 @@ const CURL_VERTEX = {
 type PetalColours = { uPetalBase: { value: THREE.Color }; uPetalMid: { value: THREE.Color }; uPetalTip: { value: THREE.Color } };
 
 function petalMaterial(kind: 'ray' | 'bract', colours: PetalColours) {
-  const m = new THREE.MeshStandardMaterial({ side: THREE.DoubleSide, roughness: kind === 'ray' ? 0.52 : 0.7, metalness: 0 });
+  // a soft velvet sheen keeps the rays from reading as plastic
+  const m =
+    kind === 'ray'
+      ? new THREE.MeshPhysicalMaterial({ side: THREE.DoubleSide, roughness: 0.55, metalness: 0, sheen: 0.55, sheenColor: new THREE.Color('#fff0b0'), sheenRoughness: 0.45 })
+      : new THREE.MeshStandardMaterial({ side: THREE.DoubleSide, roughness: 0.7, metalness: 0 });
   m.onBeforeCompile = shader => {
     Object.assign(shader.uniforms, colours);
     shader.vertexShader = shader.vertexShader
@@ -277,8 +300,8 @@ function petalMaterial(kind: 'ray' | 'bract', colours: PetalColours) {
         vec3 col = mix(base, uPetalTip, smoothstep(0.35, 0.95, v));
         col = mix(col, col * vec3(1.0, 0.8, 0.55), vTone);
         float vein = pow(abs(sin((u - 0.5) * 3.14159 * 9.0 * (1.0 - 0.35 * v))), 12.0);
-        col *= 1.0 - 0.12 * vein * smoothstep(0.04, 0.3, v);
-        col *= 1.0 - 0.12 * smoothstep(0.32, 0.5, abs(u - 0.5));
+        col *= 1.0 - 0.08 * vein * smoothstep(0.04, 0.3, v);
+        col *= 1.0 - 0.08 * smoothstep(0.34, 0.5, abs(u - 0.5));
         if (!gl_FrontFacing) col = mix(col, vec3(0.9, 0.56, 0.06), 0.3);
         glow = col;`
         : `
@@ -413,6 +436,7 @@ export type FrameInfo = { bloom: number };
 
 type PetalState = { theta: number; ring: number; delay: number; seed: number; roll: number; pitch: Spring; curl: Spring; ph: number; w: number };
 type LeafState = { t: number; yaw: number; pitch: number; size: number; group: THREE.Group; sway: Spring; lift: Spring };
+type BudState = { id: 'budLow' | 'budLeft'; t: number; group: THREE.Group; head: THREE.Group; sway: Spring; phase: number };
 
 export class SunflowerScene {
   private renderer: THREE.WebGLRenderer;
@@ -444,6 +468,8 @@ export class SunflowerScene {
   private petalState: PetalState[] = [];
   private bractState: PetalState[] = [];
   private leaves: LeafState[] = [];
+  private buds: BudState[] = [];
+  private focusPts: Record<Focus, THREE.Vector3> = { head: new THREE.Vector3(0, 1, 0.1), budLow: new THREE.Vector3(), budLeft: new THREE.Vector3(), petal: new THREE.Vector3() };
   private bloom = new Spring(26, 7.5);
   private nod = new Spring(15, 2.0);
   private sway = new Spring(13, 1.6);
@@ -456,7 +482,7 @@ export class SunflowerScene {
   private pointer = new THREE.Vector2();
   private pointerSmooth = new THREE.Vector2();
   private pointerSpeed = 0;
-  private shot = sampleShots(DESKTOP, 0);
+  private shot = sampleShots(DESKTOP, 0, () => new THREE.Vector3(0, 1, 0.1));
   private tmpM = new THREE.Matrix4();
   private v1 = new THREE.Vector3();
   private v2 = new THREE.Vector3();
@@ -486,6 +512,7 @@ export class SunflowerScene {
     this.buildStem();
     this.buildHead();
     this.buildLeaves();
+    this.buildBuds();
 
     this.pollen.renderOrder = 2;
     this.scene.add(this.pollen);
@@ -537,8 +564,8 @@ export class SunflowerScene {
   }
 
   private buildStem() {
-    const SEG = 80;
-    const RAD = 12;
+    const SEG = 96;
+    const RAD = 18;
     const count = (SEG + 1) * (RAD + 1);
     const g = new THREE.BufferGeometry();
     this.stemPos = new THREE.BufferAttribute(new Float32Array(count * 3), 3);
@@ -600,7 +627,7 @@ export class SunflowerScene {
     this.head.add(face);
 
     // disc florets in a Fibonacci spiral
-    const floretGeo = new THREE.SphereGeometry(1, 7, 5);
+    const floretGeo = new THREE.SphereGeometry(1, 10, 8);
     const florets = new THREE.InstancedMesh(floretGeo, floretMaterial(this.bloomU), FLORETS);
     const aR = new Float32Array(FLORETS);
     const aSeed = new Float32Array(FLORETS);
@@ -655,7 +682,7 @@ export class SunflowerScene {
           pitch: new Spring(55 + pr() * 40, 2 + pr() * 1.5),
           curl: new Spring(45 + pr() * 30, 2.2 + pr()),
           ph: pr() * Math.PI * 2,
-          w: 0.29 + pr() * 0.07,
+          w: 0.27 + pr() * 0.06,
         });
       }
     const btone = this.bracts.geometry.getAttribute('aTone') as THREE.InstancedBufferAttribute;
@@ -697,6 +724,90 @@ export class SunflowerScene {
       group.add(petiole, blade);
       this.scene.add(group);
       this.leaves.push({ ...s, yaw: s.yaw * DEG, pitch: s.pitch * DEG, group, sway: new Spring(18, 1.4), lift: new Spring(16, 1.3) });
+    }
+  }
+
+  /** Two side buds on short branches: stops on the scroll tour. */
+  private buildBuds() {
+    const specs = [
+      { id: 'budLow' as const, t: 0.66, end: new THREE.Vector3(0.3, 0.3, 0.14), size: 1, phase: 0.4 },
+      { id: 'budLeft' as const, t: 0.77, end: new THREE.Vector3(-0.28, 0.26, 0.08), size: 0.88, phase: 2.1 },
+    ];
+    const Z = new THREE.Vector3(0, 0, 1);
+    const pr = rng(41);
+    for (const s of specs) {
+      const group = new THREE.Group();
+      const e = s.end;
+      // the branch leaves the stem at a low angle, then turns up towards the light
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(e.x * 0.4, e.y * 0.12, e.z * 0.3),
+        new THREE.Vector3(e.x * 0.85, e.y * 0.55, e.z * 0.8),
+        e.clone(),
+      ]);
+      const branch = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.0085, 12), this.stemMat);
+      branch.castShadow = true;
+      branch.receiveShadow = true;
+      group.add(branch);
+
+      const head = new THREE.Group();
+      head.position.copy(e);
+      head.quaternion.setFromUnitVectors(Z, curve.getTangent(1).normalize());
+      head.scale.setScalar(s.size);
+      group.add(head);
+
+      // receptacle
+      const cupGeo = new THREE.LatheGeometry(
+        [
+          [0, -0.034],
+          [0.014, -0.032],
+          [0.026, -0.024],
+          [0.033, -0.01],
+          [0.034, 0],
+        ].map(([r, y]) => new THREE.Vector2(r, y)),
+        32,
+      );
+      cupGeo.rotateX(Math.PI / 2);
+      const cup = new THREE.Mesh(cupGeo, this.stemMat);
+      cup.castShadow = true;
+      head.add(cup);
+
+      // phyllaries: an outer ring flaring back, an inner ring folded shut over the top
+      const makeBud = (n: number, kind: 'ray' | 'bract') => {
+        const geo = petalGeometry(20, 8);
+        geo.setAttribute('aCurl', new THREE.InstancedBufferAttribute(new Float32Array(n), 1));
+        geo.setAttribute('aTone', new THREE.InstancedBufferAttribute(new Float32Array(n), 1));
+        const mesh = new THREE.InstancedMesh(geo, petalMaterial(kind, this.colours), n);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.frustumCulled = false;
+        head.add(mesh);
+        return mesh;
+      };
+      const OUTER = 12;
+      const INNER = 14;
+      const RAYS = 10;
+      const bracts = makeBud(OUTER + INNER, 'bract');
+      const bc = bracts.geometry.getAttribute('aCurl') as THREE.InstancedBufferAttribute;
+      const bt = bracts.geometry.getAttribute('aTone') as THREE.InstancedBufferAttribute;
+      for (let i = 0; i < OUTER + INNER; i++) {
+        const inner = i >= OUTER;
+        const k = inner ? i - OUTER : i;
+        const theta = ((k + (inner ? 0.5 : 0)) / (inner ? INNER : OUTER)) * Math.PI * 2 + (pr() - 0.5) * 0.15;
+        const phi = (inner ? 8 + pr() * 6 : 38 + pr() * 14) * DEG;
+        this.placePetal(bracts, i, theta, phi, (pr() - 0.5) * 0.3, inner ? 0.022 : 0.03, inner ? -0.004 : -0.012, inner ? 0.072 : 0.06 + pr() * 0.015, inner ? 0.55 : 0.5);
+        bc.setX(i, inner ? 2.4 + pr() * 0.4 : -0.8 - pr() * 0.6);
+        bt.setX(i, pr());
+      }
+      // a few ray tips just showing gold through the seam
+      const rays = makeBud(RAYS, 'ray');
+      const rc = rays.geometry.getAttribute('aCurl') as THREE.InstancedBufferAttribute;
+      for (let i = 0; i < RAYS; i++) {
+        this.placePetal(rays, i, (i / RAYS) * Math.PI * 2, 4 * DEG, 0, 0.01, 0.004, 0.06, 0.45);
+        rc.setX(i, 1.6);
+      }
+      this.scene.add(group);
+      this.buds.push({ id: s.id, t: s.t, group, head, sway: new Spring(14, 1.5), phase: s.phase });
     }
   }
 
@@ -914,6 +1025,22 @@ export class SunflowerScene {
       leaf.group.rotation.set(leaf.pitch + lift, leaf.yaw + sway, sway * 0.6, 'YXZ');
     }
 
+    /* ---- side buds ride their branches ---- */
+    for (const bud of this.buds) {
+      this.spine(bud.t, pt);
+      bud.group.position.copy(pt);
+      const idle = this.reduced ? 0 : Math.sin(time * 0.8 + bud.phase) * 0.03;
+      const sway = dt > 0 ? bud.sway.step((stemVel * 0.3 + idle + this.windiness * 0.04 * Math.sin(time * 5 + bud.phase)) * P.leafSway, dt) : 0;
+      bud.group.rotation.set(sway * 0.4, 0, sway * 0.7);
+    }
+
+    /* ---- where the camera's subjects are this frame ---- */
+    this.scene.updateMatrixWorld();
+    this.head.getWorldPosition(this.focusPts.head);
+    for (const bud of this.buds) bud.head.getWorldPosition(this.focusPts[bud.id]);
+    // the ray pointing up from the top of the head; framed so the disc stays out of shot below
+    this.petalPoint(this.petals, RING / 4, 0.8, this.focusPts.petal);
+
     /* ---- pollen ---- */
     const pm = this.pollen.material as THREE.ShaderMaterial;
     pm.uniforms.time.value = time;
@@ -932,10 +1059,8 @@ export class SunflowerScene {
         const inside = s.z < 1 && Math.abs(s.x) < 1.05 && Math.abs(s.y) < 1.05;
         out.push({ id, x: (s.x * 0.5 + 0.5) * this.size.w, y: (-s.y * 0.5 + 0.5) * this.size.h, visible: inside ? 1 : 0 });
       };
-      add('rays', this.petalPoint(this.petals, 4, 0.78, new THREE.Vector3()));
+      add('rays', this.petalPoint(this.petals, 14, 0.78, new THREE.Vector3()));
       add('disc', new THREE.Vector3(-0.035, 0.05, 0.016).applyMatrix4(this.head.matrixWorld));
-      add('centre', new THREE.Vector3(0.008, 0.006, 0.02).applyMatrix4(this.head.matrixWorld));
-      add('stem', this.spine(0.9, new THREE.Vector3()));
       this.onFrame(out, { bloom });
     }
   }
@@ -943,7 +1068,7 @@ export class SunflowerScene {
   private updateCamera(dt: number) {
     const { w, h } = this.size;
     const P = this.params;
-    const target = sampleShots(w < 768 ? MOBILE : DESKTOP, clamp(P.scrub ? P.scrubProgress : this.progress, 0, 1));
+    const target = sampleShots(w < 768 ? MOBILE : DESKTOP, clamp(P.scrub ? P.scrubProgress : this.progress, 0, 1), f => this.focusPts[f]);
     const k = dt === 0 ? 1 : 1 - Math.exp(-dt * P.cameraFollow);
     const s = this.shot;
     s.az += (target.az - s.az) * k;

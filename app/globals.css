@@ -23,6 +23,7 @@
   --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
   --font-sans: 'Instrument Sans Variable', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace;
+  --font-hand: 'Caveat', 'Segoe Print', cursive;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -184,6 +185,369 @@
   .hairline-x {
     background-image: linear-gradient(90deg, transparent, var(--color-line-strong) 12%, var(--color-line-strong) 88%, transparent);
     height: 1px;
+  }
+}
+
+/* ---------------------------------------------------------------------------------------
+   The diary. Every size is in cqw (a percentage of the page's own width), so a page reads
+   the same whether the book is 560px or 280px wide.
+   --------------------------------------------------------------------------------------- */
+@layer components {
+  .diary-stage .stf__parent {
+    margin-inline: auto;
+  }
+  .diary-page {
+    container-type: size;
+    overflow: hidden;
+    background-color: #fbf8f0;
+    color: var(--color-ink);
+  }
+  .diary-sheet {
+    position: absolute;
+    inset: 0;
+    padding: 9cqw 8cqw 8cqw 10cqw;
+    font-size: 3.6cqw;
+    /* faint ruled lines, a margin rule, and a little paper tooth */
+    background:
+      linear-gradient(to right, transparent 6.4cqw, rgb(214 120 110 / 0.28) 6.4cqw 6.7cqw, transparent 6.7cqw),
+      repeating-linear-gradient(to bottom, transparent 0 calc(6.2cqw - 1px), rgb(54 95 186 / 0.07) calc(6.2cqw - 1px) 6.2cqw),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .26 0 0 0 0 .18 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* the fold: pages darken towards the binding */
+  .stf__item.--left .diary-sheet::after,
+  .stf__item.--right .diary-sheet::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    width: 14%;
+    pointer-events: none;
+  }
+  .stf__item.--left .diary-sheet::after {
+    right: 0;
+    background: linear-gradient(to left, rgb(60 50 30 / 0.16), transparent);
+  }
+  .stf__item.--right .diary-sheet::after {
+    left: 0;
+    background: linear-gradient(to right, rgb(60 50 30 / 0.16), transparent);
+  }
+
+  /* hard covers: blue book cloth */
+  .diary-hard {
+    background-color: #2f4c8f;
+  }
+  .diary-hard .diary-sheet {
+    padding: 8cqw;
+    background:
+      radial-gradient(120% 90% at 20% 0%, rgb(255 255 255 / 0.12), transparent 55%),
+      repeating-linear-gradient(45deg, rgb(255 255 255 / 0.035) 0 2px, transparent 2px 5px),
+      repeating-linear-gradient(-45deg, rgb(0 0 0 / 0.05) 0 2px, transparent 2px 5px),
+      #2f4c8f;
+    box-shadow: inset 0 0 0 2.2cqw rgb(0 0 0 / 0.06);
+  }
+  .diary-cover {
+    position: absolute;
+    inset: 8cqw;
+    display: flex;
+    flex-direction: column;
+  }
+  .diary-cover-label {
+    font-family: var(--font-mono);
+    font-size: 2.5cqw;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgb(243 236 216 / 0.7);
+  }
+  .diary-cover-title {
+    margin-top: 4cqw;
+    font-family: var(--font-serif);
+    font-size: 11.5cqw;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: #f6efdc;
+  }
+  .diary-cover-title em,
+  .diary-cover em {
+    font-style: italic;
+    color: #f2c230;
+  }
+  .diary-kid {
+    position: relative;
+    margin: auto auto 0;
+    width: 50%;
+    /* a die-cut sticker: white keyline and a soft lift */
+    filter: drop-shadow(0.6cqw 0 0 #fff) drop-shadow(-0.6cqw 0 0 #fff) drop-shadow(0 0.6cqw 0 #fff) drop-shadow(0 -0.6cqw 0 #fff) drop-shadow(0 1.6cqw 2.4cqw rgb(0 0 0 / 0.35));
+    rotate: -3deg;
+  }
+  .diary-kid img {
+    display: block;
+    width: 100%;
+  }
+  .diary-kid.is-missing {
+    aspect-ratio: 3 / 4;
+    filter: none;
+  }
+  .diary-cover-tag {
+    margin-top: 4cqw;
+    text-align: center;
+  }
+
+  .diary-kicker {
+    font-family: var(--font-mono);
+    font-size: 2.5cqw;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .diary-title {
+    margin-top: 2.4cqw;
+    font-family: var(--font-serif);
+    font-size: 9.4cqw;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .diary-title em {
+    font-style: italic;
+    color: var(--color-blue);
+  }
+  .diary-note {
+    margin-top: 4cqw;
+    font-size: 3.7cqw;
+    line-height: 1.55;
+    color: var(--color-ink-soft);
+  }
+  .diary-hand {
+    font-family: var(--font-hand);
+    font-weight: 500;
+  }
+
+  .polaroid {
+    position: relative;
+    background: #fff;
+    padding: 3.5% 3.5% 0;
+    box-shadow: 0 1.4cqw 3cqw -1.4cqw rgb(40 36 20 / 0.45), 0 0 0 1px rgb(40 36 20 / 0.05);
+  }
+  .polaroid-img {
+    position: relative;
+    overflow: hidden;
+    background: #ece6d6;
+  }
+  .polaroid-img img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .polaroid figcaption {
+    padding: 1.4cqw 0 2cqw;
+    text-align: center;
+    font-family: var(--font-hand);
+    font-weight: 500;
+    font-size: 4.4cqw;
+    line-height: 1;
+    color: var(--color-ink-soft);
+  }
+  .polaroid:not(:has(figcaption)) {
+    padding-bottom: 6%;
+  }
+  .polaroid-missing {
+    display: none;
+  }
+  [data-photo].is-missing img {
+    display: none;
+  }
+  [data-photo].is-missing .polaroid-missing,
+  .diary-kid.is-missing .polaroid-missing {
+    position: absolute;
+    inset: 4%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0.4cqw dashed rgb(54 95 186 / 0.35);
+    font-family: var(--font-hand);
+    font-size: 4cqw;
+    color: rgb(54 95 186 / 0.7);
+    text-align: center;
+  }
+  .diary-kid.is-missing .polaroid-missing {
+    inset: 0;
+    border-color: rgb(243 236 216 / 0.5);
+    color: rgb(243 236 216 / 0.8);
+  }
+
+  .sticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 1.1cqw 2.8cqw;
+    border-radius: 999px;
+    border: 0.8cqw solid #fff;
+    font-size: 3.3cqw;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    box-shadow: 0 1.2cqw 2.4cqw -1cqw rgb(40 36 20 / 0.4);
+  }
+  .sticker-butter { background: #f2c230; color: #2c2410; }
+  .sticker-lilac { background: #d9d2f4; color: #3d3264; }
+  .sticker-mint { background: #bfe8c8; color: #1f4d2c; }
+  .sticker-rose { background: #f6c8d0; color: #5e2633; }
+  .sticker-blue { background: #365fba; color: #fffef6; }
+
+  .tape {
+    position: absolute;
+    z-index: 2;
+    width: 24%;
+    height: 6cqw;
+    background: rgb(250 238 196 / 0.72);
+    box-shadow: 0 0.4cqw 0.8cqw rgb(40 36 20 / 0.12);
+    mask-image: linear-gradient(90deg, transparent 0 2%, #000 2% 98%, transparent 98%);
+  }
+
+  .diary-timeline {
+    position: relative;
+    margin-top: 5cqw;
+    display: grid;
+    gap: 2.6cqw;
+  }
+  .diary-timeline::before {
+    content: '';
+    position: absolute;
+    left: 17.5cqw;
+    top: 2cqw;
+    bottom: 2cqw;
+    width: 0;
+    border-left: 0.4cqw dashed rgb(54 95 186 / 0.45);
+  }
+  .diary-timeline li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 15cqw 1fr;
+    gap: 5cqw;
+    align-items: baseline;
+  }
+  .diary-timeline li::before {
+    content: '';
+    position: absolute;
+    left: 16.6cqw;
+    top: 1.4cqw;
+    width: 2.2cqw;
+    height: 2.2cqw;
+    border-radius: 50%;
+    background: #fbf8f0;
+    border: 0.45cqw solid var(--color-blue);
+  }
+  .diary-timeline li > span {
+    text-align: right;
+    font-size: 4.8cqw;
+    line-height: 1;
+    color: var(--color-blue);
+  }
+  .diary-timeline p {
+    font-size: 3.4cqw;
+    line-height: 1.3;
+  }
+  .diary-timeline p span {
+    display: block;
+    color: var(--color-muted);
+  }
+  .diary-timeline li.is-now::before {
+    background: #f2c230;
+    border-color: #c98f27;
+  }
+  .diary-timeline li.is-now b {
+    color: var(--color-blue);
+  }
+
+  .diary-list {
+    margin-top: 5cqw;
+    display: grid;
+    gap: 3cqw;
+    font-size: 3.6cqw;
+    line-height: 1.5;
+    color: var(--color-ink-soft);
+  }
+  .diary-list li {
+    position: relative;
+    padding-left: 5cqw;
+  }
+  .diary-list li::before {
+    content: '✿';
+    position: absolute;
+    left: 0;
+    color: #c98f27;
+  }
+  .diary-list b {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  .diary-post {
+    margin-top: 5cqw;
+    border-radius: 3cqw;
+    background: #fff;
+    padding: 4cqw;
+    font-size: 3.4cqw;
+    line-height: 1.5;
+    color: var(--color-ink-soft);
+    box-shadow: 0 1.4cqw 3cqw -1.6cqw rgb(40 36 20 / 0.35);
+    rotate: -1deg;
+  }
+  .diary-post-head {
+    display: flex;
+    align-items: center;
+    gap: 2cqw;
+    margin-bottom: 2cqw;
+    color: var(--color-ink);
+  }
+  .diary-post-avatar {
+    display: inline-flex;
+    width: 6.5cqw;
+    height: 6.5cqw;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 3.2cqw;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .diary-book {
+    display: flex;
+    width: 23cqw;
+    height: 33cqw;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 0.6cqw 1.4cqw 1.4cqw 0.6cqw;
+    padding: 2.6cqw 2.4cqw;
+    box-shadow: inset 1.2cqw 0 0 rgb(0 0 0 / 0.12), 0 1.6cqw 3cqw -1.4cqw rgb(40 36 20 / 0.5);
+  }
+  .diary-book-title {
+    font-family: var(--font-serif);
+    font-size: 4.2cqw;
+    line-height: 1.02;
+  }
+  .diary-book-by {
+    font-size: 2.3cqw;
+    opacity: 0.8;
+  }
+
+  .diary-app {
+    width: 13cqw;
+    height: 13cqw;
+    border-radius: 3cqw;
+    object-fit: cover;
+    box-shadow: 0 1.2cqw 2.4cqw -1cqw rgb(40 36 20 / 0.45);
+  }
+  .diary-chip {
+    border: 0.35cqw solid rgb(54 95 186 / 0.3);
+    background: rgb(255 255 255 / 0.75);
+    border-radius: 999px;
+    padding: 0.9cqw 2.4cqw;
+    font-size: 2.9cqw;
+    color: var(--color-blue);
   }
 }
 
