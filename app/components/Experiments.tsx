@@ -1,8 +1,8 @@
 'use client';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowUpRight, Dices, Mic, MousePointer2, Play, Sun, Sunset } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, Dices, Play } from 'lucide-react';
+import { useState } from 'react';
 import { links, whatIfs } from '../lib/content';
 import { MaskHeading, Reveal, SectionLabel } from './ui';
 
@@ -24,14 +24,8 @@ export default function Experiments() {
         </div>
 
         <div className="mt-14 grid gap-4 md:mt-20 md:grid-cols-12 md:gap-5">
-          <Reveal className="md:col-span-7 md:row-span-2">
-            <ShaderPatch />
-          </Reveal>
-          <Reveal delay={0.08} className="md:col-span-5">
+          <Reveal className="md:col-span-12">
             <WhatIf />
-          </Reveal>
-          <Reveal delay={0.16} className="md:col-span-5">
-            <VoiceCard />
           </Reveal>
           <Reveal delay={0.05} className="md:col-span-6">
             <FilmSlot n="01" title="An idea in motion." note="A space for my first project film." tone="bg-blue-mist" code="{ imagination → interaction }" />
@@ -64,7 +58,7 @@ function WhatIf() {
           {i + 1}/{whatIfs.length}
         </span>
       </div>
-      <div className="relative my-6 min-h-[3.4em] font-serif text-[clamp(24px,2.3vw,32px)] leading-[1.12] tracking-[-0.01em]" aria-live="polite">
+      <div className="relative my-8 min-h-[2.4em] max-w-[30ch] font-serif text-[clamp(28px,3.4vw,50px)] leading-[1.08] tracking-[-0.01em]" aria-live="polite">
         <AnimatePresence mode="wait">
           <motion.p
             key={i}
@@ -89,41 +83,6 @@ function WhatIf() {
   );
 }
 
-function VoiceCard() {
-  const bars = [0.35, 0.7, 0.45, 1, 0.6, 0.85, 0.4, 0.95, 0.55, 0.75, 0.3, 0.65, 0.9, 0.5, 0.8, 0.4, 0.7, 0.35];
-  return (
-    <a
-      href="https://manyaa.me/works/sakhi"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group relative flex h-full min-h-[260px] flex-col justify-between overflow-hidden rounded-[24px] bg-[#efe0d3] p-7 md:p-8"
-    >
-      <div className="flex items-center justify-between">
-        <p className="eyebrow !text-[#593a32]/70">Sakhi · Agentic AI</p>
-        <span className="flex size-10 items-center justify-center rounded-full bg-[#593a32] text-[#efe0d3]">
-          <Mic className="size-4" strokeWidth={1.75} />
-        </span>
-      </div>
-      <div className="my-6 flex h-14 items-center gap-[5px]" aria-hidden="true">
-        {bars.map((h, i) => (
-          <span
-            key={i}
-            className="w-[5px] origin-center rounded-full bg-[#593a32]/70 animate-[voice_1.4s_ease-in-out_infinite] group-hover:bg-[#593a32]"
-            style={{ height: `${h * 100}%`, animationDelay: `${i * 0.07}s` }}
-          />
-        ))}
-      </div>
-      <div className="flex items-end justify-between gap-4">
-        <p className="font-serif text-[clamp(26px,2.4vw,34px)] leading-[1.05] text-[#3d2620]">
-          When an idea <em className="text-[#8a4a36]">finds its voice.</em>
-        </p>
-        <ArrowUpRight className="size-6 shrink-0 text-[#593a32] transition-transform duration-500 ease-out-expo group-hover:-translate-y-1 group-hover:translate-x-1" strokeWidth={1.5} />
-      </div>
-      <style>{`@keyframes voice{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}`}</style>
-    </a>
-  );
-}
-
 function FilmSlot({ n, title, note, tone, code }: { n: string; title: string; note: string; tone: string; code: string }) {
   return (
     <article>
@@ -143,157 +102,5 @@ function FilmSlot({ n, title, note, tone, code }: { n: string; title: string; no
       </div>
       <p className="mt-1 px-1 text-[15px] text-muted">{note} Coming soon.</p>
     </article>
-  );
-}
-
-/* ------------------------------------------------------------------------ */
-/*  WebGL colour field with pollen that scatters from the pointer           */
-/* ------------------------------------------------------------------------ */
-
-const vertex = 'attribute vec2 position;varying vec2 uv;void main(){uv=position*.5+.5;gl_Position=vec4(position,0.,1.);}';
-const fragment = `precision mediump float;varying vec2 uv;uniform float time;uniform float palette;uniform vec2 pointer;
-float field(vec2 p){return sin(p.x*7.+sin(p.y*4.+time*.3))*sin(p.y*6.-time*.2);}
-void main(){vec2 p=uv;float f=field(p);float g=field(p*1.5+vec2(time*.025,0.));
-vec3 a=vec3(.27,.38,.25);vec3 b=vec3(.80,.78,.42);vec3 c=vec3(.88,.60,.40);
-if(palette>0.5){a=vec3(.17,.24,.46);b=vec3(.55,.50,.72);c=vec3(.95,.70,.38);}
-vec3 color=mix(a,b,smoothstep(-.9,.9,f));color=mix(color,c,smoothstep(.35,.9,g)*.6);
-float pollen=0.;for(int i=0;i<22;i++){float n=float(i);vec2 seed=vec2(fract(sin(n*43.3)*45.1),fract(sin(n*17.7)*62.7));
-vec2 drift=vec2(sin(time*.4+n)*.025,cos(time*.3+n)*.03);drift+=normalize(seed-pointer+vec2(.001))*exp(-length(seed-pointer)*9.)*.12;
-float d=length(p-seed-drift);pollen+=smoothstep(.007,.002,d)*.55;}
-color+=pollen;color+=vec3(.22,.18,.06)*exp(-length(p-pointer)*9.);
-float vig=smoothstep(1.15,.35,length(p-.5));color*=mix(.82,1.,vig);
-gl_FragColor=vec4(color,1.);}`;
-
-function ShaderPatch() {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const paletteRef = useRef(0);
-  const [palette, setPalette] = useState(0);
-  const [fallback, setFallback] = useState(false);
-
-  useEffect(() => {
-    paletteRef.current = palette;
-  }, [palette]);
-
-  useEffect(() => {
-    const canvas = ref.current!;
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const gl = canvas.getContext('webgl', { alpha: false, antialias: false, powerPreference: 'low-power' });
-    if (!gl) {
-      setFallback(true);
-      return;
-    }
-    const compile = (type: number, src: string) => {
-      const s = gl.createShader(type)!;
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
-    };
-    const vs = compile(gl.VERTEX_SHADER, vertex);
-    const fs = compile(gl.FRAGMENT_SHADER, fragment);
-    if (!vs || !fs) {
-      setFallback(true);
-      return;
-    }
-    const program = gl.createProgram()!;
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-    gl.useProgram(program);
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
-    const loc = gl.getAttribLocation(program, 'position');
-    gl.enableVertexAttribArray(loc);
-    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    const uTime = gl.getUniformLocation(program, 'time');
-    const uPalette = gl.getUniformLocation(program, 'palette');
-    const uPointer = gl.getUniformLocation(program, 'pointer');
-
-    let frame = 0;
-    let visible = false;
-    const target = [0.5, 0.5];
-    const pointer = [0.5, 0.5];
-    let mix = 0;
-    const resize = () => {
-      const r = canvas.getBoundingClientRect();
-      const dpr = Math.min(devicePixelRatio || 1, 1.5);
-      canvas.width = Math.round(r.width * dpr);
-      canvas.height = Math.round(r.height * dpr);
-      gl.viewport(0, 0, canvas.width, canvas.height);
-    };
-    const draw = (t: number) => {
-      frame = 0;
-      pointer[0] += (target[0] - pointer[0]) * 0.08;
-      pointer[1] += (target[1] - pointer[1]) * 0.08;
-      mix += (paletteRef.current - mix) * 0.06;
-      gl.uniform1f(uTime, reduced ? 0 : t * 0.001);
-      gl.uniform1f(uPalette, mix);
-      gl.uniform2f(uPointer, pointer[0], pointer[1]);
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-      if (visible && !document.hidden) frame = requestAnimationFrame(draw);
-    };
-    const start = () => {
-      if (!frame) frame = requestAnimationFrame(draw);
-    };
-    const io = new IntersectionObserver(([e]) => {
-      visible = e.isIntersecting;
-      if (visible) start();
-    });
-    io.observe(canvas);
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-    resize();
-    const move = (e: PointerEvent) => {
-      const r = canvas.getBoundingClientRect();
-      target[0] = (e.clientX - r.left) / r.width;
-      target[1] = 1 - (e.clientY - r.top) / r.height;
-    };
-    const vis = () => !document.hidden && visible && start();
-    canvas.addEventListener('pointermove', move);
-    document.addEventListener('visibilitychange', vis);
-    return () => {
-      cancelAnimationFrame(frame);
-      io.disconnect();
-      ro.disconnect();
-      canvas.removeEventListener('pointermove', move);
-      document.removeEventListener('visibilitychange', vis);
-      gl.deleteBuffer(buffer);
-      gl.deleteProgram(program);
-      gl.deleteShader(vs);
-      gl.deleteShader(fs);
-    };
-  }, []);
-
-  return (
-    <div className="group relative h-full min-h-[420px] overflow-hidden rounded-[24px] bg-[#6d7c4a] md:min-h-[540px]">
-      <canvas ref={ref} className={`absolute inset-0 size-full ${fallback ? 'hidden' : ''}`} role="img" aria-label="A flowing botanical colour field with pollen that drifts away from your pointer" />
-      {fallback && <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#cfc56b,transparent_50%),radial-gradient(circle_at_70%_70%,#e09a66,transparent_45%),#45603f]" />}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent" />
-      <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-[12px] text-white/90 backdrop-blur-md">
-        <MousePointer2 className="size-3.5" strokeWidth={2} />
-        Move through the light
-      </div>
-      <div className="absolute inset-x-6 bottom-6 flex flex-wrap items-end justify-between gap-4 md:inset-x-8 md:bottom-8">
-        <div>
-          <h3 className="font-serif text-[clamp(34px,3.6vw,54px)] leading-none tracking-[-0.02em] text-white">
-            Colour, <em>in the wild.</em>
-          </h3>
-          <p className="mt-2 text-[15px] text-white/75">A shader study. Scatter a little pollen.</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setPalette(p => 1 - p)}
-          aria-pressed={palette === 1}
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-white/90 px-4 text-[14px] font-medium text-ink backdrop-blur transition-colors hover:bg-white"
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span key={palette} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.3 }}>
-              {palette ? <Sunset className="size-4" strokeWidth={1.75} /> : <Sun className="size-4" strokeWidth={1.75} />}
-            </motion.span>
-          </AnimatePresence>
-          {palette ? 'Dusk light' : 'Noon light'}
-        </button>
-      </div>
-    </div>
   );
 }

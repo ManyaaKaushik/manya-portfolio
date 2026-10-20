@@ -3,12 +3,12 @@
 import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform, useVelocity } from 'motion/react';
 import { ArrowUpRight, Sprout } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { caseStudies, domains, links, studies, type CaseStudy } from '../lib/content';
+import { caseStudies, links, skills, studies, type CaseStudy } from '../lib/content';
 import { MaskHeading, Reveal, SectionLabel } from './ui';
 
 export default function Work() {
   return (
-    <section id="work" aria-labelledby="work-title" className="relative scroll-mt-0 pt-10 md:pt-16">
+    <section id="work" aria-labelledby="work-title" className="relative z-10 -mt-[55svh] scroll-mt-0 pt-10 md:pt-16">
       <Ticker />
 
       <div className="mx-auto max-w-[1360px] px-5 pt-24 md:px-10 md:pt-36">
@@ -42,14 +42,14 @@ export default function Work() {
 /* ------------------------------------------------------------------------ */
 
 function Ticker() {
-  const items = [...domains, ...domains];
+  const items = [...skills, ...skills];
   return (
-    <div className="relative overflow-hidden border-y border-line py-5" aria-label="Domains I have designed for">
+    <div className="relative overflow-hidden border-y border-line py-5" aria-label="Skills I bring">
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-paper to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-paper to-transparent" />
       <ul className="flex w-max animate-[ticker_48s_linear_infinite] items-center gap-10 pr-10 hover:[animation-play-state:paused]">
         {items.map((d, i) => (
-          <li key={i} aria-hidden={i >= domains.length} className="flex items-center gap-10 whitespace-nowrap font-serif text-[30px] leading-none tracking-[-0.01em] text-ink md:text-[40px]">
+          <li key={i} aria-hidden={i >= skills.length} className="flex items-center gap-10 whitespace-nowrap font-serif text-[30px] leading-none tracking-[-0.01em] text-ink md:text-[40px]">
             {i % 2 ? <em className="text-blue">{d}</em> : d}
             <Sprout className="size-5 text-gold" strokeWidth={1.5} />
           </li>
