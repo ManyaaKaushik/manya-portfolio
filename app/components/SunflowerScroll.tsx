@@ -453,7 +453,7 @@ function StopPanel({
 
 const ROLES = ['Designer,', 'Problem Solver,', 'Systems Thinker'];
 
-function Welcome({ loaded, ready, onDone }: { loaded: number; ready: boolean; onDone: () => void }) {
+export function Welcome({ loaded, ready, onDone }: { loaded: number; ready: boolean; onDone: () => void }) {
   const pct = Math.round(loaded * 100);
   const doneRef = useRef(false);
   const done = () => {

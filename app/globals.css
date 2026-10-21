@@ -572,3 +572,10 @@
   border-radius: 10px 10px 0 0;
   letter-spacing: 0.06em;
 }
+
+/* The scroll cue on the table's first screen */
+@keyframes cue {
+  0% { transform: translateY(0); opacity: 0; }
+  30% { opacity: 1; }
+  80%, 100% { transform: translateY(8px); opacity: 0; }
+}
