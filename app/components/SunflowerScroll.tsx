@@ -6,16 +6,9 @@ import { useEffect, useRef, useState } from 'react';
 import { caseStudies, testimonials } from '../lib/content';
 import AsciiVideo from './AsciiVideo';
 import DitherSky from './DitherSky';
-import type { Projected, SunflowerScene } from './sunflower/scene';
+import type { SunflowerScene } from './sunflower/scene';
 import { STOPS } from './sunflower/stops';
 import { scrollToId, useLenis } from './SmoothScroll';
-
-/* Herbarium callouts pinned to points on the open head; each shows while its range is on screen. */
-type Callout = { id: string; range: readonly [number, number]; side: 'left' | 'right'; lift: number; label: string; note: string };
-const CALLOUTS: Callout[] = [
-  { id: 'rays', range: STOPS.bloom, side: 'left', lift: -56, label: 'Ray florets', note: 'each “petal” is a flower' },
-  { id: 'disc', range: STOPS.bloom, side: 'left', lift: 64, label: 'Disc florets', note: '1,100, in Fibonacci spirals' },
-];
 
 const STATES: [number, string][] = [
   [0.1, 'Just opening'],
@@ -34,7 +27,6 @@ export default function SunflowerScroll() {
   const containerRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<SunflowerScene | null>(null);
-  const calloutRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const bloomRef = useRef<HTMLSpanElement>(null);
   const stateRef = useRef<HTMLSpanElement>(null);
   const lenis = useLenis();
@@ -102,7 +94,7 @@ export default function SunflowerScroll() {
         sceneRef.current = scene;
         const r = canvas.getBoundingClientRect();
         scene.resize(r.width, r.height);
-        scene.onFrame = (projected, info) => placeCallouts(projected, info);
+        scene.onFrame = info => updateHud(info);
         scene.progress = progress.get();
         if (process.env.NODE_ENV === 'development') {
           // tweak panel for the flower; stripped from production builds
@@ -110,7 +102,8 @@ export default function SunflowerScroll() {
           if (cancelled) return;
           disposePanel = mountDevPanel(scene);
         }
-        scene.warm();
+        await scene.warm();
+        if (cancelled) return;
         setLoaded(1);
         io.observe(section);
         ro.observe(canvas);
@@ -125,18 +118,8 @@ export default function SunflowerScroll() {
       }
     })();
 
-    const placeCallouts = (projected: Projected[], info: { bloom: number }) => {
+    const updateHud = (info: { bloom: number }) => {
       const p = progress.get();
-      for (const pt of projected) {
-        const el = calloutRefs.current[pt.id];
-        const c = CALLOUTS.find(x => x.id === pt.id);
-        if (!el || !c) continue;
-        const [a, b] = c.range;
-        const o = Math.min(smooth(a - 0.03, a + 0.02, p), 1 - smooth(b, b + 0.03, p)) * pt.visible;
-        el.style.opacity = o.toFixed(3);
-        el.style.transform = `translate3d(${pt.x.toFixed(1)}px, ${pt.y.toFixed(1)}px, 0)`;
-        el.style.setProperty('--draw', o.toFixed(3));
-      }
       if (bloomRef.current) bloomRef.current.textContent = `Bloom ${String(Math.round(Math.min(1, Math.max(0, info.bloom)) * 100)).padStart(3, '0')}%`;
       if (stateRef.current) {
         const label = STATES.find(([limit]) => p < limit)?.[1] ?? '';
@@ -206,40 +189,6 @@ export default function SunflowerScroll() {
             role="img"
             aria-label="A 3D sunflower. As you scroll, its head opens, then the camera travels to a bud low on the stem, a second bud on the left, a single petal, and finally round to the back of the flower."
           />
-
-          {/* herbarium callouts */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[5] hidden lg:block">
-            {CALLOUTS.map(c => (
-              <div
-                key={c.id}
-                ref={el => {
-                  calloutRefs.current[c.id] = el;
-                }}
-                className="absolute left-0 top-0 opacity-0 will-change-transform"
-              >
-                <span className="absolute -left-[5px] -top-[5px] size-[10px] rounded-full border border-ink/60 bg-paper-light/70 backdrop-blur-[2px]" />
-                <span className="absolute -left-[1.5px] -top-[1.5px] size-[3px] rounded-full bg-ink" />
-                <svg className="absolute overflow-visible" style={{ left: 0, top: 0 }} width="1" height="1">
-                  <path
-                    d={`M ${c.side === 'left' ? -6 : 6} ${c.lift > 0 ? 6 : -6} L ${c.side === 'left' ? -40 : 40} ${c.lift} L ${c.side === 'left' ? -120 : 120} ${c.lift}`}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1"
-                    pathLength={1}
-                    className="text-ink/45"
-                    style={{ strokeDasharray: 1, strokeDashoffset: 'calc(1 - var(--draw, 0))' }}
-                  />
-                </svg>
-                <div
-                  className={`absolute w-max rounded-md bg-paper/75 px-2 py-1 backdrop-blur-[3px] ${c.side === 'left' ? 'text-right' : 'text-left'}`}
-                  style={{ top: c.lift - 40, ...(c.side === 'left' ? { right: 120 } : { left: 120 }) }}
-                >
-                  <p className="font-mono text-[10.5px] uppercase tracking-[0.16em] text-ink/70">{c.label}</p>
-                  <p className="mt-0.5 font-serif text-[19px] italic leading-tight text-blue">{c.note}</p>
-                </div>
-              </div>
-            ))}
-          </div>
 
           {/* corner registration marks — a printed plate */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-4 hidden md:block lg:inset-6">
@@ -363,7 +312,7 @@ export default function SunflowerScroll() {
             <div className="flex flex-col items-end gap-2 pb-4 pr-5">
               <p>
                 <span ref={bloomRef} className="tabular-nums text-ink/70">
-                  Bloom 060%
+                  Bloom 028%
                 </span>
               </p>
               <div className="h-px w-28 bg-ink/15">
@@ -380,11 +329,6 @@ export default function SunflowerScroll() {
   );
 }
 
-const smooth = (a: number, b: number, x: number) => {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
-};
-
 // Panels sit opposite the subject: the scene pushes the bud/petal to the other side of the frame.
 const PANEL_LEFT = 'bottom-[5svh] left-4 right-4 md:bottom-auto md:left-[6vw] md:right-auto md:top-1/2 md:w-[min(30rem,36vw)] md:-translate-y-1/2';
 const PANEL_RIGHT = 'bottom-[5svh] left-4 right-4 md:bottom-auto md:left-auto md:right-[6vw] md:top-1/2 md:w-[min(30rem,36vw)] md:-translate-y-1/2';
@@ -398,7 +342,10 @@ function RoleBadge() {
     <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-ink/10 bg-paper-light/80 py-1.5 pl-3 pr-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft shadow-[0_6px_20px_-12px_rgb(28_35_51/0.3)] backdrop-blur">
       <ActivityDot />
       <span>Product Designer at</span>
-      <img src="/assets/blinkit.webp" alt="Blinkit" width={22} height={22} className="size-[22px] rounded-[6px]" />
+      {/* the wordmark is yellow and green, so it sits on a dark chip to stay legible on the cream badge */}
+      <span className="flex h-[22px] items-center rounded-full bg-ink px-2.5">
+        <img src="/assets/blinkit.svg" alt="Blinkit" width={46} height={12} className="h-3 w-auto" />
+      </span>
     </p>
   );
 }
@@ -562,7 +509,8 @@ function Welcome({ loaded, ready, onDone }: { loaded: number; ready: boolean; on
                 src="/assets/video/manya-ascii.mp4"
                 label="Manya, drawn in blue ASCII characters, leans into frame, waves hello and gives two thumbs up."
                 rows={92}
-                onEnd={() => setTimeout(done, 900)}
+                endLead={0.4}
+                onEnd={done}
                 className="size-full"
               />
             </motion.div>

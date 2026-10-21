@@ -73,16 +73,19 @@ export default function Words() {
                 whileHover={{ rotate: 0, y: -8 }}
                 viewport={{ once: true, margin: '0px 0px -12% 0px' }}
                 transition={{ type: 'spring', stiffness: 120, damping: 18, delay: i * 0.08 }}
-                className={`${tones[t.tone]} paper-texture relative flex flex-col justify-between rounded-[4px] p-8 pb-7 shadow-[0_18px_36px_-18px_rgb(60_52_30/0.35)] md:min-h-[380px]`}
+                // the shadow lives out here: the sheet inside is masked to its torn edge, and a mask would clip it
+                className="relative flex [filter:drop-shadow(0_14px_18px_rgb(60_52_30/0.2))_drop-shadow(0_1px_1px_rgb(60_52_30/0.12))]"
               >
-                <span className="absolute -top-3 left-1/2 h-6 w-20 -translate-x-1/2 rotate-[2deg] bg-white/55 shadow-sm backdrop-blur-sm" aria-hidden="true" />
-                <div>
-                  <blockquote className="mt-3 font-serif text-[24px] leading-[1.22] tracking-[-0.005em] text-ink md:text-[26px]">“{t.quote}”</blockquote>
+                <div className={`${tones[t.tone]} paper-texture relative flex w-full flex-col justify-between p-9 pb-8 md:min-h-[380px]`}>
+                  <div>
+                    <blockquote className="mt-3 font-serif text-[24px] leading-[1.22] tracking-[-0.005em] text-ink md:text-[26px]">“{t.quote}”</blockquote>
+                  </div>
+                  <p className="mt-8 border-t border-ink/10 pt-5 text-[14px] leading-tight">
+                    <span className="block font-medium text-ink">{t.name}</span>
+                    <span className="text-ink-soft">{t.role}</span>
+                  </p>
                 </div>
-                <p className="mt-8 border-t border-ink/10 pt-5 text-[14px] leading-tight">
-                  <span className="block font-medium text-ink">{t.name}</span>
-                  <span className="text-ink-soft">{t.role}</span>
-                </p>
+                <span className="absolute -top-3 left-1/2 h-6 w-20 -translate-x-1/2 rotate-[2deg] bg-white/55 shadow-sm backdrop-blur-sm" aria-hidden="true" />
               </motion.li>
             ))}
           </ul>
