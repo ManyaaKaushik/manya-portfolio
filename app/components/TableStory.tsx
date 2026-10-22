@@ -275,7 +275,7 @@ export default function TableStory() {
           </nav>
 
           {/* a hint for whatever is on the table */}
-          <div aria-hidden="true" className="absolute inset-x-0 bottom-[76px] flex justify-center px-4 md:bottom-[30px]">
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-[76px] flex justify-center px-4 lg:bottom-[30px]">
             <AnimatePresence mode="wait">
               {ready && !jam && (
                 <motion.p
@@ -284,7 +284,7 @@ export default function TableStory() {
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   exit={{ opacity: 0, y: -6, filter: 'blur(4px)' }}
                   transition={{ duration: 0.45 }}
-                  className={`flex max-w-[calc(100vw-32px)] items-center gap-2.5 rounded-full px-4 py-2 text-center font-mono text-[10.5px] uppercase leading-snug tracking-[0.13em] backdrop-blur-2xl backdrop-saturate-150 transition-colors duration-700 md:max-w-[min(520px,calc(100vw-560px))] ${night ? 'bg-ink/25 text-paper-light' : 'bg-white/35 text-ink-soft shadow-[inset_0_0_0_1px_rgb(255_255_255/0.55)]'}`}
+                  className={`flex max-w-[calc(100vw-32px)] items-center gap-2.5 rounded-full px-4 py-2 text-center font-mono text-[10.5px] uppercase leading-snug tracking-[0.13em] backdrop-blur-2xl backdrop-saturate-150 transition-colors duration-700 lg:max-w-[min(520px,calc(100vw-560px))] ${night ? 'bg-ink/25 text-paper-light' : 'bg-white/35 text-ink-soft shadow-[inset_0_0_0_1px_rgb(255_255_255/0.55)]'}`}
                 >
                   {!moved && (
                     <span className="relative flex h-6 w-[15px] shrink-0 justify-center rounded-full border border-current opacity-70">

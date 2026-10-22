@@ -28,7 +28,7 @@ export class Outro implements Chapter {
     const upA: View = { x: from.x * 0.5, z: from.z - high * 0.15, w: high * (portrait ? 0.55 : 1.6), h: high };
     const upB: View = { x: to.x, z: to.z + high * 0.2, w: upA.w, h: high };
     // one unbroken glide through the four, never pausing at the top (zoom on a log scale, so the pull-back feels even)
-    const at = [0, 0.22, 0.8, 1];
+    const at = [0, 0.3, 0.7, 1];
     const path = [from, upA, upB, to];
     const curve = (get: (v: View) => number) => keyed(u, path.map((v, i) => [at[i], get(v)] as [number, number]));
     return { x: curve(v => v.x), z: curve(v => v.z), w: Math.exp(curve(v => Math.log(v.w))), h: Math.exp(curve(v => Math.log(v.h))) };

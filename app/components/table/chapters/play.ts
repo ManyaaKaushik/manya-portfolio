@@ -3,7 +3,7 @@ import { links, studies, whatIfs } from '../../../lib/content';
 import { INK, Painter, loadImage, paperDensity } from '../paint';
 import { Sheet } from '../paper';
 import { stationZ } from '../stations';
-import { clamp, damp, easeInOut, hump, lerp, range, rng } from '../util';
+import { clamp, damp, easeInOut, hump, lerp, range, rng, smooth } from '../util';
 import type { Chapter, TableWorld, View } from '../world';
 import { keyed } from './work';
 
@@ -45,8 +45,9 @@ export class Play implements Chapter {
       ]);
       return { x: 0, z, w: 27, h: 46 };
     }
-    const t = easeInOut(range(u, 0.18, 0.34));
-    const back = easeInOut(range(u, 0.86, 1));
+    // slow in, slow out: a lean towards the packets and back, never a lunge
+    const t = smooth(range(u, 0.12, 0.38));
+    const back = smooth(range(u, 0.8, 1));
     const w = lerp(lerp(100, 68, t), 100, back);
     return { x: lerp(lerp(-3, -2, t), -3, back), z: Z + lerp(0, 1, t), w, h: w * 0.6 };
   }

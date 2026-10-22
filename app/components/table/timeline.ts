@@ -13,15 +13,15 @@ type Segment = { id: ChapterId | 'travel'; len: number; hours: [number, number] 
 
 export const SEGMENTS: Segment[] = [
   { id: 'hero', len: 2.6, hours: [7.0, 8.6] },
-  { id: 'travel', len: 0.9, hours: [8.6, 9.6] },
+  { id: 'travel', len: 1.05, hours: [8.6, 9.6] },
   { id: 'work', len: 3.4, hours: [9.6, 12.2] },
-  { id: 'travel', len: 0.9, hours: [12.2, 13.0] },
+  { id: 'travel', len: 1.05, hours: [12.2, 13.0] },
   { id: 'journey', len: 2.4, hours: [13.0, 14.6] },
-  { id: 'travel', len: 0.9, hours: [14.6, 15.2] },
+  { id: 'travel', len: 1.05, hours: [14.6, 15.2] },
   { id: 'play', len: 2.6, hours: [15.2, 16.6] },
-  { id: 'travel', len: 0.9, hours: [16.6, 17.3] },
+  { id: 'travel', len: 1.05, hours: [16.6, 17.3] },
   { id: 'words', len: 2.2, hours: [17.3, 18.7] },
-  { id: 'travel', len: 0.9, hours: [18.7, 19.9] },
+  { id: 'travel', len: 1.05, hours: [18.7, 19.9] },
   { id: 'contact', len: 2.2, hours: [19.9, 21.6] },
   { id: 'outro', len: 2.6, hours: [21.6, 31.0] },
 ];
