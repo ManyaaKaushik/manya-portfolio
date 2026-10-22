@@ -76,6 +76,7 @@ export class Hero implements Chapter {
     seam([[0, 0.2], [11.2, 9.4], [0, 17]], 1);
     seam([[26, 0.2], [14.8, 9.4], [26, 17]], 1);
     seam([[0, 17], [10.6, 8.6], [15.4, 8.6], [26, 17]], 2);
+    body.text('to — whoever’s visiting', ENV.w / 2, 14.4, { family: 'hand', size: 1.05 }, INK.soft, { align: 'center', rotate: -0.02 });
     body.grain(0.05);
     // the open pocket under the flap
     c.save();
@@ -97,15 +98,15 @@ export class Hero implements Chapter {
         for (let x = (y / 0.9) % 2 ? 0.45 : 0; x < p.w; x += 0.9) p.text('✿', x, y + 0.6, { family: 'sans', size: 0.42 }, 'rgba(34,52,109,0.42)');
       p.grain(0.08);
     };
-    const inside = new Painter(ENV.w - 0.4, ENV.h - 0.4, k * 0.5);
+    const inside = new Painter(ENV.w - 0.4, ENV.h - 0.1, k * 0.5);
     lining(inside);
 
     const flap = new Painter(ENV.w, 11, k * 0.8);
     flap.paper(ENV_TONE, { seed: 5, fibres: 1.2 });
-    flap.text('from —', 4.4, 3.0, { family: 'hand', size: 1.05 }, INK.soft, { rotate: -0.03 });
-    flap.text('Manya Kaushik', 4.2, 4.6, { family: 'hand', size: 1.7 }, INK.indigo, { rotate: -0.03 });
-    flap.text('product designer', 15.6, 3.0, { family: 'hand', size: 1.05 }, INK.soft, { rotate: -0.02 });
-    flap.text('to — whoever’s visiting', 15.6, 4.6, { family: 'hand', size: 1.05 }, INK.soft, { rotate: -0.02 });
+    // the sender, kept well inside the flap's point
+    flap.text('from —', 7.6, 2.3, { family: 'hand', size: 1.0 }, INK.soft, { rotate: -0.03 });
+    flap.text('Manya Kaushik', ENV.w / 2, 4.2, { family: 'hand', size: 1.7 }, INK.indigo, { align: 'center', rotate: -0.03 });
+    flap.text('product designer', ENV.w / 2, 5.7, { family: 'hand', size: 0.9 }, INK.soft, { align: 'center', rotate: -0.02 });
     flap.grain(0.05);
     flap.ctx.save();
     flap.ctx.globalCompositeOperation = 'destination-in';
@@ -121,15 +122,16 @@ export class Hero implements Chapter {
     const flapBack = new Painter(ENV.w, 11, k * 0.5);
     lining(flapBack);
 
-    this.inner = new Sheet({ w: ENV.w - 0.4, h: ENV.h - 0.4, front: inside.texture(r), shade: false, segments: 2 });
+    this.inner = new Sheet({ w: ENV.w - 0.4, h: ENV.h - 0.1, front: inside.texture(r), shade: false, segments: 2 });
     this.inner.uniforms.uCurl.value = 0;
     this.body = new Sheet({ w: ENV.w, h: ENV.h, front: body.texture(r) });
     this.body.uniforms.uCurl.value = 0.06;
     this.flap = new Sheet({ w: ENV.w, h: 11, front: flap.texture(r), back: flapBack.texture(r), turn: 'end', pivot: 'top', shade: false, segments: 8 });
     this.flap.uniforms.uCurl.value = 0;
-    this.inner.group.position.y = 0.04;
-    this.body.group.position.y = 0.3;
-    this.flap.group.position.set(0, 0.36, -ENV.h / 2);
+    // reaching right up to the flap's hinge, so no cloth shows between them
+    this.inner.group.position.set(0, 0.04, 0.05);
+    this.body.group.position.y = 0.4;
+    this.flap.group.position.set(0, 0.48, -ENV.h / 2);
     this.envelope.add(this.inner.group, this.body.group, this.flap.group);
 
     this.seal = waxSeal();
@@ -312,12 +314,12 @@ export class Hero implements Chapter {
     const away = easeInOut(range(u, 0.4, 0.62));
     this.envelope.position.set(lerp(0, this.portrait ? 3 : 15, away), 0, lerp(0, this.portrait ? 27 : 23, away));
     this.envelope.rotation.y = envRot + away * 0.18;
-    this.body.syncShade(0.3);
+    this.body.syncShade(0.4);
     if (this.body.shade) this.body.shade.position.copy(this.envelope.position).setY(0.02);
 
     // the note flies off first
     const n = easeOut(range(u, 0.02, 0.14));
-    this.note.group.position.set(lerp(this.portrait ? 9 : 12.5, 70, n), 0.42 + hump(n, 0, 1) * 18, lerp(this.portrait ? -9 : -9.5, -50, n));
+    this.note.group.position.set(lerp(this.portrait ? 9 : 12.5, 70, n), 0.64 + hump(n, 0, 1) * 18, lerp(this.portrait ? -9 : -9.5, -50, n));
     this.note.group.rotation.set(0, 0.12 + n * 2.2, n * 0.6);
     this.note.group.visible = n < 0.999;
     this.note.uniforms.uCurl.value = 0.25 + n * 1.5;
@@ -328,15 +330,14 @@ export class Hero implements Chapter {
     const sp = easeBack(s);
     // from the flap's point to the cloth beside the envelope, clear of its edge
     _seal.set(0, 0, -ENV.h / 2 + 10.2).applyAxisAngle(_up, envRot);
-    this.seal.position.set(lerp(_seal.x, -ENV.w / 2 - 4, sp), lerp(0.5, 0.2, smooth(s)) + hump(s, 0, 1) * 6, lerp(_seal.z, 4.5, sp));
+    this.seal.position.set(lerp(_seal.x, -ENV.w / 2 - 4, sp), lerp(0.6, 0.2, smooth(s)) + hump(s, 0, 1) * 6, lerp(_seal.z, 4.5, sp));
     this.seal.rotation.set(hump(s, 0, 1) * 1.2, envRot + s * 2.6, -s * 0.4);
 
-    // the flap swings up and over, and stays open: past flat, so it slopes from the envelope's
-    // edge down to the cloth and lies under the letter as it comes out
+    // the flap swings up and over, and stays open. It's hinged to the envelope's back, so once
+    // it's over it lies flat on the cloth, lower than the letter that then slides out across it
     const f = easeInOut(range(u, 0.14, 0.32));
-    this.flap.group.rotation.x = -(Math.PI + 0.03) * f;
-    this.flap.uniforms.uBow.value = hump(f, 0, 1) * 0.12;
-    this.flap.group.position.y = 0.36 + f * 0.02;
+    this.flap.group.rotation.x = -Math.PI * f;
+    this.flap.group.position.y = lerp(0.48, 0.06, smooth(range(f, 0.5, 1)));
 
     // the letter slides out of the pocket, lifts, and unfolds
     const out = easeInOut(range(u, 0.28, 0.5));
@@ -347,19 +348,15 @@ export class Hero implements Chapter {
     const pulled = new THREE.Vector3(0, 0, LETTER.h / 4 - 17.5);
     const rest = new THREE.Vector3(0, 0, -2.5);
     const p = inEnv.clone().lerp(pulled, out).lerp(rest, land);
-    // it stays under the envelope's back until it's clear of the pocket, then lifts
-    p.y = lerp(0.15, 0.9, range(out, 0.95, 1)) + hump(out, 0.95, 1) * 2.5 - land * 0.3;
+    // it slides out flat, between the lining and the envelope's front and over the open flap,
+    // and only lifts once it's clear of the pocket
+    p.y = lerp(0.13, 0.9, range(out, 0.95, 1)) + hump(out, 0.95, 1) * 2.5 - land * 0.3;
     // while it's in the envelope it moves with the envelope
     const envFollow = 1 - land;
     p.x += this.envelope.position.x * envFollow;
     p.z += this.envelope.position.z * envFollow;
     this.letter.position.copy(p);
     this.letter.rotation.y = lerp(envRot, -0.012, land) + hump(out, 0, 1) * 0.04;
-    // drawn out at an angle, the way you'd pull a letter: the part that's clear of the pocket
-    // rises over the open flap while the rest is still tucked under the envelope's front
-    const inside = p.z - (this.envelope.position.z - ENV.h / 2);
-    const tilt = out > 0 && out < 1 ? Math.min(0.3, 0.75 / Math.max(inside, 2.5)) * (1 - range(out, 0.95, 1)) : 0;
-    this.letter.rotation.x = tilt * smooth(range(out, 0, 0.08));
     // folded: the bottom half lies over the top half, face down
     this.bottom.group.rotation.x = -Math.PI * (1 - open);
     this.bottom.uniforms.uBow.value = hump(open, 0, 1) * 0.1;

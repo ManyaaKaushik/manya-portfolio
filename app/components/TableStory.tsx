@@ -92,7 +92,13 @@ export default function TableStory() {
         let lastChapter: ChapterId = 'hero';
         let lastNight = false;
         let lastMoved = false;
-        world.goTo = (id, into = 0) => lenis.scrollTo(progressOf(id, into) * lenis.limit, { duration: 1.8, easing: t => 1 - Math.pow(1 - t, 4) });
+        // an unhurried glide, longer the further it goes, so the day visibly passes on the way
+        world.goTo = (id, into = 0) => {
+          const to = progressOf(id, into);
+          const from = (((lenis.scroll / lenis.limit) % 1) + 1) % 1;
+          const duration = Math.min(6.5, 2.6 + Math.abs(to - from) * 9);
+          lenis.scrollTo(to * lenis.limit, { duration, easing: t => (1 - Math.cos(Math.PI * t)) / 2 });
+        };
         world.open = href => {
           if (href.startsWith('mailto:')) window.location.href = href;
           else window.open(href, '_blank', 'noopener,noreferrer');
