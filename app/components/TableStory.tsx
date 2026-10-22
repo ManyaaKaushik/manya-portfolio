@@ -7,7 +7,10 @@ import { useEffect, useRef, useState } from 'react';
 import { caseStudies, links, studies, testimonials, whatIfs } from '../lib/content';
 import { Welcome } from './SunflowerScroll';
 import { DAY_LENGTH, progressOf, type ChapterId } from './table/timeline';
+import type { JamState } from './table/ukulele';
+import { CHORD_NAMES } from './table/uke-song';
 import type { TableWorld } from './table/world';
+import { UkeJam } from './UkeJam';
 import { SunflowerGlyph } from './ui';
 
 /*
@@ -21,7 +24,7 @@ const CHAPTERS: { id: ChapterId; title: string; hint: string }[] = [
   { id: 'hero', title: 'Hello', hint: 'There’s a letter for you' },
   { id: 'work', title: 'Work', hint: 'Click a sheet to read the case study' },
   { id: 'journey', title: 'Journey', hint: 'Every step, stamped as it happened' },
-  { id: 'play', title: 'Play', hint: 'Tap a packet to turn it · tap the slips for another “what if”' },
+  { id: 'play', title: 'Play', hint: 'Tap a packet to turn it · pick up the ukulele and play' },
   { id: 'words', title: 'Kind words', hint: 'Notes from people I’ve worked with' },
   { id: 'contact', title: 'Contact', hint: 'Click a line on the postcard · draw on the pad' },
 ];
@@ -40,6 +43,7 @@ export default function TableStory() {
   const [night, setNight] = useState(false);
   const [moved, setMoved] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [jam, setJam] = useState<JamState | null>(null);
   const ready = sceneReady && introDone;
 
   useEffect(() => {
@@ -107,6 +111,9 @@ export default function TableStory() {
           toastTimer = window.setTimeout(() => setToast(null), 2200);
         };
         world.onCursor = c => (canvas.style.cursor = c);
+        // the ukulele in hand: the page holds still until it's put down
+        if (world.uke) world.uke.onState = s => setJam(s.open ? s : null);
+        world.onJam = open => (open ? lenis.stop() : lenis.start());
         world.onFrame = ({ hour, chapter: ch, progress }) => {
           const h = ((hour % 24) + 24) % 24;
           const isNight = h >= 19.6 || h < 6;
@@ -145,13 +152,32 @@ export default function TableStory() {
     // pointerdown comes first, so a finger that starts drawing doesn't also scroll the page
     const touch = (e: TouchEvent) => dragging && e.cancelable && e.preventDefault();
     const leave = () => world?.pointerLeave();
-    const visibility = () => (document.hidden ? world?.stop() : world?.start());
+    // no music while the page moves: a turn of the wheel puts the ukulele down
+    const wheel = () => world?.uke?.close();
+    const key = (e: KeyboardEvent) => {
+      const uke = world?.uke;
+      if (!uke?.state.open || e.metaKey || e.ctrlKey || e.altKey) return;
+      const chord = CHORD_NAMES[Number(e.key) - 1];
+      if (e.key === 'Escape') uke.close();
+      else if (chord) uke.setChord(chord);
+      else if (e.key === 'ArrowDown' || e.key === ' ') uke.strum(1);
+      else if (e.key === 'ArrowUp') uke.strum(-1, 0.65);
+      else return;
+      e.preventDefault();
+    };
+    const visibility = () => {
+      if (document.hidden) world?.uke?.close();
+      if (document.hidden) world?.stop();
+      else world?.start();
+    };
     window.addEventListener('resize', resize);
     canvas.addEventListener('pointermove', move);
     canvas.addEventListener('pointerdown', down);
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
     canvas.addEventListener('pointerleave', leave);
+    window.addEventListener('wheel', wheel, { passive: true });
+    window.addEventListener('keydown', key);
     canvas.addEventListener('touchstart', touch, { passive: false });
     canvas.addEventListener('touchmove', touch, { passive: false });
     document.addEventListener('visibilitychange', visibility);
@@ -164,6 +190,8 @@ export default function TableStory() {
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', up);
       canvas.removeEventListener('pointerleave', leave);
+      window.removeEventListener('wheel', wheel);
+      window.removeEventListener('keydown', key);
       canvas.removeEventListener('touchstart', touch);
       canvas.removeEventListener('touchmove', touch);
       document.removeEventListener('visibilitychange', visibility);
@@ -179,7 +207,10 @@ export default function TableStory() {
     if (ready) lenisRef.current?.start();
   }, [ready]);
 
-  const go = (id: ChapterId) => worldRef.current?.goTo?.(id, id === 'hero' ? 0 : 0.02);
+  const go = (id: ChapterId) => {
+    worldRef.current?.uke?.close();
+    worldRef.current?.goTo?.(id, id === 'hero' ? 0 : 0.02);
+  };
   // frosted glass: mostly the table showing through, softly blurred, with a hairline of light on top
   const glass = `pointer-events-auto rounded-full backdrop-blur-2xl backdrop-saturate-150 transition-colors duration-700 ${
     night
@@ -206,7 +237,7 @@ export default function TableStory() {
           </header>
 
           {/* chapters */}
-          <nav aria-label="Chapters" className="absolute bottom-4 right-4 md:bottom-6 md:right-6">
+          <nav aria-label="Chapters" inert={!!jam} className={`absolute bottom-4 right-4 transition-[opacity,translate] duration-500 md:bottom-6 md:right-6 ${jam ? 'translate-y-3 opacity-0' : ''}`}>
             <ul className={`${glass} flex h-11 items-center gap-0.5 px-1 max-sm:gap-0`}>
               {CHAPTERS.map((c, i) => {
                 const on = chapter === c.id;
@@ -244,7 +275,7 @@ export default function TableStory() {
           {/* a hint for whatever is on the table */}
           <div aria-hidden="true" className="absolute inset-x-0 bottom-[76px] flex justify-center px-4 md:bottom-[30px]">
             <AnimatePresence mode="wait">
-              {ready && (
+              {ready && !jam && (
                 <motion.p
                   key={!moved ? 'start' : chapter}
                   initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
@@ -263,6 +294,9 @@ export default function TableStory() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* the ukulele, in hand */}
+          <AnimatePresence>{jam && worldRef.current?.uke && <UkeJam key="jam" state={jam} uke={worldRef.current.uke} night={night} />}</AnimatePresence>
 
           <div className="absolute inset-x-0 top-20 flex justify-center px-4" role="status" aria-live="polite">
             <AnimatePresence>

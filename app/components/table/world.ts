@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { makeCloth } from './cloth';
 import { makeSky, skyAt, sunUniforms } from './light';
 import { SEGMENTS, hourAt, locate, phase, type ChapterId } from './timeline';
+import type { Ukulele } from './ukulele';
 import { clamp, damp, easeInOut, lerp } from './util';
 
 /*
@@ -78,6 +79,17 @@ export class TableWorld {
   daylight = 1;
   /** 0 → 1 as the desk lamp comes on. */
   lampOn = 0;
+  /** The ukulele, once it's on the table. */
+  uke?: Ukulele;
+  /** While set, only this answers the pointer (the ukulele, in your hands). */
+  exclusive: Hotspot | null = null;
+  /** A press that lands on nothing while something is exclusive. */
+  onOutside?: () => void;
+  /** The ukulele was picked up or put down (set by the page). */
+  onJam?: (open: boolean) => void;
+  /** 0 → 1 as the camera leaves the scroll's framing for a close-up. */
+  private focusAmt = 0;
+  private focusView: View = { x: 0, z: 0, w: 60, h: 40 };
 
   private sky = makeSky();
   private size = { w: 1, h: 1 };
@@ -201,8 +213,10 @@ export class TableWorld {
     this.look.x = damp(this.look.x, this.pointer.x, 3, 1 / 60);
     this.look.y = damp(this.look.y, this.pointer.y, 3, 1 / 60);
     // a touch of parallax: anything lifted off the cloth drifts against it
-    const px = this.reduced ? 0 : this.look.x * visH * 0.012;
-    const pz = this.reduced ? 0 : -this.look.y * visH * 0.012;
+    // (held still for a close-up, so what's under the pointer stays put)
+    const still = this.reduced ? 0 : 1 - this.focusAmt;
+    const px = this.look.x * visH * 0.012 * still;
+    const pz = -this.look.y * visH * 0.012 * still;
     this.camera.position.set(v.x + px, d, v.z + pz);
     this.camera.near = Math.max(1, d * 0.2);
     this.camera.far = d * 3 + 200;
@@ -257,7 +271,7 @@ export class TableWorld {
   private pick(x: number, y: number) {
     const ndc = new THREE.Vector2((x / this.size.w) * 2 - 1, -(y / this.size.h) * 2 + 1);
     this.raycaster.setFromCamera(ndc, this.camera);
-    const live = this.hotspots.filter(h => h.object.visible && (!h.chapter || h.chapter === this.current) && visibleInTree(h.object));
+    const live = this.exclusive ? [this.exclusive] : this.hotspots.filter(h => h.object.visible && (!h.chapter || h.chapter === this.current) && visibleInTree(h.object));
     if (!live.length) return null;
     const hits = this.raycaster.intersectObjects(
       live.map(h => h.object),
@@ -301,7 +315,10 @@ export class TableWorld {
   pointerDown(x: number, y: number): 'drag' | 'tap' | null {
     this.downAt = { x, y, t: performance.now() };
     const p = this.pick(x, y);
-    if (!p) return null;
+    if (!p) {
+      if (this.exclusive) this.onOutside?.();
+      return null;
+    }
     if (p.spot.onDown?.(p.hit)) {
       this.captured = p.spot;
       return 'drag';
@@ -367,7 +384,7 @@ export class TableWorld {
       const dt = Math.min(0.05, (t - this.last) / 1000);
       this.last = t;
       // nothing moving but the leaves? draw every other frame
-      const still = Math.abs(this.progress - this.lastProgress) < 1e-6 && !this.captured && !this.chapters.some(c => c.busy?.());
+      const still = Math.abs(this.progress - this.lastProgress) < 1e-6 && !this.captured && !this.uke?.busy && (this.focusAmt === 0 || this.focusAmt === 1) && !this.chapters.some(c => c.busy?.());
       this.idleFor = still ? this.idleFor + dt : 0;
       this.lastProgress = this.progress;
       if (this.idleFor > 1.2 && (this.frameSkip++ & 1)) return;
@@ -396,7 +413,14 @@ export class TableWorld {
     const { segment, u } = locate(p);
     if (segment.id !== 'travel') this.current = segment.id;
     else this.current = u < 0.5 ? (SEGMENTS[locate(p).index - 1].id as ChapterId) : (SEGMENTS[locate(p).index + 1].id as ChapterId);
-    this.frame(this.viewAt(p));
+    const focus = this.uke?.focus ?? null;
+    if (focus) this.focusView = focus;
+    this.focusAmt = damp(this.focusAmt, focus ? 1 : 0, 2.6, dt);
+    if (Math.abs(this.focusAmt - (focus ? 1 : 0)) < 0.0005) this.focusAmt = focus ? 1 : 0;
+    const v = this.viewAt(p);
+    const f = easeInOut(this.focusAmt);
+    const fv = this.focusView;
+    this.frame(f > 0 ? { x: lerp(v.x, fv.x, f), z: lerp(v.z, fv.z, f), w: lerp(v.w, fv.w, f), h: lerp(v.h, fv.h, f) } : v);
     this.light(dt);
     for (const c of this.chapters) c.update(phase(p, c.id), dt, this);
     for (const l of this.life) l.update(dt, this);
@@ -407,6 +431,7 @@ export class TableWorld {
   dispose() {
     this.disposed = true;
     this.stop();
+    this.uke?.dispose();
     this.scene.traverse(o => {
       const m = o as THREE.Mesh;
       if (m.geometry) m.geometry.dispose();
