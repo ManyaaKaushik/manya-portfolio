@@ -2,18 +2,15 @@ import * as THREE from 'three';
 import { clamp, lerp } from './util';
 
 /*
- * Sunlight comes in through a window beside the table. Every lit material gets the same patch:
- * the direct sun is multiplied by the window's footprint (panes, with the mullions' shadows) and
- * by dappled shade from a plant on the sill, both projected along the sun's direction so a sheet
- * lifted off the cloth catches the pattern a little to one side, like the real thing.
+ * The table is out in a park, under a tree. Every lit material gets the same patch: the direct
+ * sun is multiplied by the dappled shade of the leaves, projected along the sun's direction so a
+ * sheet lifted off the cloth catches the pattern a little to one side, like the real thing.
  */
 
 export const sunUniforms = {
   uTime: { value: 0 },
   /** Horizontal travel of a sun ray per unit of height: L.xz / L.y. */
   uSlope: { value: new THREE.Vector2() },
-  /** Window: footprint centre (xz), pane size, half mullion width. */
-  uWindow: { value: new THREE.Vector4(0, 0, 46, 1.4) },
   /** View centre (xz) and half extents, to keep the dapple light where the reading is. */
   uView: { value: new THREE.Vector4(0, 0, 60, 40) },
   uLeaf: { value: 1 },
@@ -24,7 +21,6 @@ const GOBO = /* glsl */ `
 varying vec3 vTWorld;
 uniform float uTime;
 uniform vec2 uSlope;
-uniform vec4 uWindow;
 uniform vec4 uView;
 uniform float uLeaf;
 uniform vec2 uWind;
@@ -40,27 +36,17 @@ float gFbm(vec2 p){
 }
 float sunGobo(vec3 wp){
   vec2 q = wp.xz - uSlope * wp.y;
-  // window panes and mullions; the frame is three panes wide and three tall
-  vec2 w = (q - uWindow.xy) / uWindow.z;
-  vec2 f = abs(fract(w + .5) - .5);
-  float bar = uWindow.w / uWindow.z;
-  float pen = .035 + .02 * length(uSlope);
-  // the glazing bars are thin and the light wraps round them a little
-  float mull = (1. - smoothstep(bar - pen, bar + pen, min(f.x, f.y))) * .5;
-  vec2 frame = abs(w) - 1.5;
-  float inside = 1. - smoothstep(-pen * 2., pen * 3., max(frame.x, frame.y));
-  float lit = inside * (1. - mull);
-  // the plant on the sill: leaves sway, so their dapple drifts and breathes
+  // a tree overhead: its leaves sway, so the dapple drifts and breathes
   vec2 sway = uWind * (sin(uTime * .35) * 1.4 + sin(uTime * .83 + 1.3) * .6);
-  vec2 lp = q * .055 + sway * .08;
+  vec2 lp = q * .045 + sway * .08;
   lp += .35 * vec2(gFbm(lp * 1.3 + uTime * .02), gFbm(lp * 1.3 + 4.1 - uTime * .015));
   float n = gFbm(lp);
-  float leaf = smoothstep(.52, .57, n);
-  // keep the middle of the frame clearer, so text in the light still reads
+  float leaf = smoothstep(.5, .54, n);
+  // the canopy's edge: shade gathers towards the sides of the frame and the middle stays in full
+  // sun, so the reading is bright
   vec2 d = (q - uView.xy) / max(uView.zw, vec2(1.));
-  float dens = mix(.05, 1., smoothstep(.5, 1.25, length(d * vec2(.9, 1.1))));
-  lit *= 1. - leaf * .8 * uLeaf * dens;
-  return lit;
+  float dens = smoothstep(.42, 1.05, length(d * vec2(.85, 1.15)));
+  return 1. - leaf * .72 * uLeaf * dens;
 }
 `;
 
@@ -102,14 +88,14 @@ type Key = { h: number; sun: number; sunC: string; hemi: number; sky: string; gr
 const KEYS: Key[] = [
   { h: 0, sun: 0.09, sunC: '#9fb0ff', hemi: 0.2, sky: '#5a6aa8', ground: '#1f1d2a', lamp: 1, exposure: 1 },
   { h: 5.2, sun: 0.08, sunC: '#a9b4f0', hemi: 0.2, sky: '#6a78b4', ground: '#2a2632', lamp: 1, exposure: 1 },
-  { h: 6.3, sun: 0.2, sunC: '#ffae7c', hemi: 0.34, sky: '#a9b6e0', ground: '#6a5a50', lamp: 0.3, exposure: 1 },
-  { h: 7.2, sun: 0.62, sunC: '#ffdcb4', hemi: 0.4, sky: '#b9c6e8', ground: '#8f8068', lamp: 0, exposure: 1 },
-  { h: 9.5, sun: 0.68, sunC: '#fff0dc', hemi: 0.4, sky: '#c3cdea', ground: '#9a8f78', lamp: 0, exposure: 1 },
-  { h: 12.5, sun: 0.7, sunC: '#fff6ea', hemi: 0.39, sky: '#c6cfea', ground: '#a09680', lamp: 0, exposure: 1 },
-  { h: 15.5, sun: 0.68, sunC: '#ffecd2', hemi: 0.38, sky: '#c4cae6', ground: '#9d8c72', lamp: 0, exposure: 1 },
-  { h: 17.4, sun: 0.66, sunC: '#ffc68a', hemi: 0.36, sky: '#c8c0d8', ground: '#a07f5c', lamp: 0, exposure: 1 },
-  { h: 18.5, sun: 0.58, sunC: '#ffad62', hemi: 0.33, sky: '#b9b2cf', ground: '#8a6446', lamp: 0, exposure: 1 },
-  { h: 19.3, sun: 0.22, sunC: '#ff8a4c', hemi: 0.27, sky: '#8f93c4', ground: '#4f3e40', lamp: 0.4, exposure: 1 },
+  { h: 6.3, sun: 0.3, sunC: '#ffc49a', hemi: 0.42, sky: '#bfcbec', ground: '#7d7a5e', lamp: 0.3, exposure: 1 },
+  { h: 6.9, sun: 0.84, sunC: '#fff1de', hemi: 0.54, sky: '#cfdefa', ground: '#b9c39a', lamp: 0, exposure: 1 },
+  { h: 9.5, sun: 0.88, sunC: '#fffaf2', hemi: 0.55, sky: '#cfdffc', ground: '#bcc79c', lamp: 0, exposure: 1 },
+  { h: 12.5, sun: 0.92, sunC: '#fffdf8', hemi: 0.56, sky: '#d0e0fd', ground: '#bec99e', lamp: 0, exposure: 1 },
+  { h: 15.5, sun: 0.9, sunC: '#fff7ec', hemi: 0.54, sky: '#cfdcfa', ground: '#bcc499', lamp: 0, exposure: 1 },
+  { h: 17.4, sun: 0.84, sunC: '#ffe3bc', hemi: 0.5, sky: '#d2d8f0', ground: '#b9b48c', lamp: 0, exposure: 1 },
+  { h: 18.5, sun: 0.72, sunC: '#ffbd76', hemi: 0.42, sky: '#cbc6e0', ground: '#a3916a', lamp: 0, exposure: 1 },
+  { h: 19.3, sun: 0.26, sunC: '#ff9456', hemi: 0.3, sky: '#9a9ccc', ground: '#5a4c44', lamp: 0.4, exposure: 1 },
   { h: 20.2, sun: 0.05, sunC: '#9fb0ff', hemi: 0.16, sky: '#6874b0', ground: '#2e2834', lamp: 1, exposure: 1 },
   { h: 24, sun: 0.09, sunC: '#9fb0ff', hemi: 0.2, sky: '#5a6aa8', ground: '#1f1d2a', lamp: 1, exposure: 1 },
 ];

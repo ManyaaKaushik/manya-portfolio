@@ -233,7 +233,7 @@ export class TableWorld {
     this.hemi.groundColor.copy(s.ground);
     this.renderer.toneMappingExposure = s.exposure;
 
-    this.daylight = clamp(s.sun / 0.6);
+    this.daylight = clamp(s.sun / 0.75);
     this.lampOn = s.lamp;
     this.lamp.intensity = s.lamp * 2.7;
     // switching a light or its shadow off would recompile every material, so the lamp stays
@@ -242,9 +242,6 @@ export class TableWorld {
 
     sunUniforms.uTime.value = this.reduced ? 0 : this.time;
     sunUniforms.uSlope.value.set(s.dir.x / s.dir.y, s.dir.z / s.dir.y);
-    // the window's footprint drifts across the table as the day goes on
-    const day = clamp((this.hour - 6) / 14);
-    sunUniforms.uWindow.value.set(v.x + lerp(-46, 46, day) + 10, v.z - 16, 54, 1.4);
     sunUniforms.uView.value.set(v.x, v.z, v.w / 2, v.h / 2);
     void dt;
   }

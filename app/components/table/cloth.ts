@@ -13,7 +13,7 @@ const TILE_PX = 1024;
 
 const INDIGO = '#2a3f7e';
 const MADDER = '#ae3f2c';
-const COTTON = '#f1eadb';
+const COTTON = '#f7f3ea';
 
 export function paintTile() {
   const c = document.createElement('canvas');
