@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { blogs } from '../../../lib/content';
+import { lawnHole } from '../lawn';
 import { WIND, sunUniforms, withSun } from '../light';
 import { INK, Painter, loadImage, paperDensity } from '../paint';
 import { Sheet } from '../paper';
@@ -638,6 +639,8 @@ export class PondChapter implements Chapter {
     const Z = stationZ('pond', portrait);
     const pond: Pond = portrait ? { cx: 0, cz: Z + 36, rx: 25, rz: 64 } : { cx: 0, cz: Z + 2, rx: 64, rz: 36 };
     this.pond = pond;
+    // and the lawn stops growing where the water starts (the shore wanders in to ~.8 of the radii)
+    lawnHole.set(pond.cx, pond.cz, pond.rx * 0.8, pond.rz * 0.8);
     const r = rng(portrait ? 11 : 12);
 
     this.scene.add(makeBank(pond), makeWater(pond), makeStones(pond, portrait ? 21 : 22), ...makeReeds(pond, portrait ? [2.3, 5.2, 0.6] : [2.6, 5.7, 0.95], portrait ? 31 : 32));
