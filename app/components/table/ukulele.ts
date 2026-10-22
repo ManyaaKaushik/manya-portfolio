@@ -24,6 +24,8 @@ const CENTRE = 605; // middle of its length
 const BACK = -211; // the back of the body
 const STRING_Z = 30; // height of the strings over the top
 const STRUM_Y = 430; // where the neck meets the body, where you'd strum
+// the stickers, bottom layer first (Daddy is stuck over Come As You Are)
+const STICKERS = ['etiquette', 'nirvana', 'trans', 'bowie1', 'bowie2', 'pizza', 'skate', 'alien', 'daddy'];
 
 export type Pose = { x: number; z: number; r: number };
 
@@ -107,6 +109,19 @@ export class Ukulele {
         };
         found.push({ mesh: m, x0: x(SADDLE), x1: x(NUT) });
         return;
+      }
+      // the stickers lie flat on the top, some over others: give each its own layer so none of them
+      // flickers through, and cut the see-through one cleanly rather than blending it
+      const layer = STICKERS.indexOf(mat.name);
+      if (layer >= 0) {
+        mat.polygonOffset = true;
+        mat.polygonOffsetFactor = -1 - layer;
+        mat.polygonOffsetUnits = -4 - layer * 4;
+        if (mat.transparent) {
+          mat.transparent = false;
+          mat.alphaTest = 0.5;
+          mat.depthWrite = true;
+        }
       }
       m.material = withSun(mat, 'uke');
     });
