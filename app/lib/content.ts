@@ -143,6 +143,40 @@ export const whatIfs = [
 ];
 
 /** Skills, as listed on the résumé. */
+/** Writing on Medium, each with the colour its title was set in on the old site. */
+export const blogs = [
+  {
+    id: 'finch',
+    title: 'How a virtual pet bird helped me rebuild small habits',
+    note: 'on the Finch app',
+    date: 'May 2025',
+    read: '2 min read',
+    image: '/assets/blog/finch.webp',
+    ink: '#b0453a',
+    url: 'https://medium.com/@manya.manuseema/how-a-virtual-pet-bird-helped-me-rebuild-small-habits-3d10d00cef22',
+  },
+  {
+    id: 'grandma',
+    title: 'Making it a great experience for Grandma at home',
+    note: 'published in Bootcamp',
+    date: 'March 2025',
+    read: '3 min read',
+    image: '/assets/blog/grandma.webp',
+    ink: '#3f8a45',
+    url: 'https://medium.com/design-bootcamp/making-it-a-great-experience-for-grandma-at-home-d0acfcb8bb4d',
+  },
+  {
+    id: 'airport',
+    title: 'Unexpected airport interactions',
+    note: 'my thoughts',
+    date: 'November 2024',
+    read: '2 min read',
+    image: '/assets/blog/airport.webp',
+    ink: '#3a6fd0',
+    url: 'https://medium.com/@manya.manuseema/unexpected-airport-interactions-715b2459140e',
+  },
+];
+
 export const skills = [
   'User experience design',
   'Interaction design',

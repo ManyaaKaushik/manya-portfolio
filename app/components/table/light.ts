@@ -17,18 +17,28 @@ export const sunUniforms = {
   uWind: { value: new THREE.Vector2(1, 0.3) },
 };
 
-const GOBO = /* glsl */ `
-varying vec3 vTWorld;
+/** Noise and the wind over the grass: gusts that roll across the lawn downwind. Shared by every
+ * shader that sways, so the blades, the flowers and the sheen on the ground move together. */
+export const WIND = /* glsl */ `
 uniform float uTime;
-uniform vec2 uSlope;
-uniform vec4 uView;
-uniform float uLeaf;
 uniform vec2 uWind;
 float gHash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * .1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
 float gNoise(vec2 p){
   vec2 i = floor(p), f = fract(p); f = f*f*(3. - 2.*f);
   return mix(mix(gHash(i), gHash(i + vec2(1, 0)), f.x), mix(gHash(i + vec2(0, 1)), gHash(i + vec2(1, 1)), f.x), f.y);
 }
+float windGust(vec2 p){
+  vec2 q = p * .016 - normalize(uWind) * uTime * .62;
+  return gNoise(q) * .65 + gNoise(q * 2.3 + 5.1 - uTime * .2) * .35;
+}
+`;
+
+const GOBO = /* glsl */ `
+varying vec3 vTWorld;
+uniform vec2 uSlope;
+uniform vec4 uView;
+uniform float uLeaf;
+${WIND}
 float gFbm(vec2 p){
   float s = 0., a = .5;
   for (int i = 0; i < 4; i++) { s += a*gNoise(p); p = mat2(1.6, 1.2, -1.2, 1.6)*p + 7.3; a *= .5; }

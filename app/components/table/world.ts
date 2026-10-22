@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { makeCloth } from './cloth';
+import { makeLawn } from './lawn';
 import { makeSky, skyAt, sunUniforms } from './light';
 import { SEGMENTS, hourAt, locate, phase, type ChapterId } from './timeline';
 import type { Ukulele } from './ukulele';
@@ -110,6 +110,7 @@ export class TableWorld {
   private idleFor = 0;
   private lastProgress = -1;
   private frameSkip = 0;
+  private lawn: ReturnType<typeof makeLawn>;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -144,7 +145,8 @@ export class TableWorld {
     this.scene.add(this.lamp, this.lamp.target);
 
     this.scene.add(this.shades);
-    this.scene.add(makeCloth(this.renderer, { w: 1400, h: 2200, cx: 0, cz: 300 }));
+    this.lawn = makeLawn(this.renderer, { w: 1400, h: 2200, cx: 0, cz: 300 });
+    this.scene.add(this.lawn.group);
 
     this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
@@ -168,6 +170,7 @@ export class TableWorld {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    this.lawn.setAspect(w / h);
     // a new shape (a phone turned over) is a new framing: cut to it rather than gliding
     this.cam.ready = false;
     this.kick();
@@ -412,6 +415,8 @@ export class TableWorld {
     const loop = (t: number) => {
       if (!this.running) return;
       this.raf = requestAnimationFrame(loop);
+      // (an idle table draws every other frame, so only a busy one's pace says how it's coping)
+      if (this.idleFor <= 1.2) this.lawn.pace(t - this.last);
       const dt = Math.min(0.05, (t - this.last) / 1000);
       this.last = t;
       // nothing moving but the leaves? draw every other frame

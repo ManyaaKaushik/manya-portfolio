@@ -8,7 +8,7 @@ import { clamp, lerp } from './util';
  * began, so the scroll can loop without ever getting dark.
  */
 
-export type ChapterId = 'hero' | 'work' | 'journey' | 'play' | 'words' | 'contact' | 'outro';
+export type ChapterId = 'hero' | 'work' | 'journey' | 'pond' | 'words' | 'contact' | 'outro';
 
 type Segment = { id: ChapterId | 'travel'; len: number; hours: [number, number] };
 
@@ -19,7 +19,7 @@ export const SEGMENTS: Segment[] = [
   { id: 'travel', len: 1.05, hours: [11.6, 12.2] },
   { id: 'journey', len: 2.4, hours: [12.2, 13.4] },
   { id: 'travel', len: 1.05, hours: [13.4, 13.9] },
-  { id: 'play', len: 2.6, hours: [13.9, 15.0] },
+  { id: 'pond', len: 2.6, hours: [13.9, 15.0] },
   { id: 'travel', len: 1.05, hours: [15.0, 15.5] },
   { id: 'words', len: 2.2, hours: [15.5, 16.3] },
   { id: 'travel', len: 1.05, hours: [16.3, 16.8] },
@@ -86,10 +86,10 @@ export const CHAPTER_LABELS: Record<ChapterId, string> = {
   hero: 'Morning chai',
   work: 'Work hours',
   journey: 'Lunch break',
-  play: 'Afternoon play',
+  pond: 'By the pond',
   words: 'Golden hour',
-  contact: 'Lamp on',
-  outro: 'Night, then dawn',
+  contact: 'Late afternoon',
+  outro: 'Back to the morning',
 };
 
 export function clockLabel(h: number) {

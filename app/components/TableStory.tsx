@@ -4,7 +4,7 @@ import Lenis from 'lenis';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { caseStudies, links, studies, testimonials, whatIfs } from '../lib/content';
+import { blogs, caseStudies, links, testimonials } from '../lib/content';
 import { Welcome } from './SunflowerScroll';
 import { DAY_LENGTH, progressOf, type ChapterId } from './table/timeline';
 import type { JamState } from './table/ukulele';
@@ -24,7 +24,7 @@ const CHAPTERS: { id: ChapterId; title: string; hint: string; short?: string }[]
   { id: 'hero', title: 'Hello', hint: 'There’s a letter for you · and a ukulele to play', short: 'A letter and a ukulele · tap one' },
   { id: 'work', title: 'Work', hint: 'Click a sheet to read the case study', short: 'Tap a sheet to read it' },
   { id: 'journey', title: 'Journey', hint: 'Every step, stamped as it happened' },
-  { id: 'play', title: 'Play', hint: 'Tap a packet to turn it · tap the slips for another “what if”', short: 'Tap a packet · tap the slips' },
+  { id: 'pond', title: 'Writing', hint: 'Things I wrote, floating on the pond · tap a lily pad to read', short: 'Tap a lily pad to read' },
   { id: 'words', title: 'Kind words', hint: 'Notes from people I’ve worked with' },
   { id: 'contact', title: 'Contact', hint: 'Click a line on the postcard · draw on the pad', short: 'Tap a line · draw on the pad' },
 ];
@@ -66,12 +66,12 @@ export default function TableStory() {
 
     (async () => {
       try {
-        const [{ TableWorld }, { Hero }, { Work }, { Journey }, { Play }, { Words }, { Contact }, { Outro }, { fontsReady }, { Ladybug }] = await Promise.all([
+        const [{ TableWorld }, { Hero }, { Work }, { Journey }, { PondChapter }, { Words }, { Contact }, { Outro }, { fontsReady }, { Ladybug }] = await Promise.all([
           import('./table/world'),
           import('./table/chapters/hero'),
           import('./table/chapters/work'),
           import('./table/chapters/journey'),
-          import('./table/chapters/play'),
+          import('./table/chapters/pond'),
           import('./table/chapters/words'),
           import('./table/chapters/contact'),
           import('./table/chapters/outro'),
@@ -84,7 +84,7 @@ export default function TableStory() {
         world = new TableWorld(canvas);
         worldRef.current = world;
         world.resize(window.innerWidth, window.innerHeight);
-        for (const C of [Hero, Work, Journey, Play, Words, Contact, Outro]) world.add(new C());
+        for (const C of [Hero, Work, Journey, PondChapter, Words, Contact, Outro]) world.add(new C());
         await world.build(f => setLoaded(f * 0.9));
         if (cancelled) return;
         world.life.push(new Ladybug(world));
@@ -340,7 +340,7 @@ function TextVersion() {
         Skip to the minimal portfolio
       </a>
       <h1>Manya Kaushik — product designer at Blinkit</h1>
-      <p>A day at Manya’s table: a sealed letter, pressed case studies, a library card, seed packets, notes from friends and a postcard, laid out from morning chai to late afternoon.</p>
+      <p>A day at Manya’s table: a sealed letter, pressed case studies, a library card, a pond with her writing on its lily pads, notes from friends and a postcard, laid out from morning chai to late afternoon.</p>
       <section aria-labelledby="t-hello">
         <h2 id="t-hello">Hey, I’m Manya.</h2>
         <p>
@@ -365,23 +365,18 @@ function TextVersion() {
           ))}
         </ul>
       </section>
-      <section aria-labelledby="t-play">
-        <h2 id="t-play">Play</h2>
+      <section aria-labelledby="t-writing">
+        <h2 id="t-writing">Writing</h2>
         <ul>
-          {studies.map(s => (
-            <li key={s.id}>
-              {s.name} — {s.type}. {s.description}
+          {blogs.map(b => (
+            <li key={b.id}>
+              <a href={b.url} className={focusable}>
+                {b.title}
+              </a>{' '}
+              — {b.note}, {b.date}, {b.read} on Medium.
             </li>
           ))}
         </ul>
-        <ul>
-          {whatIfs.map(q => (
-            <li key={q}>{q}</li>
-          ))}
-        </ul>
-        <a href={links.playground} className={focusable}>
-          More playful things
-        </a>
       </section>
       <section aria-labelledby="t-words">
         <h2 id="t-words">Kind words</h2>
