@@ -45,7 +45,8 @@ float sunGobo(vec3 wp){
   vec2 f = abs(fract(w + .5) - .5);
   float bar = uWindow.w / uWindow.z;
   float pen = .035 + .02 * length(uSlope);
-  float mull = 1. - smoothstep(bar - pen, bar + pen, min(f.x, f.y));
+  // the glazing bars are thin and the light wraps round them a little
+  float mull = (1. - smoothstep(bar - pen, bar + pen, min(f.x, f.y))) * .5;
   vec2 frame = abs(w) - 1.5;
   float inside = 1. - smoothstep(-pen * 2., pen * 3., max(frame.x, frame.y));
   float lit = inside * (1. - mull);
@@ -54,11 +55,11 @@ float sunGobo(vec3 wp){
   vec2 lp = q * .055 + sway * .08;
   lp += .35 * vec2(gFbm(lp * 1.3 + uTime * .02), gFbm(lp * 1.3 + 4.1 - uTime * .015));
   float n = gFbm(lp);
-  float leaf = smoothstep(.5, .58, n);
+  float leaf = smoothstep(.52, .57, n);
   // keep the middle of the frame clearer, so text in the light still reads
   vec2 d = (q - uView.xy) / max(uView.zw, vec2(1.));
-  float dens = mix(.28, 1., smoothstep(.25, 1.05, length(d * vec2(.9, 1.1))));
-  lit *= 1. - leaf * .78 * uLeaf * dens;
+  float dens = mix(.05, 1., smoothstep(.5, 1.25, length(d * vec2(.9, 1.1))));
+  lit *= 1. - leaf * .8 * uLeaf * dens;
   return lit;
 }
 `;
@@ -101,14 +102,14 @@ type Key = { h: number; sun: number; sunC: string; hemi: number; sky: string; gr
 const KEYS: Key[] = [
   { h: 0, sun: 0.09, sunC: '#9fb0ff', hemi: 0.2, sky: '#5a6aa8', ground: '#1f1d2a', lamp: 1, exposure: 1 },
   { h: 5.2, sun: 0.08, sunC: '#a9b4f0', hemi: 0.2, sky: '#6a78b4', ground: '#2a2632', lamp: 1, exposure: 1 },
-  { h: 6.3, sun: 0.12, sunC: '#ffae7c', hemi: 0.4, sky: '#b7c0e2', ground: '#6a5a50', lamp: 0.3, exposure: 1 },
-  { h: 7.2, sun: 0.38, sunC: '#ffd9b3', hemi: 0.64, sky: '#e4e7f2', ground: '#8f8068', lamp: 0, exposure: 1 },
-  { h: 9.5, sun: 0.42, sunC: '#fff2e0', hemi: 0.66, sky: '#eceef5', ground: '#9a8f78', lamp: 0, exposure: 1 },
-  { h: 12.5, sun: 0.44, sunC: '#fff8ef', hemi: 0.63, sky: '#eef0f6', ground: '#a09680', lamp: 0, exposure: 1 },
-  { h: 15.5, sun: 0.43, sunC: '#ffefd8', hemi: 0.6, sky: '#ececf1', ground: '#9d8c72', lamp: 0, exposure: 1 },
-  { h: 17.4, sun: 0.44, sunC: '#ffc890', hemi: 0.55, sky: '#efe2d4', ground: '#a07f5c', lamp: 0, exposure: 1 },
-  { h: 18.5, sun: 0.4, sunC: '#ffa262', hemi: 0.46, sky: '#e2c4b2', ground: '#8a6446', lamp: 0, exposure: 1 },
-  { h: 19.3, sun: 0.12, sunC: '#ff7c48', hemi: 0.32, sky: '#a596bf', ground: '#4f3e40', lamp: 0.35, exposure: 1 },
+  { h: 6.3, sun: 0.2, sunC: '#ffae7c', hemi: 0.34, sky: '#a9b6e0', ground: '#6a5a50', lamp: 0.3, exposure: 1 },
+  { h: 7.2, sun: 0.62, sunC: '#ffdcb4', hemi: 0.4, sky: '#b9c6e8', ground: '#8f8068', lamp: 0, exposure: 1 },
+  { h: 9.5, sun: 0.68, sunC: '#fff0dc', hemi: 0.4, sky: '#c3cdea', ground: '#9a8f78', lamp: 0, exposure: 1 },
+  { h: 12.5, sun: 0.7, sunC: '#fff6ea', hemi: 0.39, sky: '#c6cfea', ground: '#a09680', lamp: 0, exposure: 1 },
+  { h: 15.5, sun: 0.68, sunC: '#ffecd2', hemi: 0.38, sky: '#c4cae6', ground: '#9d8c72', lamp: 0, exposure: 1 },
+  { h: 17.4, sun: 0.66, sunC: '#ffc68a', hemi: 0.36, sky: '#c8c0d8', ground: '#a07f5c', lamp: 0, exposure: 1 },
+  { h: 18.5, sun: 0.58, sunC: '#ffad62', hemi: 0.33, sky: '#b9b2cf', ground: '#8a6446', lamp: 0, exposure: 1 },
+  { h: 19.3, sun: 0.22, sunC: '#ff8a4c', hemi: 0.27, sky: '#8f93c4', ground: '#4f3e40', lamp: 0.4, exposure: 1 },
   { h: 20.2, sun: 0.05, sunC: '#9fb0ff', hemi: 0.16, sky: '#6874b0', ground: '#2e2834', lamp: 1, exposure: 1 },
   { h: 24, sun: 0.09, sunC: '#9fb0ff', hemi: 0.2, sky: '#5a6aa8', ground: '#1f1d2a', lamp: 1, exposure: 1 },
 ];
@@ -148,8 +149,8 @@ export function skyAt(hour: number, out: Sky): Sky {
   const az = THREE.MathUtils.degToRad(lerp(-82, 82, d));
   out.dir.set(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el) * 0.75 - 0.25).normalize();
   // keep the light from ever going flat enough to smear shadows across the whole frame
-  if (out.dir.y < 0.32) {
-    out.dir.y = 0.32;
+  if (out.dir.y < 0.42) {
+    out.dir.y = 0.42;
     out.dir.normalize();
   }
   return out;

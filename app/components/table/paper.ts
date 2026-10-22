@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { withSun } from './light';
+import { sunUniforms, withSun } from './light';
 
 /*
  * A sheet of paper lying on the table. Flat in the xz plane, front face up. It has a printed
@@ -26,6 +26,28 @@ const BEND = /* glsl */ `
     transformed.y += uBow * (1. - n.x * n.x) * uHalf.x * .18;
   }
 `;
+
+/*
+ * Paper has no thickness, so a sheet would catch its own shadow (and shadow acne) on whichever
+ * face looks at the light. Its shadow caster is pushed a millimetre out of the far face instead.
+ */
+const THICKNESS = /* glsl */ `
+  {
+    vec3 wN = normalize(mat3(modelMatrix) * normal);
+    vec3 L = normalize(vec3(uSlope.x, 1., uSlope.y));
+    transformed -= normal * (dot(wN, L) >= 0. ? 1. : -1.) * .1;
+  }
+`;
+
+/** Paper lets some sunlight through, so a sheet turned away from the sun glows rather than going grey. */
+function translucent(frag: string) {
+  const loop = frag.indexOf('NUM_DIR_LIGHTS > 0 ) && defined( RE_Direct )');
+  const call = 'RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );';
+  const at = frag.indexOf(call, loop);
+  if (loop < 0 || at < 0) return frag;
+  const glow = `\n\t\treflectedLight.directDiffuse += directLight.color * max( -dot( geometryNormal, directLight.direction ), 0. ) * .32 * BRDF_Lambert( material.diffuseColor );`;
+  return frag.slice(0, at + call.length) + glow + frag.slice(at + call.length);
+}
 
 const FRAG = /* glsl */ `
 uniform sampler2D uBack;
@@ -126,10 +148,22 @@ export class Sheet {
       shader => {
         Object.assign(shader.uniforms, this.uniforms);
         shader.vertexShader = VERT + shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>\n${BEND.replaceAll('position.x', centreX).replaceAll('position.z', centre)}`);
-        shader.fragmentShader = FRAG + shader.fragmentShader.replace('#include <map_fragment>', MAP);
+        shader.fragmentShader = translucent(FRAG + shader.fragmentShader.replace('#include <map_fragment>', MAP));
       },
     );
     this.mesh = new THREE.Mesh(geo, material);
+    // the shadow has to be cast by the same bent, deckle-edged sheet that's drawn, or a sheet
+    // lying face down sinks below its own flat shadow and darkens itself
+    const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: o.front ?? null, alphaTest: 0.5, side: THREE.DoubleSide });
+    depth.onBeforeCompile = shader => {
+      Object.assign(shader.uniforms, this.uniforms, { uSlope: sunUniforms.uSlope });
+      shader.vertexShader =
+        VERT +
+        'uniform vec2 uSlope;\n' +
+        shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>\n${BEND.replaceAll('position.x', centreX).replaceAll('position.z', centre)}\n${THICKNESS}`);
+    };
+    depth.customProgramCacheKey = () => `sheet-depth:${pivot}`;
+    this.mesh.customDepthMaterial = depth;
     this.mesh.castShadow = true;
     this.mesh.receiveShadow = true;
     this.group.add(this.mesh);
@@ -140,6 +174,7 @@ export class Sheet {
         new THREE.MeshBasicMaterial({ map: shadeTexture(), transparent: true, opacity: 0.32, depthWrite: false, color: '#1c1a2a' }),
       );
       s.renderOrder = -1;
+      s.userData.sheet = this;
       this.shade = s;
     }
   }
@@ -147,6 +182,11 @@ export class Sheet {
   set front(t: THREE.Texture | null) {
     this.mesh.material.map = t;
     this.mesh.material.needsUpdate = true;
+    const depth = this.mesh.customDepthMaterial as THREE.MeshDepthMaterial | undefined;
+    if (depth) {
+      depth.map = t;
+      depth.needsUpdate = true;
+    }
   }
 
   set back(t: THREE.Texture | null) {
@@ -154,17 +194,41 @@ export class Sheet {
     this.uniforms.uHasBack.value = t ? 1 : 0;
   }
 
+  private lift = 0;
+  private strength = 1;
+
   /**
-   * Keep the contact shade under the sheet: it spreads and fades as the sheet lifts, and is
-   * meant to be parented to the same layer as the sheet's group (not the group itself).
+   * Set how far the sheet is lifted and how solid its contact shade is: the shade spreads and
+   * fades as the sheet lifts. It lives in the world's shade layer, which follows the sheet's
+   * place on the table every frame (see placeShade).
    */
   syncShade(lift = this.group.position.y, strength = 1) {
-    if (!this.shade) return;
+    this.lift = lift;
+    this.strength = strength;
+    this.placeShade();
+  }
+
+  /** Put the shade under the sheet wherever it is in the world, and hide it with the sheet. */
+  placeShade() {
+    const s = this.shade;
+    if (!s) return;
     const g = this.group;
-    this.shade.position.set(g.position.x, 0.02, g.position.z);
-    this.shade.rotation.y = g.rotation.y;
-    const spread = 1 + Math.min(lift, 12) * 0.035;
-    this.shade.scale.set(spread * g.scale.x, 1, spread * g.scale.z);
-    (this.shade.material as THREE.MeshBasicMaterial).opacity = (0.34 / (1 + lift * 0.25)) * strength;
+    let on = true;
+    for (let n: THREE.Object3D | null = g; n; n = n.parent) if (!n.visible) on = false;
+    s.visible = on && this.strength > 0.001;
+    if (!s.visible) return;
+    g.updateWorldMatrix(true, false);
+    g.matrixWorld.decompose(_p, _q, _s);
+    _e.setFromQuaternion(_q, 'YXZ');
+    s.position.set(_p.x, 0.02, _p.z);
+    s.rotation.y = _e.y;
+    const spread = 1 + Math.min(this.lift, 12) * 0.035;
+    s.scale.set(spread * _s.x, 1, spread * _s.z);
+    (s.material as THREE.MeshBasicMaterial).opacity = (0.34 / (1 + this.lift * 0.25)) * this.strength;
   }
 }
+
+const _p = new THREE.Vector3();
+const _q = new THREE.Quaternion();
+const _s = new THREE.Vector3();
+const _e = new THREE.Euler();

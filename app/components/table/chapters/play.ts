@@ -83,7 +83,7 @@ export class Play implements Chapter {
       f.edge(0.03, 420 + i);
 
       const b = new Painter(PACKET.w, PACKET.h, k);
-      b.paper('#dcc69b', { seed: 430 + i, fibres: 1.3 });
+      b.paper('#e4d1a8', { seed: 430 + i, fibres: 1.3 });
       b.line(0.4, 2.2, PACKET.w - 0.4, 2.2, 'rgba(60,40,20,0.35)', 0.025, [0.15, 0.12]);
       b.text('✂  tear here', PACKET.w - 0.8, 1.5, { family: 'mono', size: 0.26 }, 'rgba(60,40,20,0.6)', { align: 'right' });
       b.text('SOWING INSTRUCTIONS', 0.9, 3.6, { family: 'mono', size: 0.34, weight: 700 }, INK.ink, { spacing: 0.16 });

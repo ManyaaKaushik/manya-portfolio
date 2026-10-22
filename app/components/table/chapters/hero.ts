@@ -87,12 +87,15 @@ export class Hero implements Chapter {
     c.restore();
     body.edge(0.05, 3);
 
+    // a printed lining, the way good envelopes have: inside the pocket and under the flap
+    const lining = (p: Painter) => {
+      p.fill('#d3bd96');
+      for (let y = 0; y < p.h; y += 0.9)
+        for (let x = (y / 0.9) % 2 ? 0.45 : 0; x < p.w; x += 0.9) p.text('✿', x, y + 0.6, { family: 'sans', size: 0.42 }, 'rgba(34,52,109,0.42)');
+      p.grain(0.08);
+    };
     const inside = new Painter(ENV.w - 0.4, ENV.h - 0.4, k * 0.5);
-    inside.fill('#bfa57a');
-    // a printed lining, the way good envelopes have
-    for (let y = 0; y < inside.h; y += 0.9)
-      for (let x = (y / 0.9) % 2 ? 0.45 : 0; x < inside.w; x += 0.9) inside.text('✿', x, y + 0.6, { family: 'sans', size: 0.42 }, 'rgba(34,52,109,0.42)');
-    inside.grain(0.08);
+    lining(inside);
 
     const flap = new Painter(ENV.w, 11, k * 0.8);
     flap.paper(ENV_TONE, { seed: 5, fibres: 1.2 });
@@ -112,9 +115,8 @@ export class Hero implements Chapter {
     flap.ctx.closePath();
     flap.ctx.fill();
     flap.ctx.restore();
-    const flapBack = new Painter(ENV.w, 11, k * 0.4);
-    flapBack.fill('#c3a97e');
-    flapBack.grain(0.08);
+    const flapBack = new Painter(ENV.w, 11, k * 0.5);
+    lining(flapBack);
 
     this.inner = new Sheet({ w: ENV.w - 0.4, h: ENV.h - 0.4, front: inside.texture(r), shade: false, segments: 2 });
     this.inner.uniforms.uCurl.value = 0;

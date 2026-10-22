@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { sunUniforms, withSun } from './light';
+import { withSun } from './light';
 import { rng } from './util';
 
 /*
@@ -255,26 +255,8 @@ export function chai() {
   body.position.y = H * 0.39;
   g.add(body);
 
-  // a light, warm shadow that we slide along the sun ourselves: round at the foot, long and soft away from it
-  const fake = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2),
-    new THREE.MeshBasicMaterial({
-      map: canvasTex(128, 256, c => {
-        c.filter = 'blur(6px)';
-        const grad = c.createLinearGradient(0, 230, 0, 20);
-        grad.addColorStop(0, 'rgba(70,40,15,0.85)');
-        grad.addColorStop(1, 'rgba(70,40,15,0.25)');
-        c.fillStyle = grad;
-        c.beginPath();
-        c.roundRect(18, 18, 92, 220, 46);
-        c.fill();
-      }),
-      transparent: true,
-      depthWrite: false,
-    }),
-  );
-  fake.renderOrder = -1;
-  g.add(fake);
+  // the tea, not the clear glass, is what throws a shadow, so it lines up with everything else
+  body.castShadow = true;
 
   const steams: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>[] = [];
   for (let i = 0; i < 3; i++) {
@@ -295,13 +277,7 @@ export function chai() {
   }
   surface.castShadow = false;
   const update = (t: number, sunAmount: number) => {
-    const s = sunUniforms.uSlope.value;
-    // the glass's shadow: from its foot, along the sun, as long as the glass is tall
-    const len = H * Math.hypot(s.x, s.y);
-    fake.position.set((-s.x * H) / 2, 0.03, (-s.y * H) / 2);
-    fake.rotation.y = Math.atan2(-s.x, -s.y);
-    fake.scale.set(R * 2.3, 1, R * 2.3 + len);
-    (fake.material as THREE.MeshBasicMaterial).opacity = 0.12 + 0.45 * sunAmount;
+    void sunAmount;
     steams.forEach((m, i) => {
       m.material.uniforms.uTime.value = t;
       m.rotation.y = t * (0.05 + i * 0.03);

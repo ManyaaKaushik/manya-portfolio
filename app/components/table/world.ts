@@ -106,19 +106,23 @@ export class TableWorld {
 
     this.camera.up.set(0, 0, -1);
 
+    // paper has no thickness, so each sheet would shade its own underside: push lookups out
+    // along the normal by about a shadow texel to keep both faces clean
+    const big = !matchMedia('(pointer: coarse)').matches && Math.max(screen.width, screen.height) >= 1200;
     this.sun.castShadow = true;
-    this.sun.shadow.mapSize.set(2048, 2048);
-    this.sun.shadow.radius = 4;
-    this.sun.shadow.bias = -0.0004;
-    this.sun.shadow.normalBias = 0.02;
+    this.sun.shadow.mapSize.setScalar(big ? 4096 : 2048);
+    this.sun.shadow.radius = 2;
+    this.sun.shadow.bias = -0.0002;
+    this.sun.shadow.normalBias = big ? 0.04 : 0.08;
     this.sun.shadow.camera.near = 1;
     this.sun.shadow.camera.far = 900;
     this.scene.add(this.sun, this.sun.target, this.hemi);
 
     this.lamp.castShadow = true;
     this.lamp.shadow.mapSize.set(1024, 1024);
-    this.lamp.shadow.radius = 6;
-    this.lamp.shadow.bias = -0.0006;
+    this.lamp.shadow.radius = 3;
+    this.lamp.shadow.bias = -0.0004;
+    this.lamp.shadow.normalBias = 0.15;
     this.lamp.shadow.camera.near = 20;
     this.lamp.shadow.camera.far = 400;
     this.scene.add(this.lamp, this.lamp.target);
@@ -229,7 +233,7 @@ export class TableWorld {
     this.hemi.groundColor.copy(s.ground);
     this.renderer.toneMappingExposure = s.exposure;
 
-    this.daylight = clamp(s.sun / 0.42);
+    this.daylight = clamp(s.sun / 0.6);
     this.lampOn = s.lamp;
     this.lamp.intensity = s.lamp * 2.7;
     // switching a light or its shadow off would recompile every material, so the lamp stays
@@ -399,6 +403,7 @@ export class TableWorld {
     this.light(dt);
     for (const c of this.chapters) c.update(phase(p, c.id), dt, this);
     for (const l of this.life) l.update(dt, this);
+    for (const s of this.shades.children) (s.userData.sheet as { placeShade(): void } | undefined)?.placeShade();
     this.onFrame?.({ hour: this.hour, chapter: this.current, progress: p, u });
   }
 
