@@ -44,6 +44,7 @@ export class Journey implements Chapter {
   private cardTex!: THREE.CanvasTexture;
   private stamped = 0;
   private pocket!: Sheet;
+  private pocketBack!: Sheet;
   private stamp = new THREE.Group();
   private receipt!: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
   private receiptTex!: THREE.Texture;
@@ -107,14 +108,16 @@ export class Journey implements Chapter {
     p.ctx.ellipse(8.7 * p.k, (last + 0.05) * p.k, 4.6 * p.k, 0.95 * p.k, -0.03, 0.2, Math.PI * 2.1);
     p.ctx.stroke();
     p.ctx.restore();
-    p.text('↑ still borrowing', CARD.w - 0.7, CARD.h - 0.45, { family: 'hand', size: 0.6 }, INK.pencil, { align: 'right' });
+    // just under the circle, so it shows above the pocket
+    p.text('↑ still borrowing', CARD.w - 0.7, last + 1.3, { family: 'hand', size: 0.6 }, INK.pencil, { align: 'right' });
     p.grain(0.04);
     p.edge(0.04, 201);
     this.cardPainter = p;
     this.cardBase = p.ctx.getImageData(0, 0, p.canvas.width, p.canvas.height);
     this.cardTex = p.texture(r);
     this.card = new Sheet({ w: CARD.w, h: CARD.h, front: this.cardTex, roughness: 0.82 });
-    this.card.uniforms.uCurl.value = 0.08;
+    // a stiff card, so its corners stay inside the pocket while it slides
+    this.card.uniforms.uCurl.value = 0.04;
 
     /* ---- the pocket it lives in ---- */
     const q = new Painter(POCKET.w, POCKET.h, k * 0.7);
@@ -134,6 +137,12 @@ export class Journey implements Chapter {
     q.edge(0.04, 211);
     this.pocket = new Sheet({ w: POCKET.w, h: POCKET.h, front: q.texture(r) });
     this.pocket.uniforms.uCurl.value = 0.04;
+    // and its back, under the card, which is what shows through the thumb notch
+    const qb = new Painter(POCKET.w, POCKET.h, k * 0.3);
+    qb.paper('#c09c66', { seed: 212, fibres: 1.4 });
+    qb.grain(0.06);
+    this.pocketBack = new Sheet({ w: POCKET.w - 0.2, h: POCKET.h - 0.2, front: qb.texture(r), shade: false, segments: 2 });
+    this.pocketBack.uniforms.uCurl.value = 0;
 
     /* ---- the rubber stamp ---- */
     const wood = withSun(new THREE.MeshStandardMaterial({ color: '#8a5a33', roughness: 0.55 }), 'stamp-wood');
@@ -217,7 +226,7 @@ export class Journey implements Chapter {
     this.roll.castShadow = true;
     this.roll.receiveShadow = true;
 
-    this.group.add(this.card.group, this.pocket.group, this.stamp, this.receipt, this.roll);
+    this.group.add(this.pocketBack.group, this.card.group, this.pocket.group, this.stamp, this.receipt, this.roll);
     world.shades.add(this.card.shade!, this.pocket.shade!);
     this.layout(world.aspect < 0.8);
   }
@@ -228,9 +237,12 @@ export class Journey implements Chapter {
     const Z = this.Z;
     const cx = portrait ? 0 : -11;
     const cz = portrait ? Z - 6 : Z + 1;
-    this.pocket.group.position.set(cx + 0.1, 0.32, cz + CARD.h / 2 - POCKET.h / 2 + 0.6);
+    // the pocket sits well above the card, which never rises past it while it's inside
+    this.pocket.group.position.set(cx + 0.1, 0.6, cz + CARD.h / 2 - POCKET.h / 2 + 0.6);
     this.pocket.group.rotation.y = -0.03;
-    this.pocket.syncShade(0.32);
+    this.pocket.syncShade(0.3);
+    this.pocketBack.group.position.copy(this.pocket.group.position).setY(0.08);
+    this.pocketBack.group.rotation.y = -0.03;
     this.card.group.rotation.y = -0.025;
     this.receipt.position.set(portrait ? 0.5 : 12, 0.12, portrait ? Z + 14 : Z - 14);
     this.receipt.rotation.y = 0.03;
@@ -264,9 +276,11 @@ export class Journey implements Chapter {
     const cx = portrait ? 0 : -11;
     const cz = portrait ? Z - 6 : Z + 1;
 
-    // the card slides up out of its pocket
+    // the card slides up out of its pocket: seated, it fills it; out, just its foot is left inside
     const out = easeOut(range(ph, -0.2, 0.16));
-    this.card.group.position.set(cx, 0.16 + Math.sin(out * Math.PI) * 0.4, cz + (1 - out) * 11);
+    const seated = cz;
+    const drawn = cz + CARD.h / 2 - POCKET.h + 0.6 + 1.2 - CARD.h / 2;
+    this.card.group.position.set(cx, 0.16 + Math.sin(out * Math.PI) * 0.22, lerp(seated, drawn, out));
     this.card.syncShade(0.16);
 
     // the stamp works down the rows
