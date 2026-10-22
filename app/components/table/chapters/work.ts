@@ -17,14 +17,32 @@ const SHEET = { w: 30, h: 40 };
 const GAP = 38;
 
 /** Keyframed value with eased holds between keys. */
+/**
+ * A camera path through keyframes [u, value]. It flows through the keys rather than stopping at
+ * each (a monotone cubic, so it never overshoots a key), and starts and ends at rest, where the
+ * journeys between chapters pick it up.
+ */
 export function keyed(u: number, keys: [number, number][]) {
+  const n = keys.length;
   if (u <= keys[0][0]) return keys[0][1];
-  for (let i = 0; i < keys.length - 1; i++) {
-    const [a, va] = keys[i];
-    const [b, vb] = keys[i + 1];
-    if (u <= b) return lerp(va, vb, easeInOut(range(u, a, b)));
-  }
-  return keys[keys.length - 1][1];
+  if (u >= keys[n - 1][0]) return keys[n - 1][1];
+  let i = 0;
+  while (i < n - 2 && u > keys[i + 1][0]) i++;
+  const slope = (k: number) => {
+    if (k <= 0 || k >= n - 1) return 0;
+    const a = (keys[k][1] - keys[k - 1][1]) / (keys[k][0] - keys[k - 1][0]);
+    const b = (keys[k + 1][1] - keys[k][1]) / (keys[k + 1][0] - keys[k][0]);
+    return a * b <= 0 ? 0 : (2 * a * b) / (a + b);
+  };
+  const [x0, y0] = keys[i];
+  const [x1, y1] = keys[i + 1];
+  const h = x1 - x0;
+  const t = (u - x0) / h;
+  const m0 = slope(i) * h;
+  const m1 = slope(i + 1) * h;
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return (2 * t3 - 3 * t2 + 1) * y0 + (t3 - 2 * t2 + t) * m0 + (-2 * t3 + 3 * t2) * y1 + (t3 - t2) * m1;
 }
 
 export function pressedLeaf(p: Painter, x: number, y: number, s: number, seed: number, color = '#7d8748') {

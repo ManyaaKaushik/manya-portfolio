@@ -353,7 +353,7 @@ export class Ukulele {
     if (!this.state.open) return null;
     const j = this.jam;
     // upright, with the panel to its left on a wide screen and under it on a phone
-    return this.portrait ? { x: j.x, z: j.z + 5, w: 30, h: 70 } : { x: j.x - 14, z: j.z + 2, w: 0, h: 54 };
+    return this.portrait ? { x: j.x, z: j.z + 5, w: 30, h: 70 } : { x: j.x - 15, z: j.z + 1, w: 0, h: 58 };
   }
 
   update(dt: number, visible: boolean) {

@@ -20,16 +20,18 @@ import { SunflowerGlyph } from './ui';
  * screen readers and keyboards, and the classic site lives at /minimal.
  */
 
-const CHAPTERS: { id: ChapterId; title: string; hint: string }[] = [
-  { id: 'hero', title: 'Hello', hint: 'There’s a letter for you · and a ukulele to play' },
-  { id: 'work', title: 'Work', hint: 'Click a sheet to read the case study' },
+const CHAPTERS: { id: ChapterId; title: string; hint: string; short?: string }[] = [
+  { id: 'hero', title: 'Hello', hint: 'There’s a letter for you · and a ukulele to play', short: 'A letter and a ukulele · tap one' },
+  { id: 'work', title: 'Work', hint: 'Click a sheet to read the case study', short: 'Tap a sheet to read it' },
   { id: 'journey', title: 'Journey', hint: 'Every step, stamped as it happened' },
-  { id: 'play', title: 'Play', hint: 'Tap a packet to turn it · tap the slips for another “what if”' },
+  { id: 'play', title: 'Play', hint: 'Tap a packet to turn it · tap the slips for another “what if”', short: 'Tap a packet · tap the slips' },
   { id: 'words', title: 'Kind words', hint: 'Notes from people I’ve worked with' },
-  { id: 'contact', title: 'Contact', hint: 'Click a line on the postcard · draw on the pad' },
+  { id: 'contact', title: 'Contact', hint: 'Click a line on the postcard · draw on the pad', short: 'Tap a line · draw on the pad' },
 ];
 
 const HINT = { ...Object.fromEntries(CHAPTERS.map(c => [c.id, c.hint])), outro: 'Keep scrolling — the day starts again at dawn' } as Record<ChapterId, string>;
+// on a phone, one line that doesn't crowd the dots
+const SHORT = { ...HINT, ...Object.fromEntries(CHAPTERS.flatMap(c => (c.short ? [[c.id, c.short]] : []))), outro: 'Keep scrolling · dawn is coming' } as Record<ChapterId, string>;
 
 export default function TableStory() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -289,7 +291,14 @@ export default function TableStory() {
                       <span className="mt-1 h-1.5 w-[2px] animate-[cue_1.8s_ease-out_infinite] rounded-full bg-current" />
                     </span>
                   )}
-                  {!moved ? 'Scroll to start the day' : HINT[chapter]}
+                  {!moved ? (
+                    'Scroll to start the day'
+                  ) : (
+                    <>
+                      <span className="sm:hidden">{SHORT[chapter]}</span>
+                      <span className="max-sm:hidden">{HINT[chapter]}</span>
+                    </>
+                  )}
                 </motion.p>
               )}
             </AnimatePresence>

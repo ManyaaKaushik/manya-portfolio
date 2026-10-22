@@ -3,7 +3,7 @@ import { makeCloth } from './cloth';
 import { makeSky, skyAt, sunUniforms } from './light';
 import { SEGMENTS, hourAt, locate, phase, type ChapterId } from './timeline';
 import type { Ukulele } from './ukulele';
-import { clamp, damp, easeInOut, lerp } from './util';
+import { clamp, damp, easeInOut, lerp, smooth } from './util';
 
 /*
  * The table. One scene, one camera looking straight down, one sun that follows the clock.
@@ -43,6 +43,8 @@ export interface Chapter {
 export type FrameInfo = { hour: number; chapter: ChapterId; progress: number; u: number };
 
 const FOV = 30;
+/** How far behind the scroll the camera runs, in seconds (a spring's smoothing time). */
+const CAMERA_LAG = 0.24;
 const TAN = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
 
 export class TableWorld {
@@ -90,6 +92,8 @@ export class TableWorld {
   /** 0 → 1 as the camera leaves the scroll's framing for a close-up. */
   private focusAmt = 0;
   private focusView: View = { x: 0, z: 0, w: 60, h: 40 };
+  /** The camera's framing as it follows its target, and how fast it's moving. */
+  private cam = { x: 0, z: 0, h: 60, vx: 0, vz: 0, vh: 0, ready: false };
 
   private sky = makeSky();
   private size = { w: 1, h: 1 };
@@ -164,6 +168,8 @@ export class TableWorld {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    // a new shape (a phone turned over) is a new framing: cut to it rather than gliding
+    this.cam.ready = false;
     this.kick();
   }
 
@@ -184,7 +190,8 @@ export class TableWorld {
     if (!from || !to) return (from ?? to)?.view(from ? 1 : 0, a) ?? this.view;
     const va = from.view(1, a);
     const vb = to.view(0, a);
-    const t = easeInOut(u);
+    // smoothstep, not a cubic ease: the same glide with half the shove at either end
+    const t = smooth(u);
     // rise a little in the middle of the journey, like leaning back from the table
     const hop = 1 + 0.22 * Math.sin(Math.PI * u);
     return { x: lerp(va.x, vb.x, t), z: lerp(va.z, vb.z, t), w: lerp(va.w, vb.w, t) * hop, h: lerp(va.h, vb.h, t) * hop };
@@ -206,23 +213,47 @@ export class TableWorld {
     return out;
   }
 
-  private frame(v: View) {
+  /**
+   * Point the camera at a framing. It doesn't jump to what the scroll asks for: it follows on a
+   * critically damped spring, so a flick of the wheel or a swipe arrives as a glide, never a jolt.
+   * Over that, the faint drift of a camera held in a hand, and the pointer's parallax.
+   */
+  private frame(v: View, dt: number, snap = false) {
     const a = this.aspect;
     const visH = Math.max(v.h, v.w / a);
-    const d = visH / 2 / TAN;
-    this.look.x = damp(this.look.x, this.pointer.x, 3, 1 / 60);
-    this.look.y = damp(this.look.y, this.pointer.y, 3, 1 / 60);
+    const c = this.cam;
+    if (snap || !c.ready) {
+      Object.assign(c, { x: v.x, z: v.z, h: visH, vx: 0, vz: 0, vh: 0, ready: true });
+    } else {
+      [c.x, c.vx] = smoothDamp(c.x, v.x, c.vx, CAMERA_LAG, dt);
+      [c.z, c.vz] = smoothDamp(c.z, v.z, c.vz, CAMERA_LAG, dt);
+      [c.h, c.vh] = smoothDamp(c.h, visH, c.vh, CAMERA_LAG, dt);
+    }
+    const h = c.h;
+    const d = h / 2 / TAN;
+    this.look.x = damp(this.look.x, this.pointer.x, 3, dt);
+    this.look.y = damp(this.look.y, this.pointer.y, 3, dt);
     // a touch of parallax: anything lifted off the cloth drifts against it
     // (held still for a close-up, so what's under the pointer stays put)
     const still = this.reduced ? 0 : 1 - this.focusAmt;
-    const px = this.look.x * visH * 0.012 * still;
-    const pz = -this.look.y * visH * 0.012 * still;
-    this.camera.position.set(v.x + px, d, v.z + pz);
+    const px = this.look.x * h * 0.012 * still;
+    const pz = -this.look.y * h * 0.012 * still;
+    // held, not on a tripod: a slow wander of a few millimetres, a breath in the height, the
+    // faintest roll; calmer in a close-up, and none at all for reduced motion
+    const t = this.time;
+    const hand = this.reduced ? 0 : (1 - this.focusAmt * 0.65) * h;
+    const hx = hand * 0.0028 * (Math.sin(t * 0.41) * 0.6 + Math.sin(t * 0.97 + 1.3) * 0.3 + Math.sin(t * 1.83 + 0.4) * 0.1);
+    const hz = hand * 0.0024 * (Math.sin(t * 0.33 + 2.1) * 0.6 + Math.sin(t * 0.79 + 0.7) * 0.3 + Math.sin(t * 1.61 + 2.9) * 0.1);
+    const breathe = 1 + (this.reduced ? 0 : 0.0035 * Math.sin(t * 0.27 + 0.5));
+    const roll = this.reduced ? 0 : 0.0018 * (Math.sin(t * 0.23 + 1.1) * 0.7 + Math.sin(t * 0.61) * 0.3);
+    this.camera.position.set(c.x + px + hx, d * breathe, c.z + pz + hz);
     this.camera.near = Math.max(1, d * 0.2);
     this.camera.far = d * 3 + 200;
     this.camera.updateProjectionMatrix();
-    this.camera.lookAt(v.x + px * 0.6, 0, v.z + pz * 0.6);
-    this.view = { x: v.x, z: v.z, w: visH * a, h: visH };
+    this.camera.up.set(Math.sin(roll), 0, -Math.cos(roll));
+    // the lens points a little behind where the hand moves, so the drift reads as a tilt too
+    this.camera.lookAt(c.x + px * 0.6 + hx * 0.4, 0, c.z + pz * 0.6 + hz * 0.4);
+    this.view = { x: c.x, z: c.z, w: h * a, h };
   }
 
   private light(dt: number) {
@@ -367,7 +398,7 @@ export class TableWorld {
   }
 
   async warm() {
-    this.frame(this.viewAt(this.progress));
+    this.frame(this.viewAt(this.progress), 0, true);
     this.light(0);
     await this.renderer.compileAsync(this.scene, this.camera);
     this.update(0);
@@ -384,7 +415,9 @@ export class TableWorld {
       const dt = Math.min(0.05, (t - this.last) / 1000);
       this.last = t;
       // nothing moving but the leaves? draw every other frame
-      const still = Math.abs(this.progress - this.lastProgress) < 1e-6 && !this.captured && !this.uke?.busy && (this.focusAmt === 0 || this.focusAmt === 1) && !this.chapters.some(c => c.busy?.());
+      const c = this.cam;
+      const settled = Math.abs(c.vx) + Math.abs(c.vz) + Math.abs(c.vh) < c.h * 0.002;
+      const still = settled && Math.abs(this.progress - this.lastProgress) < 1e-6 && !this.captured && !this.uke?.busy && (this.focusAmt === 0 || this.focusAmt === 1) && !this.chapters.some(c => c.busy?.());
       this.idleFor = still ? this.idleFor + dt : 0;
       this.lastProgress = this.progress;
       if (this.idleFor > 1.2 && (this.frameSkip++ & 1)) return;
@@ -420,7 +453,7 @@ export class TableWorld {
     const v = this.viewAt(p);
     const f = easeInOut(this.focusAmt);
     const fv = this.focusView;
-    this.frame(f > 0 ? { x: lerp(v.x, fv.x, f), z: lerp(v.z, fv.z, f), w: lerp(v.w, fv.w, f), h: lerp(v.h, fv.h, f) } : v);
+    this.frame(f > 0 ? { x: lerp(v.x, fv.x, f), z: lerp(v.z, fv.z, f), w: lerp(v.w, fv.w, f), h: lerp(v.h, fv.h, f) } : v, dt);
     this.light(dt);
     for (const c of this.chapters) c.update(phase(p, c.id), dt, this);
     for (const l of this.life) l.update(dt, this);
@@ -445,6 +478,17 @@ export class TableWorld {
     this.renderer.forceContextLoss();
     void this.canvas;
   }
+}
+
+/** Unity's SmoothDamp: a critically damped spring towards target. Returns [value, velocity]. */
+function smoothDamp(current: number, target: number, velocity: number, time: number, dt: number): [number, number] {
+  if (dt <= 0) return [current, velocity];
+  const omega = 2 / time;
+  const x = omega * dt;
+  const e = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+  const change = current - target;
+  const temp = (velocity + omega * change) * dt;
+  return [target + (change + temp) * e, (velocity - omega * temp) * e];
 }
 
 function visibleInTree(o: THREE.Object3D) {
