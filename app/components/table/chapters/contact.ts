@@ -245,12 +245,12 @@ export class Contact implements Chapter {
       },
     });
 
-    /* ---- a goodnight note ---- */
+    /* ---- a note to keep going ---- */
     const c = new Painter(13, 6, k * 0.8);
     c.paper('#f6d354', { seed: 650, fibres: 0.2, mottle: 0.3 });
-    c.text('goodnight ✿', 1.0, 2.2, { family: 'hand', size: 1.2 }, INK.ink, { rotate: -0.03 });
-    c.text('keep scrolling — the day starts', 1.0, 3.75, { family: 'hand', size: 0.8 }, INK.ink, { rotate: -0.03 });
-    c.text('again at dawn ↺', 1.0, 4.85, { family: 'hand', size: 0.8 }, INK.ink, { rotate: -0.03 });
+    c.text('thanks for stopping by ✿', 1.0, 2.2, { family: 'hand', size: 1.2 }, INK.ink, { rotate: -0.03 });
+    c.text('keep scrolling — it all starts', 1.0, 3.75, { family: 'hand', size: 0.8 }, INK.ink, { rotate: -0.03 });
+    c.text('again in the morning ↺', 1.0, 4.85, { family: 'hand', size: 0.8 }, INK.ink, { rotate: -0.03 });
     this.chit = new Sheet({ w: 13, h: 6, front: c.texture(r), roughness: 0.6 });
     this.chit.uniforms.uCurl.value = 0.2;
     this.group.add(this.chit.group);

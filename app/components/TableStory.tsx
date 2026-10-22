@@ -29,9 +29,9 @@ const CHAPTERS: { id: ChapterId; title: string; hint: string; short?: string }[]
   { id: 'contact', title: 'Contact', hint: 'Click a line on the postcard · draw on the pad', short: 'Tap a line · draw on the pad' },
 ];
 
-const HINT = { ...Object.fromEntries(CHAPTERS.map(c => [c.id, c.hint])), outro: 'Keep scrolling — the day starts again at dawn' } as Record<ChapterId, string>;
+const HINT = { ...Object.fromEntries(CHAPTERS.map(c => [c.id, c.hint])), outro: 'Keep scrolling — back to the morning' } as Record<ChapterId, string>;
 // on a phone, one line that doesn't crowd the dots
-const SHORT = { ...HINT, ...Object.fromEntries(CHAPTERS.flatMap(c => (c.short ? [[c.id, c.short]] : []))), outro: 'Keep scrolling · dawn is coming' } as Record<ChapterId, string>;
+const SHORT = { ...HINT, ...Object.fromEntries(CHAPTERS.flatMap(c => (c.short ? [[c.id, c.short]] : []))), outro: 'Keep scrolling · back to morning' } as Record<ChapterId, string>;
 
 export default function TableStory() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -340,7 +340,7 @@ function TextVersion() {
         Skip to the minimal portfolio
       </a>
       <h1>Manya Kaushik — product designer at Blinkit</h1>
-      <p>A day at Manya’s table: a sealed letter, pressed case studies, a library card, seed packets, notes from friends and a postcard, laid out from morning chai to lamplight.</p>
+      <p>A day at Manya’s table: a sealed letter, pressed case studies, a library card, seed packets, notes from friends and a postcard, laid out from morning chai to late afternoon.</p>
       <section aria-labelledby="t-hello">
         <h2 id="t-hello">Hey, I’m Manya.</h2>
         <p>

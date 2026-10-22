@@ -3,8 +3,9 @@ import { clamp, lerp } from './util';
 /*
  * The page is one long day at the table. Scroll runs the clock: each chapter holds the camera
  * over a part of the table for a while (its "station"), and between them the camera travels
- * while the sun keeps moving. The last stretch pulls up over the whole table through the night
- * and comes back down at dawn, exactly where the page began, so the scroll can loop.
+ * while the sun keeps moving, from morning to late afternoon. The last stretch pulls up over the
+ * whole table while the light winds back to the morning, and comes down exactly where the page
+ * began, so the scroll can loop without ever getting dark.
  */
 
 export type ChapterId = 'hero' | 'work' | 'journey' | 'play' | 'words' | 'contact' | 'outro';
@@ -12,18 +13,19 @@ export type ChapterId = 'hero' | 'work' | 'journey' | 'play' | 'words' | 'contac
 type Segment = { id: ChapterId | 'travel'; len: number; hours: [number, number] };
 
 export const SEGMENTS: Segment[] = [
-  { id: 'hero', len: 2.6, hours: [7.0, 8.6] },
-  { id: 'travel', len: 1.05, hours: [8.6, 9.6] },
-  { id: 'work', len: 3.4, hours: [9.6, 12.2] },
-  { id: 'travel', len: 1.05, hours: [12.2, 13.0] },
-  { id: 'journey', len: 2.4, hours: [13.0, 14.6] },
-  { id: 'travel', len: 1.05, hours: [14.6, 15.2] },
-  { id: 'play', len: 2.6, hours: [15.2, 16.6] },
-  { id: 'travel', len: 1.05, hours: [16.6, 17.3] },
-  { id: 'words', len: 2.2, hours: [17.3, 18.7] },
-  { id: 'travel', len: 1.05, hours: [18.7, 19.9] },
-  { id: 'contact', len: 2.2, hours: [19.9, 21.6] },
-  { id: 'outro', len: 2.6, hours: [21.6, 31.0] },
+  { id: 'hero', len: 2.6, hours: [7.2, 8.6] },
+  { id: 'travel', len: 1.05, hours: [8.6, 9.4] },
+  { id: 'work', len: 3.4, hours: [9.4, 11.6] },
+  { id: 'travel', len: 1.05, hours: [11.6, 12.2] },
+  { id: 'journey', len: 2.4, hours: [12.2, 13.4] },
+  { id: 'travel', len: 1.05, hours: [13.4, 13.9] },
+  { id: 'play', len: 2.6, hours: [13.9, 15.0] },
+  { id: 'travel', len: 1.05, hours: [15.0, 15.5] },
+  { id: 'words', len: 2.2, hours: [15.5, 16.3] },
+  { id: 'travel', len: 1.05, hours: [16.3, 16.8] },
+  { id: 'contact', len: 2.2, hours: [16.8, 17.3] },
+  // the light eases back to the morning while the camera floats over the table: it stays day
+  { id: 'outro', len: 2.6, hours: [17.3, 7.2] },
 ];
 
 /** Scroll length of the whole day, in viewport heights. */

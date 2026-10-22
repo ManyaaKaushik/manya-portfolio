@@ -4,8 +4,8 @@ import { keyed } from './work';
 import type { Chapter, TableWorld, View } from '../world';
 
 /*
- * Night, then dawn. The camera leans back and drifts up the table over the whole day, moonlit,
- * while the night passes; at first light it comes down where the morning began, and the scroll
+ * The day winds back. The camera leans back and drifts up the table over the whole day while the
+ * afternoon light eases back to the morning; it comes down where the morning began, and the scroll
  * loops round to the top without a seam.
  */
 
