@@ -20,7 +20,7 @@ const TILE_CM = 32;
 const TILE_PX = 1024;
 
 /** Draw order, below everything (0) that's laid on the grass. */
-const ORDER = { ground: -10, shade: -9.5, pebbles: -9, blades: -8, flowers: -7 };
+const ORDER = { ground: -10, shade: -9.5, bladeShadows: -9.2, pebbles: -9, blades: -8, flowers: -7 };
 
 /** The patch of the world the blades, flowers and pebbles cover, round the camera: a wide view sees up to ~240 × 150 cm. */
 const PATCH_WIDE = new THREE.Vector2(330, 250);
@@ -213,7 +213,7 @@ function makeGround(renderer: THREE.WebGLRenderer, size: { w: number; h: number;
           vec4 texel = mix(a, b, smoothstep(.3, .7, gNoise(wp * .021 + 9.)));
           // patches: lusher and deeper here, sun-dried there
           float lush = gNoise(wp * .011 + 2.) * .7 + gNoise(wp * .037) * .3;
-          texel.rgb *= mix(vec3(.82, .92, .8), vec3(1.1, 1.06, .86), smoothstep(.3, .72, lush));
+          texel.rgb *= mix(vec3(.74, .84, .72), vec3(1., .97, .78), smoothstep(.3, .72, lush));
           // and a slow swell of breeze shows the blades' paler sides, faintly
           float g = gNoise(wp * .012 - normalize(uWind) * uTime * .14);
           texel.rgb *= 1. + smoothstep(.55, .9, g) * vec3(.07, .07, .04);
@@ -334,13 +334,13 @@ function clumpGeometry(seed: number) {
       const sz = dir.x * Math.cos(tw);
       const sy = Math.sin(tw);
       pos.push(px + sx * w, y + sy * w, pz + sz * w, px - sx * w, y - sy * w, pz - sz * w);
-      // the blade's face, tipped by its slope, mostly turned up to the sky
+      // the blade's face, tipped by its slope, turned a little up to the sky
       const tx = dir.x * Math.sin(a);
       const ty = Math.cos(a);
       const tz = dir.y * Math.sin(a);
       const n = new THREE.Vector3(sx, sy, sz).cross(new THREE.Vector3(tx, ty, tz)).normalize();
       if (n.y < 0) n.negate();
-      n.lerp(new THREE.Vector3(0, 1, 0), 0.55).normalize();
+      n.lerp(new THREE.Vector3(0, 1, 0), 0.25).normalize();
       nrm.push(n.x, n.y, n.z, n.x, n.y, n.z);
       t.push(f, f);
       const step = len / SEG;
@@ -363,9 +363,9 @@ function clumpGeometry(seed: number) {
 
 /** Three greens the clumps come in: a deep one, a fresh one, and one going to hay. */
 const BLADE_TONES = [
-  ['#2f4d1c', '#6e9437'],
-  ['#36581f', '#86a843'],
-  ['#3e5424', '#a6a659'],
+  ['#2f4d1c', '#86ad45'],
+  ['#36581f', '#a2c457'],
+  ['#3e5424', '#c2be6c'],
 ];
 
 function makeBlades(n: number) {
@@ -382,7 +382,7 @@ function makeBlades(n: number) {
     const m = Math.min(n - i, 1 + Math.floor(r() * 4));
     const kind = r() < 0.12 ? 2 : r() < 0.5 ? 0 : 1;
     for (let j = 0; j < m; j++, i++) {
-      spot.set([cx + (r() - 0.5) * 0.012, cy + (r() - 0.5) * 0.012, r() * Math.PI * 2, 2.2 + r() * 2.6], i * 4);
+      spot.set([cx + (r() - 0.5) * 0.012, cy + (r() - 0.5) * 0.012, r() * Math.PI * 2, 2.8 + r() * 3.2], i * 4);
       lo.set(BLADE_TONES[kind][0]);
       hi.set(BLADE_TONES[kind][1]);
       const v = 0.88 + r() * 0.24;
@@ -394,40 +394,78 @@ function makeBlades(n: number) {
   // a few clump shapes, so neighbours don't match
   const SHAPES = 4;
   const per = Math.ceil(n / SHAPES);
-  const material = sway(
-    new THREE.MeshStandardMaterial({ roughness: 0.78, side: THREE.DoubleSide }),
-    'blades',
-    `attribute vec4 aSpot;\nattribute vec4 aTone;\nattribute float aT;\nvarying float vT;\nvarying vec4 vTone;\n`,
-    /* glsl */ `
+  const decl = `attribute vec4 aSpot;\nattribute vec4 aTone;\nattribute float aT;\nvarying float vT;\nvarying vec4 vTone;\n`;
+  // where a blade's point is: its clump's spot, turned, and swaying in the breeze, its tips most
+  const BLADE = /* glsl */ `
     vec2 base = placeIn(aSpot.xy);
     float c = cos(aSpot.z), s = sin(aSpot.z);
     vec3 p = position * aSpot.w;
     p.xz = mat2(c, -s, s, c) * p.xz;
-    // a slow swell of breeze leans the clump a little downwind, its tips most
     vec2 wd = normalize(uWind);
-    float g = gNoise(base * .012 - wd * uTime * .14) * .7 + gNoise(base * .027 - wd * uTime * .2 + 3.) * .3;
-    float bend = .06 + .22 * smoothstep(.35, .85, g) + sin(uTime * 1.3 + aSpot.z * 9.) * .025;
+    float g = gNoise(base * .012 - wd * uTime * .22) * .7 + gNoise(base * .027 - wd * uTime * .3 + 3.) * .3;
+    float bend = .1 + .4 * smoothstep(.3, .85, g) + sin(uTime * 1.6 + aSpot.z * 9.) * .06 + sin(uTime * 2.7 + aSpot.z * 23.) * .025;
     float k = aT * aT;
     p.xz += wd * bend * k * aSpot.w;
-    p.y *= 1. - .2 * k * bend;
-    transformed = vec3(base.x + p.x, p.y + .05, base.y + p.z);
-    // nothing grows in the pond: folded to a point, it draws nothing
-    if (inHole(base)) transformed = vec3(base.x, 0., base.y);
+    p.y *= 1. - .25 * k * bend;
+    vec3 w = vec3(base.x + p.x, p.y + .05, base.y + p.z);
     vT = aT;
-    vTone = aTone;`,
-    '',
+    vTone = aTone;`;
+  const material = sway(
+    new THREE.MeshStandardMaterial({ roughness: 0.55, side: THREE.DoubleSide }),
+    'blades',
+    decl,
+    /* glsl */ `${BLADE}
+    transformed = w;
+    // nothing grows in the pond: folded to a point, it draws nothing
+    if (inHole(base)) transformed = vec3(base.x, 0., base.y);`,
+    // the clump is turned, and so is the way its blades face
+    /* glsl */ `
+    {
+      float c = cos(aSpot.z), s = sin(aSpot.z);
+      objectNormal.xz = mat2(c, -s, s, c) * objectNormal.xz;
+    }`,
     f =>
       `varying float vT;\nvarying vec4 vTone;\n` +
-      f.replace(
-        '#include <color_fragment>',
-        // dark down at the crown where the clump shades itself, to the tip's colour, paling at the very end
-        `#include <color_fragment>
-        vec3 tipC = vTone.rgb;
-        vec3 rootC = tipC * vTone.a * .7;
-        diffuseColor.rgb = mix(rootC, tipC, smoothstep(.0, .75, vT)) * (1. + .18 * smoothstep(.75, 1., vT));`,
-      ),
-    behind,
+      f
+        // a blade's normals all face the sky, whichever of its sides the camera sees: undo the
+        // flip a double-sided material gives a back face, or half the blades are lit as if face down
+        .replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\n  normal = normalize(vNormal);\n  nonPerturbedNormal = normal;')
+        .replace(
+          '#include <color_fragment>',
+          // dark down at the crown where the clump shades itself, to the tip's colour, paling at the very end
+          `#include <color_fragment>
+          vec3 tipC = vTone.rgb;
+          vec3 rootC = tipC * vTone.a * .55;
+          diffuseColor.rgb = mix(rootC, tipC, smoothstep(.0, .7, vT)) * (1. + .22 * smoothstep(.7, 1., vT));`,
+        ),
   );
+
+  // and each blade's shadow, cast along the sun onto the ground: the thing that makes a blade
+  // read as standing up off it. Multiplied into the grass, and kept behind whatever is laid on it.
+  const shadowMat = new THREE.MeshBasicMaterial({ blending: THREE.MultiplyBlending, premultipliedAlpha: true, toneMapped: false, side: THREE.DoubleSide });
+  shadowMat.onBeforeCompile = shader => {
+    Object.assign(shader.uniforms, uniforms, { uView: sunUniforms.uView, uTime: sunUniforms.uTime, uWind: sunUniforms.uWind, uSlope: sunUniforms.uSlope });
+    shader.vertexShader = behind(
+      (WIND + PLACE + decl + 'uniform vec2 uSlope;\n' + shader.vertexShader).replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+        ${BLADE}
+        // (a low sun's would stretch across the lawn: kept to a short fall, so it reads as depth)
+        vec2 fall = uSlope / max(1., length(uSlope) / .55);
+        w.xz -= fall * w.y;
+        transformed = vec3(w.x, .04, w.z);
+        if (inHole(base)) transformed = vec3(base.x, 0., base.y);`,
+      ),
+    );
+    // darkest under the crown, fading out along the blade
+    shader.fragmentShader = ('varying float vT;\nvarying vec4 vTone;\n' + shader.fragmentShader).replace(
+      '#include <map_fragment>',
+      'diffuseColor.rgb = vec3(mix(.72, .92, vT));',
+    );
+  };
+  shadowMat.customProgramCacheKey = () => 'blade-shadow';
+  shadowMat.depthWrite = false;
+
   for (let k = 0; k < SHAPES; k++) {
     const from = k * per;
     const count = Math.min(per, n - from);
@@ -435,7 +473,9 @@ function makeBlades(n: number) {
       aSpot: [spot.slice(from * 4, (from + count) * 4), 4],
       aTone: [tone.slice(from * 4, (from + count) * 4), 4],
     });
-    mesh.add(decor(geo, material, ORDER.blades));
+    const shadow = decor(geo, shadowMat, ORDER.bladeShadows, false);
+    shadow.receiveShadow = false;
+    mesh.add(shadow, decor(geo, material, ORDER.blades));
   }
   return mesh;
 }
@@ -718,7 +758,7 @@ export function makeLawn(renderer: THREE.WebGLRenderer, size: { w: number; h: nu
   const group = new THREE.Group();
   // a phone draws a smaller patch, so it gets fewer of everything for the same density
   const small = matchMedia('(pointer: coarse)').matches;
-  const blades = makeBlades(small ? 3600 : 6500);
+  const blades = makeBlades(small ? 3600 : 5400);
   group.add(makeGround(renderer, size), makePebbles(small ? 70 : 140), blades, makeFlowers(small ? 230 : 440, renderer));
   const full = blades.children.map(m => ((m as THREE.Mesh).geometry as THREE.InstancedBufferGeometry).instanceCount);
   let thin = 1;
@@ -733,8 +773,9 @@ export function makeLawn(renderer: THREE.WebGLRenderer, size: { w: number; h: nu
      */
     pace(ms: number) {
       if (ms < 120) {
-        slow = slow * 0.95 + (ms > 24 ? 0.05 : 0);
-        if (slow > 0.5 && thin > 0.5) {
+        // (the share of recent frames that ran over: scattered slow ones count, not just a run)
+        slow = slow * 0.97 + (ms > 24 ? 0.03 : 0);
+        if (slow > 0.25 && thin > 0.5) {
           thin -= 0.125;
           slow = 0;
         }
