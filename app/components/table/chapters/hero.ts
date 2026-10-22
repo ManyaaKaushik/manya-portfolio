@@ -3,12 +3,14 @@ import { INK, Painter, loadImage, paperDensity } from '../paint';
 import { Sheet } from '../paper';
 import { chai, pencil, sunflower, waxSeal } from '../props';
 import { phase } from '../timeline';
+import { Ukulele } from '../ukulele';
 import { clamp, easeBack, easeInOut, easeOut, hump, lerp, range, smooth } from '../util';
 import type { Chapter, TableWorld, View } from '../world';
 
 /*
  * 07:00 — Morning chai. A sealed envelope from Manya waits by a glass of chai. Scroll and it
- * opens: the seal pops, the flap lifts, the letter slides out and unfolds into her hello.
+ * opens: the seal pops, the flap lifts, the letter slides out and unfolds into her hello. Her
+ * ukulele lies beside it, to pick up and play.
  * On the way back round (the end of the night) it all folds up again.
  */
 
@@ -36,6 +38,7 @@ export class Hero implements Chapter {
   private flower!: THREE.Group;
   private tea!: ReturnType<typeof chai>;
   private pencils: THREE.Group[] = [];
+  readonly uke = new Ukulele('hero');
   private portrait = false;
   private t = 0;
 
@@ -274,6 +277,13 @@ export class Hero implements Chapter {
     this.group.add(this.envelope, this.letter, this.note.group, this.polaroid.group, this.flower, this.tea.group, ...this.pencils);
     for (const s of [this.body, this.note, this.polaroid]) if (s.shade) world.shades.add(s.shade);
     this.layout(world.aspect < 0.8);
+    // the ukulele is the heaviest thing on the table: it comes in behind the page's first view, and
+    // its shaders are ready before it's shown
+    void this.uke
+      .load(world)
+      .then(() => world.renderer.compileAsync(this.uke.group, world.camera, world.scene))
+      .then(() => this.group.add(this.uke.group))
+      .catch(err => console.error(err));
 
     world.hotspots.push({
       object: this.envelope,
@@ -288,14 +298,19 @@ export class Hero implements Chapter {
     const P = portrait;
     this.polaroid.group.position.set(P ? -8 : -37, 0.12, P ? -23 : -12);
     this.polaroid.group.rotation.y = 0.16;
-    this.flower.position.set(P ? 9 : -33, 0, P ? 22 : 17);
+    this.flower.position.set(P ? -10 : -33, 0, P ? 24 : 17);
     this.flower.rotation.y = P ? -0.5 : 0.3;
     this.tea.group.position.set(P ? 10 : 37, 0, P ? -26 : -16);
     this.polaroid.syncShade(0.12);
-    this.pencils[0].position.set(P ? -4 : 33, 0.38, P ? 30 : 16);
+    // the pencils, by the flower; on a phone the table's too narrow for them and the ukulele both
+    this.pencils[0].position.set(-15, 0.38, 27);
     this.pencils[0].rotation.y = 0.5;
-    this.pencils[1].position.set(P ? 4 : 30, 0.38, P ? 33 : 21);
+    this.pencils[1].position.set(-10, 0.38, 29.5);
     this.pencils[1].rotation.y = 0.35;
+    for (const pencil of this.pencils) pencil.visible = !P;
+    // the ukulele down the right of the table, its neck running off the edge; picked up, it turns
+    // to lie across the view (upright on a phone, where the view is tall)
+    this.uke.place(P ? { x: 17, z: 6, r: 0.08 } : { x: 44, z: -2, r: -0.35 }, P ? { x: 0, z: 2, r: 0 } : { x: 24, z: 2, r: -Math.PI / 2 }, P);
   }
 
   update(ph: number, dt: number, world: TableWorld) {
@@ -311,8 +326,10 @@ export class Hero implements Chapter {
     this.group.visible = ph < 1.95 || outro > 0;
 
     const envRot = -0.05;
-    const away = easeInOut(range(u, 0.4, 0.62));
-    this.envelope.position.set(lerp(0, this.portrait ? 3 : 15, away), 0, lerp(0, this.portrait ? 27 : 23, away));
+    // (on a phone it waits for the letter to land, or it would carry the letter off the edge with it)
+    const away = easeInOut(this.portrait ? range(u, 0.6, 0.8) : range(u, 0.4, 0.62));
+    // slid aside for the letter: on a phone, off the left edge, clear of the ukulele
+    this.envelope.position.set(lerp(0, this.portrait ? -32 : 15, away), 0, lerp(0, this.portrait ? 8 : 23, away));
     this.envelope.rotation.y = envRot + away * 0.18;
     this.body.syncShade(0.4);
     if (this.body.shade) this.body.shade.position.copy(this.envelope.position).setY(0.02);
@@ -365,6 +382,7 @@ export class Hero implements Chapter {
     this.top.group.position.set(0, 0, 0);
     this.bottom.group.position.set(0, 0.06 + (1 - open) * 0.05, 0);
 
+    this.uke.update(dt, this.group.visible);
     this.tea.update(this.t, world.daylight);
     this.tea.steamAlpha(clamp(1 - (world.hour - 9) / 1.5));
   }

@@ -59,7 +59,7 @@ export class UkeSound {
   }
 
   pluck(string: number, fret: number, velocity = 0.8, time = Tone.now()) {
-    this.gains[string].gain.setValueAtTime(0.25 + velocity * 0.75, time);
+    this.gains[string].gain.setValueAtTime(0.12 + velocity * 0.88, time);
     this.strings[string].triggerAttack(note(string, fret), time);
     Tone.getDraw().schedule(() => this.listener.onPluck?.(string, velocity), time);
   }
@@ -68,8 +68,9 @@ export class UkeSound {
   strum(chord: ChordName, dir: 1 | -1, velocity = 0.8, time = Tone.now() + 0.01) {
     const frets = CHORDS[chord];
     const order = dir > 0 ? [0, 1, 2, 3] : [3, 2, 1, 0];
-    const gap = (dir > 0 ? 0.012 : 0.009) * (1.2 - velocity * 0.4);
-    const light = dir < 0 && velocity < 0.7;
+    // a thumb brushing across, not a machine: the softer the strum, the slower it rolls
+    const gap = (dir > 0 ? 0.02 : 0.015) * (1.25 - velocity * 0.5);
+    const light = dir < 0 && velocity < 0.6;
     Tone.getDraw().schedule(() => this.listener.onStrum?.(dir), time);
     order.forEach((s, i) => {
       if (light && s === 0) return;
@@ -88,22 +89,24 @@ export class UkeSound {
     SONG.bars.forEach((chord, bar) => {
       PATTERN.forEach((s, step) => {
         const at = t + step * sixteenth;
+        // a little swing on the off-sixteenths
+        const swing = step % 2 ? sixteenth * 0.12 : 0;
         transport.schedule(time => {
           Tone.getDraw().schedule(() => this.listener.onStep?.(bar, step, chord), time);
           if (!s) return;
-          // a person, not a sequencer: a little loose in time and touch
-          const v = (s.accent ? 0.95 : s.dir > 0 ? 0.72 : 0.58) + (Math.random() - 0.5) * 0.08;
-          this.strum(chord, s.dir, v, time + (Math.random() - 0.5) * 0.008);
-        }, at);
+          // the accents carry it; everything in between is a light brush, a person and not a sequencer
+          const v = (s.accent ? 0.92 : s.dir > 0 ? 0.5 : 0.36) + (Math.random() - 0.5) * 0.08;
+          this.strum(chord, s.dir, v, time + (Math.random() - 0.5) * 0.01);
+        }, at + swing);
       });
       t += 16 * sixteenth;
     });
     // and one to let ring
     transport.schedule(time => {
       Tone.getDraw().schedule(() => this.listener.onStep?.(SONG.bars.length, 0, SONG.end), time);
-      this.strum(SONG.end, 1, 0.9, time);
+      this.strum(SONG.end, 1, 0.85, time);
     }, t);
-    transport.schedule(time => Tone.getDraw().schedule(() => this.finish(), time), t + 2.4);
+    transport.schedule(time => Tone.getDraw().schedule(() => this.finish(), time), t + 3);
     transport.position = 0;
     transport.start('+0.05');
     this.playing = true;

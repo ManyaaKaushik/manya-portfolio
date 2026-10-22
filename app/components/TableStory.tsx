@@ -21,10 +21,10 @@ import { SunflowerGlyph } from './ui';
  */
 
 const CHAPTERS: { id: ChapterId; title: string; hint: string }[] = [
-  { id: 'hero', title: 'Hello', hint: 'There’s a letter for you' },
+  { id: 'hero', title: 'Hello', hint: 'There’s a letter for you · and a ukulele to play' },
   { id: 'work', title: 'Work', hint: 'Click a sheet to read the case study' },
   { id: 'journey', title: 'Journey', hint: 'Every step, stamped as it happened' },
-  { id: 'play', title: 'Play', hint: 'Tap a packet to turn it · pick up the ukulele and play' },
+  { id: 'play', title: 'Play', hint: 'Tap a packet to turn it · tap the slips for another “what if”' },
   { id: 'words', title: 'Kind words', hint: 'Notes from people I’ve worked with' },
   { id: 'contact', title: 'Contact', hint: 'Click a line on the postcard · draw on the pad' },
 ];

@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { links, studies, whatIfs } from '../../../lib/content';
 import { INK, Painter, loadImage, paperDensity } from '../paint';
 import { Sheet } from '../paper';
-import { Ukulele } from '../ukulele';
 import { stationZ } from '../stations';
 import { clamp, damp, easeInOut, hump, lerp, range, rng } from '../util';
 import type { Chapter, TableWorld, View } from '../world';
@@ -11,7 +10,7 @@ import { keyed } from './work';
 /*
  * 15:00 — Afternoon play. The garden studies come as seed packets that turn over to show their
  * sowing instructions; a stack of "what if" slips to draw from; her sketchbook, in polaroids;
- * a sticker that leads to the playground; and her ukulele, to pick up and play.
+ * and a sticker that leads to the playground.
  */
 
 const PACKET = { w: 11.5, h: 16.5 };
@@ -32,7 +31,6 @@ export class Play implements Chapter {
   private portrait = false;
   private Z = 296;
   private moving = 0;
-  readonly uke = new Ukulele();
 
   view(u: number, aspect: number): View {
     const portrait = aspect < 0.8;
@@ -43,7 +41,7 @@ export class Play implements Chapter {
         [0.2, Z - 14],
         [0.35, Z + 8],
         [0.75, Z + 42],
-        [1, Z + 128],
+        [1, Z + 60],
       ]);
       return { x: 0, z, w: 27, h: 46 };
     }
@@ -197,13 +195,6 @@ export class Play implements Chapter {
     });
 
     this.layout(world.aspect < 0.8);
-    // the ukulele is the heaviest thing on the table: it comes in behind the page's first view, and
-    // its shaders are ready before it's shown
-    void this.uke
-      .load(world)
-      .then(() => world.renderer.compileAsync(this.uke.group, world.camera, world.scene))
-      .then(() => this.group.add(this.uke.group))
-      .catch(err => console.error(err));
   }
 
   private layout(portrait: boolean) {
@@ -215,10 +206,7 @@ export class Play implements Chapter {
     this.sketches[0].group.rotation.y = 0.12;
     this.sketches[1].group.position.set(P ? 5 : -38, 0.14, P ? Z + 78 : Z + 13);
     this.sketches[1].group.rotation.y = -0.1;
-    this.sticker.group.position.set(P ? -7 : -15, 0.08, P ? Z + 90 : Z + 21);
-    // the ukulele lies across the corner of the table, its neck running off towards the top; picked
-    // up, it turns to lie across the view (upright on a phone, where the view is tall)
-    this.uke.place(P ? { x: 1, z: Z + 124, r: -0.1 } : { x: 31, z: Z - 3, r: -0.5 }, P ? { x: 0, z: Z + 124, r: 0 } : { x: 30, z: Z + 4, r: -Math.PI / 2 }, P);
+    this.sticker.group.position.set(P ? 6 : 36, 0.08, P ? Z + 92 : Z + 14);
     this.sticker.group.rotation.y = 0.2;
     for (const s of [...this.sketches, this.sticker]) s.syncShade(s.group.position.y);
   }
@@ -275,10 +263,6 @@ export class Play implements Chapter {
     this.sticker.group.position.y = 0.08 + damp(this.sticker.group.position.y - 0.08, this.stickerHover * 0.8, 10, dt);
     this.sticker.uniforms.uCurl.value = 0.05 + this.stickerHover * 0.5;
     this.moving = moving ? 0.3 : Math.max(0, this.moving - dt);
-
-    // the page has moved while it was in hand: put it down
-    if (this.uke.state.open && Math.abs(world.progress - this.uke.openedAt) > 0.002) this.uke.close();
-    this.uke.update(dt, this.group.visible);
   }
 
   busy() {

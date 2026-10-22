@@ -15,13 +15,18 @@ export const CHORDS = {
 export type ChordName = keyof typeof CHORDS;
 export const CHORD_NAMES = Object.keys(CHORDS) as ChordName[];
 
-/** The intro, then the first two lines of the chorus, a bar of sixteenths per chord, and a last strum to ring out. */
+/**
+ * The song's turn, Emaj7 → G#m → B6, round once and back to B, a bar of sixteenths per chord, and a last strum
+ * to ring out. The tab says 95, but strummed alone on a little ukulele it wants to be lazier, the
+ * way you'd play it on a sofa.
+ */
 export const SONG = {
   title: 'Sailor Song',
   artist: 'Gigi Perez',
-  bpm: 95,
-  bars: ['Emaj7', 'Emaj7', 'G#m', 'G#m', 'Emaj7', 'G#m', 'B6', 'B6'] as ChordName[],
-  end: 'Emaj7' as ChordName,
+  bpm: 74,
+  bars: ['Emaj7', 'G#m', 'B6', 'B6', 'Emaj7', 'G#m'] as ChordName[],
+  // home, in B
+  end: 'B6' as ChordName,
   // D an accented down, d down, u up, - a rest
   pattern: 'D-duduD-duduD-du',
 };

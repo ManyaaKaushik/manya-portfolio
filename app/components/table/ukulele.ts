@@ -5,10 +5,11 @@ import { withSun } from './light';
 import { clamp, damp, hump, lerp } from './util';
 import type { UkeSound } from './uke-sound';
 import { CHORDS, type ChordName } from './uke-song';
+import type { ChapterId } from './timeline';
 import type { Hotspot, TableWorld, View } from './world';
 
 /*
- * Manya's ukulele, stickers and all, lying on the table in the afternoon. Pick it up and it plays
+ * Manya's ukulele, stickers and all, lying on the table by the morning's letter. Pick it up and it plays
  * a little of Sailor Song; then it's yours: swipe across the strings to strum, choose a chord, or
  * have it play again. While it's in your hands the page holds still, and putting it down (or
  * trying to scroll) stops the music.
@@ -71,6 +72,8 @@ export class Ukulele {
   private ready = false;
   /** Scroll progress when it was picked up. */
   openedAt = 0;
+  constructor(private chapter: ChapterId) {}
+
   state: JamState = { open: false, loading: false, chord: 'Emaj7', playing: false, bar: -1, step: -1, played: false };
   onState?: (s: JamState) => void;
 
@@ -169,7 +172,7 @@ export class Ukulele {
     this.spot = {
       object: this.group,
       cursor: 'pointer',
-      chapter: 'play',
+      chapter: this.chapter,
       onEnter: () => (this.hovered = true),
       onLeave: () => (this.hovered = false),
       onClick: () => {
@@ -339,6 +342,8 @@ export class Ukulele {
 
   update(dt: number, visible: boolean) {
     if (!this.ready) return;
+    // the page has moved while it was in hand: put it down
+    if (this.state.open && Math.abs(this.world.progress - this.openedAt) > 0.002) this.close();
     this.group.visible = visible;
     if (!visible) return;
     const open = this.state.open ? 1 : 0;
