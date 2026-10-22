@@ -49,6 +49,8 @@ export class Journey implements Chapter {
   private receipt!: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
   private receiptTex!: THREE.Texture;
   private roll!: THREE.Mesh;
+  // the receipt and its roll, printed a little larger than life so the small print reads
+  private till = new THREE.Group();
   private portrait = false;
   private Z = 205;
 
@@ -62,18 +64,19 @@ export class Journey implements Chapter {
         [0.72, Z + 16],
         [1, Z + 27],
       ]);
-      return { x: 0, z, w: 30, h: 50 };
+      return { x: 0, z, w: 24, h: 44 };
     }
+    // close enough to read the card's small print
     const z = keyed(u, [
-      [0, Z - 1],
-      [0.6, Z + 1],
+      [0, Z - 2.6],
+      [0.6, Z - 1.4],
     ]);
-    return { x: 0.5, z, w: 50, h: 46 };
+    return { x: -0.5, z, w: 40, h: 36 };
   }
 
   private row(i: number, out = new THREE.Vector3()) {
     // centre of the date column of row i, in the card's frame, then the world's
-    if (i < 0 || i >= JOURNEY.length) return out.set(this.card.group.position.x + 10.5, 0, this.card.group.position.z - 2 + (i < 0 ? -6 : 6));
+    if (i < 0 || i >= JOURNEY.length) return out.set(this.card.group.position.x + (this.portrait ? 9.5 : 10.5), 0, this.card.group.position.z - 2 + (i < 0 ? -6 : 6));
     const local = new THREE.Vector3(-CARD.w / 2 + 2.55, 0, -CARD.h / 2 + ROW0 + i * ROW_H - 0.55);
     local.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.card.group.rotation.y);
     return out.copy(this.card.group.position).add(local).setY(0);
@@ -86,18 +89,18 @@ export class Journey implements Chapter {
     /* ---- the library card ---- */
     const p = new Painter(CARD.w, CARD.h, k);
     p.paper('#ecdcb4', { seed: 200, fibres: 1.2, flecks: 0.8 });
-    p.text('THE POLYMATH’S LIBRARY', CARD.w / 2, 1.35, { family: 'mono', size: 0.36, weight: 600 }, INK.ink, { align: 'center', spacing: 0.2 });
+    p.text('THE POLYMATH’S LIBRARY', CARD.w / 2, 1.35, { family: 'mono', size: 0.42, weight: 600 }, INK.ink, { align: 'center', spacing: 0.2 });
     p.text('Journey into', 0.8, 3.15, { family: 'serif', size: 1.3 }, INK.ink);
     p.text('design', 0.8 + p.measure('Journey into ', { family: 'serif', size: 1.3 }), 3.15, { family: 'serif', size: 1.3, italic: true }, INK.blue);
-    p.text('DATE DUE', 0.85, 4.55, { family: 'mono', size: 0.3, weight: 700 }, INK.red, { spacing: 0.14 });
-    p.text('BORROWED', 4.7, 4.55, { family: 'mono', size: 0.3, weight: 700 }, INK.red, { spacing: 0.14 });
+    p.text('DATE DUE', 0.85, 4.55, { family: 'mono', size: 0.36, weight: 700 }, INK.red, { spacing: 0.14 });
+    p.text('BORROWED', 4.7, 4.55, { family: 'mono', size: 0.36, weight: 700 }, INK.red, { spacing: 0.14 });
     p.line(0.6, 4.85, CARD.w - 0.6, 4.85, 'rgba(178,58,42,0.7)', 0.04);
     p.line(4.3, 3.9, 4.3, CARD.h - 1.0, 'rgba(178,58,42,0.6)', 0.035);
     for (let i = 0; i <= JOURNEY.length; i++) p.line(0.6, 4.85 + i * ROW_H, CARD.w - 0.6, 4.85 + i * ROW_H, 'rgba(54,95,186,0.28)', 0.025);
     JOURNEY.forEach((j, i) => {
       const y = ROW0 + i * ROW_H;
-      p.text(j.what, 4.7, y + 0.15, { family: 'hand', size: 0.78 }, INK.indigo, { rotate: -0.008 });
-      p.text(j.note, 4.72, y + 0.75, { family: 'sans', size: 0.34 }, INK.muted);
+      p.text(j.what, 4.7, y + 0.15, { family: 'hand', size: 0.86 }, INK.indigo, { rotate: -0.008 });
+      p.text(j.note, 4.72, y + 0.8, { family: 'sans', size: 0.42 }, INK.soft);
     });
     // the last line, circled in pencil
     const last = ROW0 + (JOURNEY.length - 1) * ROW_H;
@@ -109,7 +112,7 @@ export class Journey implements Chapter {
     p.ctx.stroke();
     p.ctx.restore();
     // just under the circle, so it shows above the pocket
-    p.text('↑ still borrowing', CARD.w - 0.7, last + 1.3, { family: 'hand', size: 0.6 }, INK.pencil, { align: 'right' });
+    p.text('↑ still borrowing', CARD.w - 0.7, last + 1.3, { family: 'hand', size: 0.66 }, INK.pencil, { align: 'right' });
     p.grain(0.04);
     p.edge(0.04, 201);
     this.cardPainter = p;
@@ -226,7 +229,9 @@ export class Journey implements Chapter {
     this.roll.castShadow = true;
     this.roll.receiveShadow = true;
 
-    this.group.add(this.pocketBack.group, this.card.group, this.pocket.group, this.stamp, this.receipt, this.roll);
+    this.till.add(this.receipt, this.roll);
+    this.till.scale.setScalar(1.15);
+    this.group.add(this.pocketBack.group, this.card.group, this.pocket.group, this.stamp, this.till);
     world.shades.add(this.card.shade!, this.pocket.shade!);
     this.layout(world.aspect < 0.8);
   }
@@ -235,7 +240,7 @@ export class Journey implements Chapter {
     this.portrait = portrait;
     this.Z = stationZ('journey', portrait);
     const Z = this.Z;
-    const cx = portrait ? 0 : -11;
+    const cx = portrait ? 0 : -9.5;
     const cz = portrait ? Z - 6 : Z + 1;
     // the pocket sits well above the card, which never rises past it while it's inside
     this.pocket.group.position.set(cx + 0.1, 0.6, cz + CARD.h / 2 - POCKET.h / 2 + 0.6);
@@ -244,7 +249,8 @@ export class Journey implements Chapter {
     this.pocketBack.group.position.copy(this.pocket.group.position).setY(0.08);
     this.pocketBack.group.rotation.y = -0.03;
     this.card.group.rotation.y = -0.025;
-    this.receipt.position.set(portrait ? 0.5 : 12, 0.12, portrait ? Z + 14 : Z - 14);
+    this.till.position.set(portrait ? 0.5 : 9.5, 0, portrait ? Z + 14 : Z - 16);
+    this.receipt.position.set(0, 0.1, 0);
     this.receipt.rotation.y = 0.03;
   }
 
@@ -255,7 +261,7 @@ export class Journey implements Chapter {
       const j = JOURNEY[i];
       const y = ROW0 + i * ROW_H;
       const rr = rng(300 + i);
-      p.text(j.when.toUpperCase(), 2.5, y + 0.35, { family: 'mono', size: j.when.length > 5 ? 0.42 : 0.62, weight: 700 }, STAMP_INK, {
+      p.text(j.when.toUpperCase(), 2.5, y + 0.35, { family: 'mono', size: j.when.length > 5 ? 0.46 : 0.68, weight: 700 }, STAMP_INK, {
         align: 'center',
         rotate: (rr() - 0.5) * 0.12,
         alpha: 0.78 + rr() * 0.15,
@@ -273,7 +279,7 @@ export class Journey implements Chapter {
     if (!this.group.visible) return;
     const u = clamp(ph, 0, 1);
     const Z = this.Z;
-    const cx = portrait ? 0 : -11;
+    const cx = portrait ? 0 : -9.5;
     const cz = portrait ? Z - 6 : Z + 1;
 
     // the card slides up out of its pocket: seated, it fills it; out, just its foot is left inside
@@ -298,7 +304,7 @@ export class Journey implements Chapter {
     const lift = smooth(range(f, 0.1, 0.32)) * (1 - smooth(range(f, 0.72, 1)));
     const atRest = kk < 0 ? 1 - travel : kk >= JOURNEY.length - 1 ? travel : 0;
     this.stamp.position.set(lerp(a.x, b.x, travel), 0.16 + lift * 4 + atRest * 0.0, lerp(a.z, b.z, travel));
-    this.stamp.rotation.set(lift * 0.12, this.card.group.rotation.y + Math.PI / 2 + (kk < 0 || kk >= JOURNEY.length - 1 ? atRest * 0.5 : 0), lift * 0.06);
+    this.stamp.rotation.set(lift * 0.12, this.card.group.rotation.y + (kk < 0 || kk >= JOURNEY.length - 1 ? atRest * 0.5 : 0), lift * 0.06);
     this.stamp.visible = ph > -0.6;
 
     // the receipt unrolls

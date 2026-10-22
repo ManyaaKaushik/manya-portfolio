@@ -6,14 +6,14 @@ import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { caseStudies, links, studies, testimonials, whatIfs } from '../lib/content';
 import { Welcome } from './SunflowerScroll';
-import { CHAPTER_LABELS, DAY_LENGTH, clockLabel, progressOf, type ChapterId } from './table/timeline';
+import { DAY_LENGTH, progressOf, type ChapterId } from './table/timeline';
 import type { TableWorld } from './table/world';
 import { SunflowerGlyph } from './ui';
 
 /*
  * A day at Manya's table. The page is one long, looping scroll that drives a three.js scene (see
  * ./table); this component owns the scroll and the pointer, and draws what sits over the canvas:
- * the clock, the chapter dots, hints and toasts. The same content is in the document as text, for
+ * the chapter dots, hints and toasts. The same content is in the document as text, for
  * screen readers and keyboards, and the classic site lives at /minimal.
  */
 
@@ -32,8 +32,6 @@ export default function TableStory() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const worldRef = useRef<TableWorld | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
-  const clockRef = useRef<HTMLSpanElement>(null);
-  const sunRef = useRef<SVGCircleElement>(null);
   const [loaded, setLoaded] = useState(0);
   const [sceneReady, setSceneReady] = useState(false);
   const [introDone, setIntroDone] = useState(false);
@@ -110,16 +108,8 @@ export default function TableStory() {
         };
         world.onCursor = c => (canvas.style.cursor = c);
         world.onFrame = ({ hour, chapter: ch, progress }) => {
-          if (clockRef.current) clockRef.current.textContent = clockLabel(hour);
           const h = ((hour % 24) + 24) % 24;
           const isNight = h >= 19.6 || h < 6;
-          if (sunRef.current) {
-            // the sun (or the moon) along a little arc: rising at the left, setting at the right
-            const t = isNight ? (((h - 19.6 + 24) % 24) / 10.4) : (h - 6) / 13.6;
-            const a = Math.PI * (1 - t);
-            sunRef.current.setAttribute('cx', (18 + Math.cos(a) * 13).toFixed(2));
-            sunRef.current.setAttribute('cy', (17 - Math.sin(a) * 11).toFixed(2));
-          }
           if (ch !== lastChapter) setChapter((lastChapter = ch));
           if (isNight !== lastNight) setNight((lastNight = isNight));
           const m = progress > 0.004 && progress < 0.996;
@@ -190,7 +180,12 @@ export default function TableStory() {
   }, [ready]);
 
   const go = (id: ChapterId) => worldRef.current?.goTo?.(id, id === 'hero' ? 0 : 0.02);
-  const pill = 'pointer-events-auto rounded-full border border-ink/[0.08] bg-paper-light/85 shadow-[0_10px_30px_-14px_rgb(28_35_51/0.45)] backdrop-blur-xl';
+  // frosted glass: mostly the table showing through, softly blurred, with a hairline of light on top
+  const glass = `pointer-events-auto rounded-full backdrop-blur-2xl backdrop-saturate-150 transition-colors duration-700 ${
+    night
+      ? 'bg-ink/25 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.12),0_8px_24px_-16px_rgb(0_0_0/0.5)]'
+      : 'bg-white/35 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.55),0_8px_24px_-16px_rgb(28_35_51/0.25)]'
+  }`;
 
   return (
     <>
@@ -204,43 +199,39 @@ export default function TableStory() {
       ) : (
         <div className="pointer-events-none fixed inset-0 z-20">
           <header className="flex items-start justify-between gap-3 p-4 md:p-6">
-            <button type="button" onClick={() => go('hero')} aria-label="Manya — back to the morning" className={`${pill} group flex h-11 items-center gap-2 pl-2.5 pr-4`}>
+            <button type="button" onClick={() => go('hero')} aria-label="Manya — back to the morning" className={`${glass} group flex h-11 items-center gap-2 pl-2.5 pr-4`}>
               <SunflowerGlyph className="size-6 text-gold transition-transform duration-700 ease-out-expo group-hover:rotate-90" />
-              <span className="font-serif text-[24px] leading-none tracking-[-0.02em] text-ink">manya</span>
+              <span className={`font-serif text-[24px] leading-none tracking-[-0.02em] transition-colors duration-700 ${night ? 'text-paper-light' : 'text-ink'}`}>manya</span>
             </button>
-            <a href="/minimal/" className={`${pill} group flex h-11 items-center gap-1.5 px-4 text-[14px] font-medium text-ink`}>
-              <span className="max-sm:hidden">Minimal portfolio</span>
-              <span className="sm:hidden">Minimal</span>
-              <ArrowUpRight className="size-4 transition-transform duration-500 ease-out-expo group-hover:-translate-y-0.5 group-hover:translate-x-0.5" strokeWidth={1.75} />
-            </a>
           </header>
-
-          {/* the clock */}
-          <div aria-hidden="true" className={`${pill} pointer-events-none! absolute bottom-4 left-4 flex h-12 items-center gap-2 pl-3 pr-3.5 sm:gap-2.5 sm:pr-4 md:bottom-6 md:left-6`}>
-            <svg viewBox="0 0 36 20" className="h-5 w-9 overflow-visible" fill="none">
-              <path d="M5 17 A13 11 0 0 1 31 17" stroke="currentColor" className="text-ink/25" strokeWidth="1.2" strokeDasharray="1.5 2" />
-              <line x1="1" y1="17.5" x2="35" y2="17.5" stroke="currentColor" className="text-ink/30" strokeWidth="1" />
-              <circle ref={sunRef} cx="5" cy="17" r="3" className={`transition-colors duration-700 ${night ? 'fill-blue' : 'fill-gold'}`} />
-            </svg>
-            <span className="flex flex-col leading-none">
-              <span ref={clockRef} className="font-mono text-[13px] font-medium tabular-nums text-ink">
-                07:00 am
-              </span>
-              <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted max-sm:hidden">{CHAPTER_LABELS[chapter]}</span>
-            </span>
-          </div>
 
           {/* chapters */}
           <nav aria-label="Chapters" className="absolute bottom-4 right-4 md:bottom-6 md:right-6">
-            <ul className={`${pill} flex h-12 items-center gap-0.5 px-1.5 max-sm:gap-0 max-sm:px-1`}>
+            <ul className={`${glass} flex h-11 items-center gap-0.5 px-1 max-sm:gap-0`}>
               {CHAPTERS.map((c, i) => {
                 const on = chapter === c.id;
                 return (
                   <li key={c.id}>
                     <button type="button" onClick={() => go(c.id)} aria-label={c.title} aria-current={on ? 'step' : undefined} className="group relative flex size-9 items-center justify-center rounded-full max-sm:size-[30px]">
-                      {on && <motion.span layoutId="table-chapter" className="absolute inset-0 rounded-full bg-ink" transition={{ type: 'spring', stiffness: 380, damping: 34 }} />}
-                      <span className={`relative font-mono text-[11px] tabular-nums transition-colors ${on ? 'text-paper-light' : 'text-ink-soft group-hover:text-ink'}`}>{String(i + 1).padStart(2, '0')}</span>
-                      <span className="pointer-events-none absolute bottom-full right-1/2 mb-3 translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-paper-light opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 max-sm:hidden">
+                      {on && (
+                        <motion.span
+                          layoutId="table-chapter"
+                          className={`absolute inset-1 rounded-full ${night ? 'bg-white/15' : 'bg-white/70 shadow-[0_1px_3px_rgb(28_35_51/0.08)]'}`}
+                          transition={{ type: 'spring', stiffness: 260, damping: 32 }}
+                        />
+                      )}
+                      <span
+                        className={`relative font-mono text-[11px] tabular-nums transition-colors duration-300 ${
+                          night ? (on ? 'text-paper-light' : 'text-paper-light/55 group-hover:text-paper-light') : on ? 'text-ink' : 'text-ink/45 group-hover:text-ink/80'
+                        }`}
+                      >
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span
+                        className={`pointer-events-none absolute bottom-full right-1/2 mb-3 translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] opacity-0 backdrop-blur-xl transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 max-sm:hidden ${
+                          night ? 'bg-ink/40 text-paper-light' : 'bg-white/60 text-ink-soft shadow-[inset_0_0_0_1px_rgb(255_255_255/0.6)]'
+                        }`}
+                      >
                         {c.title}
                       </span>
                     </button>
@@ -260,7 +251,7 @@ export default function TableStory() {
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   exit={{ opacity: 0, y: -6, filter: 'blur(4px)' }}
                   transition={{ duration: 0.45 }}
-                  className={`flex max-w-[calc(100vw-32px)] items-center gap-2.5 rounded-full px-4 py-2 text-center font-mono text-[10.5px] uppercase leading-snug tracking-[0.13em] backdrop-blur-md transition-colors duration-700 md:max-w-[min(520px,calc(100vw-560px))] ${night ? 'bg-ink/55 text-paper-light' : 'bg-paper-light/70 text-ink-soft'}`}
+                  className={`flex max-w-[calc(100vw-32px)] items-center gap-2.5 rounded-full px-4 py-2 text-center font-mono text-[10.5px] uppercase leading-snug tracking-[0.13em] backdrop-blur-2xl backdrop-saturate-150 transition-colors duration-700 md:max-w-[min(520px,calc(100vw-560px))] ${night ? 'bg-ink/25 text-paper-light' : 'bg-white/35 text-ink-soft shadow-[inset_0_0_0_1px_rgb(255_255_255/0.55)]'}`}
                 >
                   {!moved && (
                     <span className="relative flex h-6 w-[15px] shrink-0 justify-center rounded-full border border-current opacity-70">
@@ -280,7 +271,7 @@ export default function TableStory() {
                   initial={{ opacity: 0, y: -10, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -6 }}
-                  className="rounded-full bg-ink px-4 py-2 text-[14px] font-medium text-paper-light shadow-lg"
+                  className={`rounded-full px-4 py-2 text-[14px] font-medium backdrop-blur-2xl backdrop-saturate-150 ${night ? 'bg-ink/30 text-paper-light' : 'bg-white/45 text-ink shadow-[inset_0_0_0_1px_rgb(255_255_255/0.6),0_8px_24px_-16px_rgb(28_35_51/0.25)]'}`}
                 >
                   {toast}
                 </motion.p>
