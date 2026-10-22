@@ -36,7 +36,7 @@ const uniforms = { uPatch: { value: PATCH_WIDE.clone() } };
  */
 
 /** Strands per cm (one in each little cell), how far a long one reaches as it leans, and the sward's depth, all in cm. */
-const DENS = 7;
+const DENS = 5;
 const REACH = 6;
 const DEPTH = 3.4;
 const STRAND_PX = 256;
@@ -57,8 +57,8 @@ function strandTexture() {
   const r = rng(4217);
   const data = new Uint8Array(STRAND_PX * STRAND_PX * 4);
   for (let i = 0; i < STRAND_PX * STRAND_PX; i++) {
-    // a few gaps, plenty of shorter undergrowth, and the long ones over it
-    const h = r() < 0.05 ? 0 : 0.3 + 0.7 * Math.pow(r(), 0.6);
+    // a few gaps, mostly shorter undergrowth, and the long ones over it, so you see down into it
+    const h = r() < 0.05 ? 0 : 0.2 + 0.8 * Math.pow(r(), 1.5);
     data.set([h * 255, r() * 255, r() * 255, r() * 255], i * 4);
   }
   const t = new THREE.DataTexture(data, STRAND_PX, STRAND_PX);
@@ -97,7 +97,7 @@ function fieldTexture() {
   const lush = tileNoise(5, 16);
   // the clumps: soft mounds scattered at random (no lattice, so no straight partings), big and small
   const r = rng(11);
-  const mounds = Array.from({ length: 210 }, () => ({ x: r() * N, y: r() * N, s: (3 + r() * 5) * (N / FIELD_CM), k: 0.45 + r() * 0.55 }));
+  const mounds = Array.from({ length: 120 }, () => ({ x: r() * N, y: r() * N, s: (3.5 + r() * 5.5) * (N / FIELD_CM), k: 0.4 + r() * 0.6 }));
   const sum = new Float32Array(N * N);
   for (const m of mounds) {
     const reach = Math.ceil(m.s * 2.6);
@@ -112,7 +112,7 @@ function fieldTexture() {
     }
   }
   const height = new Float32Array(N * N);
-  for (let i = 0; i < N * N; i++) height[i] = 0.36 + 0.64 * THREE.MathUtils.smoothstep(sum[i], 0.06, 0.9);
+  for (let i = 0; i < N * N; i++) height[i] = 0.3 + 0.7 * THREE.MathUtils.smoothstep(sum[i], 0.05, 1.1);
   const H = (x: number, y: number) => height[(((y % N) + N) % N) * N + (((x % N) + N) % N)];
   const data = new Uint8Array(N * N * 4);
   for (let y = 0; y < N; y++) {
@@ -121,10 +121,10 @@ function fieldTexture() {
       const gx = H(x - 2, y) - H(x + 2, y);
       const gy = H(x, y - 2) - H(x, y + 2);
       const g = Math.hypot(gx, gy) || 1e-6;
-      const a = swirl(x, y) * Math.PI * 2.4;
+      const a = swirl(x, y) * Math.PI * 1.2;
       const fall = THREE.MathUtils.smoothstep(g, 0, 0.12);
-      let lx = (gx / g) * fall * 1.2 + Math.cos(a) * 0.65;
-      let ly = (gy / g) * fall * 1.2 + Math.sin(a) * 0.65;
+      let lx = (gx / g) * fall * 1.2 + Math.cos(a) * 0.4;
+      let ly = (gy / g) * fall * 1.2 + Math.sin(a) * 0.4;
       const l = Math.hypot(lx, ly) || 1;
       const lean = 0.42 + 0.48 * flop(x, y) + 0.1 * fall;
       lx = (lx / l) * lean;
@@ -144,7 +144,7 @@ function fieldTexture() {
 const grass = {
   uStrands: { value: null as THREE.Texture | null },
   uField: { value: null as THREE.Texture | null },
-  uLayers: { value: 40 },
+  uLayers: { value: 32 },
 };
 
 const SWARD = /* glsl */ `
@@ -155,6 +155,25 @@ float groundH(vec2 p){
   // a lawn is never flat: low rises and hollows under the grass
   return (gNoise(p * .05) - .5) * 1.1;
 }
+/** One family of strands at height h, rooted round root: their colour, and how much of the pixel they cover. */
+vec4 strand(vec2 root, vec2 ax, float run, float h, float top, float px, vec2 shift){
+  vec2 cp = root * ${num(DENS)} + shift;
+  vec2 cell = floor(cp);
+  vec4 s = texture2D(uStrands, (cell + .5) / ${num(STRAND_PX)} + shift * .37);
+  float H = s.r * top;
+  if (H <= h) return vec4(0.);
+  vec2 q = fract(cp) - (.35 + .3 * s.gb);
+  float u = h / H;
+  // soft-edged and tapering, and drawn out along the lean so one slice meets the next
+  float rad = .4 * (1. - .6 * u);
+  vec2 e = vec2(dot(q, ax) * rad / (rad + run * .5), dot(q, vec2(-ax.y, ax.x)));
+  float cov = 1. - smoothstep(rad * .3, rad + px * .7, length(e));
+  // green low down, paling to the tips; a few gone to straw
+  vec3 tip = mix(${lin('#b2c255')}, ${lin('#c9c27c')}, step(.92, s.a));
+  vec3 c = mix(${lin('#33501b')}, ${lin('#6b8f33')}, smoothstep(.0, .5, u));
+  c = mix(c, tip, smoothstep(.4, 1., u));
+  return vec4(c * (.9 + .2 * s.a), cov);
+}
 `;
 
 const MARCH = /* glsl */ `
@@ -162,12 +181,16 @@ const MARCH = /* glsl */ `
   vec2 wp = vTWorld.xz;
   vec4 fld = texture2D(uField, wp / ${num(FIELD_CM)});
   float top = fld.r;
-  vec2 lean = (fld.gb * 2. - 1.) * ${num(REACH)};
-  // a gust lays the strands over downwind, their tips most, and they never quite stop stirring
-  float g = windGust(wp);
+  // two families of strands, leaning either side of the clump's fall, so they cross like real
+  // grass does rather than lying combed like fur
+  vec2 fall = (fld.gb * 2. - 1.) * ${num(REACH)};
+  vec2 la = mat2(${num(Math.cos(0.32))}, ${num(Math.sin(0.32))}, ${num(-Math.sin(0.32))}, ${num(Math.cos(0.32))}) * fall;
+  vec2 lb = mat2(${num(Math.cos(0.38))}, ${num(-Math.sin(0.38))}, ${num(Math.sin(0.38))}, ${num(Math.cos(0.38))}) * fall * .8;
+  // a slow swell of breeze leans the strands a little downwind, their tips most: kept small and
+  // slow, since a strand that slides is a strand that flickers
   vec2 wd = normalize(uWind);
-  float bend = .08 + .72 * smoothstep(.35, .85, g) + .07 * sin(uTime * 2.6 + dot(wp, vec2(.37, .29)));
-  vec2 blow = wd * bend * ${num(REACH * 0.55)};
+  float g = gNoise(wp * .012 - wd * uTime * .14) * .7 + gNoise(wp * .027 - wd * uTime * .2 + 3.) * .3;
+  vec2 blow = wd * .25 * smoothstep(.3, .85, g) * ${num(REACH * 0.3)};
   // seen at a slant towards the frame's edges, the tips stand off their roots
   vec3 ray = normalize(vTWorld - cameraPosition);
   vec2 par = ray.xz / max(-ray.y, .25) * ${num(DEPTH)};
@@ -176,48 +199,43 @@ const MARCH = /* glsl */ `
 
   // the same spacing everywhere, so the slices never jump where the sward's depth changes; and
   // fewer of them when the camera's pulled back and a strand is thinner than a pixel
-  float dh = 1. / (uLayers * clamp(.9 / px, .35, 1.));
+  float dh = 1. / (uLayers * clamp(1.2 / px, .35, 1.));
   float n = ceil(top / dh);
   // a slice of a leaning strand is drawn out along its lean, so the slices meet
-  vec2 slope = lean + blow * top * 2. + par;
-  float run = length(slope) * ${num(DENS)} * dh;
-  vec2 ax = slope / max(length(slope), 1e-4);
-  vec2 side = vec2(-ax.y, ax.x);
-  float h = top - dh * gHash(gl_FragCoord.xy);
+  vec2 sa = la + blow * top * 2. + par;
+  vec2 sb = lb + blow * top * 2. + par;
+  vec2 axA = sa / max(length(sa), 1e-4);
+  vec2 axB = sb / max(length(sb), 1e-4);
+  float runA = length(sa) * ${num(DENS)} * dh;
+  float runB = length(sb) * ${num(DENS)} * dh;
+  // dithered, held to the ground rather than the screen so it doesn't crawl as the camera drifts
+  float h = top - dh * gHash(floor(wp * 60.));
 
   vec3 col = vec3(0.);
   float a = 0.;
   for (int i = 0; i < ${MAX_LAYERS}; i++) {
     if (float(i) >= n || a > .95) break;
     // whichever strand passes through this pixel at height h is rooted back along its lean
-    vec2 cp = (wp - (par + lean + blow * h) * h) * ${num(DENS)};
-    vec2 cell = floor(cp);
-    vec4 s = texture2D(uStrands, (cell + .5) / ${num(STRAND_PX)});
-    float H = s.r * top;
-    if (H > h) {
-      vec2 q = fract(cp) - (.3 + .4 * s.gb);
-      float u = h / H;
-      float rad = .27 * (1. - .7 * u);
-      vec2 e = vec2(dot(q, ax) * rad / (rad + run * .5), dot(q, side));
-      float cov = 1. - smoothstep(rad - px * .5, rad + px * .5, length(e));
-      // darker down in the sward, yellowing to the tips; some strands bluer, a few gone to straw
-      vec3 tip = mix(${lin('#c3cc58')}, ${lin('#d4c878')}, step(.9, s.a));
-      vec3 c = mix(${lin('#3b5a1c')}, mix(${lin('#6f9030')}, ${lin('#5e8a3c')}, s.a), smoothstep(.0, .5, u));
-      c = mix(c, tip, smoothstep(.45, 1., u));
-      // a strand's spine catches the light
-      c *= 1. + .35 * (1. - smoothstep(.0, rad, abs(e.y))) * u;
-      c *= mix(.2, 1., pow(smoothstep(.0, .95, h), 1.3)) * (.72 + .5 * fract(s.a * 7.31));
-      // and a gust shows the pale undersides
-      c *= 1. + .25 * smoothstep(.5, .85, g) * u;
+    vec4 A = strand(wp - (par + la + blow * h) * h, axA, runA, h, top, px, vec2(0.));
+    vec4 B = strand(wp - (par + lb + blow * h) * h, axB, runB, h, top, px, vec2(.5, .27));
+    float cov = max(A.a, B.a);
+    if (cov > 0.) {
+      vec3 c = (A.rgb * A.a + B.rgb * B.a) / (A.a + B.a);
+      // darker down in the sward
+      c *= mix(.22, 1., pow(smoothstep(.0, .95, h), 1.2));
       col += (1. - a) * cov * c;
       a += (1. - a) * cov;
     }
     h -= dh;
   }
-  col += (1. - a) * ${lin('#1e2a12')};
+  col += (1. - a) * ${lin('#1d2a12')};
+  // the clumps' tops in the light, the hollows between them in shade
+  col *= mix(.66, 1.12, smoothstep(.35, .95, top));
   // lusher and deeper in some clumps and patches, sun-dried in others
   float lush = gNoise(wp * .011 + 2.) * .6 + fld.a * .4;
-  col *= mix(vec3(.86, .94, .84), vec3(1.08, 1.05, .86), smoothstep(.3, .72, lush));
+  col *= mix(vec3(.88, .95, .86), vec3(1.06, 1.04, .9), smoothstep(.3, .72, lush));
+  // and a swell of breeze shows the strands' paler sides
+  col *= 1. + .08 * smoothstep(.5, .85, g);
   diffuseColor.rgb *= col;
 }`;
 
@@ -573,7 +591,7 @@ export function makeLawn(renderer: THREE.WebGLRenderer, size: { w: number; h: nu
   // a phone draws a smaller patch, so it gets fewer of everything for the same density, and
   // fewer layers of grass to start from
   const small = matchMedia('(pointer: coarse)').matches;
-  group.add(makeGround(size, small ? 24 : 40), makePebbles(small ? 70 : 140), makeFlowers(small ? 230 : 440, renderer));
+  group.add(makeGround(size, small ? 20 : 32), makePebbles(small ? 70 : 140), makeFlowers(small ? 230 : 440, renderer));
   let slow = 0;
   return {
     group,
@@ -581,7 +599,7 @@ export function makeLawn(renderer: THREE.WebGLRenderer, size: { w: number; h: nu
     pace(ms: number) {
       if (ms > 120) return;
       slow = slow * 0.95 + (ms > 24 ? 0.05 : 0);
-      if (slow > 0.5 && grass.uLayers.value > 16) {
+      if (slow > 0.5 && grass.uLayers.value > 12) {
         grass.uLayers.value -= 4;
         slow = 0;
       }
