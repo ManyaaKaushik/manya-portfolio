@@ -16,15 +16,17 @@ export type ChordName = keyof typeof CHORDS;
 export const CHORD_NAMES = Object.keys(CHORDS) as ChordName[];
 
 /**
- * The song's turn, Emaj7 → G#m → B6, round once and back to B, a bar of sixteenths per chord, and a last strum
- * to ring out. The tab says 95, but strummed alone on a little ukulele it wants to be lazier, the
- * way you'd play it on a sofa.
+ * The song's turn, Emaj7 → G#m → B6 and home to B, one chord to each round of the strum. The tab
+ * counts the strum in sixteenths at 95; alone on a little ukulele that's a scramble, so here each
+ * of its slots is an eighth: an easy, swaying strum, the way you'd play it to yourself.
  */
 export const SONG = {
   title: 'Sailor Song',
   artist: 'Gigi Perez',
-  bpm: 74,
-  bars: ['Emaj7', 'G#m', 'B6', 'B6', 'Emaj7', 'G#m'] as ChordName[],
+  bpm: 92,
+  /** Each slot of the pattern is this many beats long. */
+  slot: 1 / 2,
+  bars: ['Emaj7', 'G#m', 'B6'] as ChordName[],
   // home, in B
   end: 'B6' as ChordName,
   // D an accented down, d down, u up, - a rest

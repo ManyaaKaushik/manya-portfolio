@@ -309,8 +309,8 @@ export class Hero implements Chapter {
     this.pencils[1].rotation.y = 0.35;
     for (const pencil of this.pencils) pencil.visible = !P;
     // the ukulele down the right of the table, its neck running off the edge; picked up, it turns
-    // to lie across the view (upright on a phone, where the view is tall)
-    this.uke.place(P ? { x: 17, z: 6, r: 0.08 } : { x: 44, z: -2, r: -0.35 }, P ? { x: 0, z: 2, r: 0 } : { x: 24, z: 2, r: -Math.PI / 2 }, P);
+    // square to you where it lies
+    this.uke.place(P ? { x: 17, z: 6, r: 0.08 } : { x: 44, z: -2, r: -0.35 }, P ? { x: 17, z: 6, r: 0 } : { x: 46, z: -2, r: 0 }, P);
   }
 
   update(ph: number, dt: number, world: TableWorld) {

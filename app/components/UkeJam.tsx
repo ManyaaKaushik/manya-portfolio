@@ -6,7 +6,7 @@ import type { JamState, Ukulele } from './table/ukulele';
 import { CHORDS, CHORD_NAMES, PATTERN, SONG, type ChordName } from './table/uke-song';
 
 /*
- * What sits under the ukulele while it's in your hands: the three chords of the song, its strum
+ * What sits by the ukulele while it's in your hands (under it on a phone, beside it on a wide screen): the three chords of the song, its strum
  * (lit in time as it plays), play and put-it-down. Frosted glass, like the rest of the HUD.
  */
 
@@ -26,7 +26,7 @@ export function UkeJam({ state, uke, night }: { state: JamState; uke: Ukulele; n
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       exit={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      className={`pointer-events-auto absolute inset-x-3 bottom-3 mx-auto flex max-w-[540px] flex-col gap-3 rounded-[26px] p-3 backdrop-blur-2xl backdrop-saturate-150 sm:inset-x-6 sm:bottom-6 sm:p-4 ${glass}`}
+      className={`pointer-events-auto absolute inset-x-3 bottom-3 mx-auto flex max-w-[540px] flex-col gap-3 rounded-[26px] p-3 backdrop-blur-2xl backdrop-saturate-150 sm:inset-x-6 sm:bottom-6 sm:p-4 lg:right-auto lg:mx-0 lg:w-[540px] ${glass}`}
     >
       <div className="flex items-center gap-3">
         <p className={`min-w-0 flex-1 truncate pl-1 font-mono text-[10.5px] uppercase tracking-[0.13em] ${soft}`}>
@@ -106,7 +106,7 @@ function ChordDiagram({ chord, on }: { chord: ChordName; on: boolean }) {
   );
 }
 
-/** The strum, a bar of sixteenths; the one sounding lights up. */
+/** The strum, one round per chord, counted in eighths; the one sounding lights up. */
 function Strum({ step, night }: { step: number; night: boolean }) {
   return (
     <div className="flex min-w-0 flex-1 items-end justify-between gap-px px-1 max-sm:px-2" aria-label={`Strum: ${SONG.pattern}`}>
@@ -116,7 +116,7 @@ function Strum({ step, night }: { step: number; night: boolean }) {
         return (
           <span key={i} className="flex flex-col items-center gap-1">
             <span className={`text-[13px] leading-none transition-transform duration-100 sm:text-[15px] ${tone} ${s?.accent ? 'font-bold' : ''}`}>{s ? (s.dir > 0 ? '↓' : '↑') : '·'}</span>
-            <span className={`font-mono text-[8px] leading-none ${i % 4 === 0 ? (night ? 'text-paper-light/45' : 'text-ink/35') : 'opacity-0'}`}>{i % 4 === 0 ? i / 4 + 1 : '·'}</span>
+            <span className={`font-mono text-[8px] leading-none ${i % 2 === 0 ? (night ? 'text-paper-light/45' : 'text-ink/35') : 'opacity-0'}`}>{i % 2 === 0 ? ((i / 2) % 4) + 1 : '·'}</span>
           </span>
         );
       })}

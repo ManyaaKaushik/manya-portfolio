@@ -83,14 +83,14 @@ export class UkeSound {
     this.stop();
     const transport = Tone.getTransport();
     transport.bpm.value = SONG.bpm;
-    const sixteenth = 60 / SONG.bpm / 4;
+    const slot = (60 / SONG.bpm) * SONG.slot;
     const start = 0.15;
     let t = start;
     SONG.bars.forEach((chord, bar) => {
       PATTERN.forEach((s, step) => {
-        const at = t + step * sixteenth;
-        // a little swing on the off-sixteenths
-        const swing = step % 2 ? sixteenth * 0.12 : 0;
+        const at = t + step * slot;
+        // a little swing on the offbeats
+        const swing = step % 2 ? slot * 0.1 : 0;
         transport.schedule(time => {
           Tone.getDraw().schedule(() => this.listener.onStep?.(bar, step, chord), time);
           if (!s) return;
@@ -99,14 +99,14 @@ export class UkeSound {
           this.strum(chord, s.dir, v, time + (Math.random() - 0.5) * 0.01);
         }, at + swing);
       });
-      t += 16 * sixteenth;
+      t += PATTERN.length * slot;
     });
     // and one to let ring
     transport.schedule(time => {
       Tone.getDraw().schedule(() => this.listener.onStep?.(SONG.bars.length, 0, SONG.end), time);
       this.strum(SONG.end, 1, 0.85, time);
     }, t);
-    transport.schedule(time => Tone.getDraw().schedule(() => this.finish(), time), t + 3);
+    transport.schedule(time => Tone.getDraw().schedule(() => this.finish(), time), t + 3.5);
     transport.position = 0;
     transport.start('+0.05');
     this.playing = true;

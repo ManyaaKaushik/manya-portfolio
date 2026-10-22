@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { withSun } from './light';
-import { clamp, damp, hump, lerp } from './util';
+import { clamp, damp, lerp } from './util';
 import type { UkeSound } from './uke-sound';
 import { CHORDS, type ChordName } from './uke-song';
 import type { ChapterId } from './timeline';
@@ -10,7 +10,7 @@ import type { Hotspot, TableWorld, View } from './world';
 
 /*
  * Manya's ukulele, stickers and all, lying on the table by the morning's letter. Pick it up and it plays
- * a little of Sailor Song; then it's yours: swipe across the strings to strum, choose a chord, or
+ * a little of Sailor Song, right there on the table; then it's yours: swipe across the strings to strum, choose a chord, or
  * have it play again. While it's in your hands the page holds still, and putting it down (or
  * trying to scroll) stops the music.
  */
@@ -337,7 +337,8 @@ export class Ukulele {
   get focus(): View | null {
     if (!this.state.open) return null;
     const j = this.jam;
-    return this.portrait ? { x: j.x, z: j.z + 5, w: 30, h: 70 } : { x: j.x - 1, z: j.z + 5, w: 74, h: 44 };
+    // upright, with the panel to its left on a wide screen and under it on a phone
+    return this.portrait ? { x: j.x, z: j.z + 5, w: 30, h: 70 } : { x: j.x - 14, z: j.z + 2, w: 0, h: 54 };
   }
 
   update(dt: number, visible: boolean) {
@@ -352,9 +353,9 @@ export class Ukulele {
     const t = this.openAmt;
     const r = this.rest;
     const j = this.jam;
-    // lifted off the table, turned to lie across the view, a little bob as it comes up
-    this.group.position.set(lerp(r.x, j.x, t), t * 7 + hump(t, 0, 1) * 3 + this.hoverAmt * 0.6, lerp(r.z, j.z, t));
-    this.group.rotation.set(0, lerp(r.r, j.r, t), this.hoverAmt * 0.02);
+    // it stays down on the table and just turns square to you; hovered, it rocks a touch on its back
+    this.group.position.set(lerp(r.x, j.x, t), 0, lerp(r.z, j.z, t));
+    this.group.rotation.set(0, lerp(r.r, j.r, t), Math.sin(this.hoverAmt * Math.PI) * 0.012);
 
     // strings
     this.strings.forEach((s, i) => {
