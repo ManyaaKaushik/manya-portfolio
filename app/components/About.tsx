@@ -2,13 +2,14 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import type { DiaryBook } from './diary/book';
 import { MaskHeading, Reveal, SectionLabel } from './ui';
 
 /*
- * About: a scrapbook diary whose pages turn like paper. The pages are ordinary markup
- * rendered once into a hidden template; page-flip works on clones of them, so it can move
- * and fold the DOM freely without fighting React. Photos that haven't been added yet fall
- * back to a dashed paper slot with their caption, so the diary never shows a broken image.
+ * About: a scrapbook diary you can pick up and leaf through. The pages are ordinary markup,
+ * laid out off screen and printed onto the paper of a three.js book (./diary/book), whose
+ * leaves bend as they turn. Photos that haven't been added yet fall back to a dashed paper
+ * slot with their caption, so the diary never shows a broken image.
  */
 
 const D = '/assets/diary';
@@ -27,7 +28,7 @@ export default function About() {
             </MaskHeading>
           </div>
           <Reveal delay={0.1} className="md:col-span-4 md:col-start-9">
-            <p className="text-[17px] leading-[1.65] text-ink-soft">Open the diary — drag a page corner, click a page, or use the arrows.</p>
+            <p className="text-[17px] leading-[1.65] text-ink-soft">Open the diary — drag a page across, click either side, or use the arrows.</p>
           </Reveal>
         </div>
         <Diary />
@@ -41,132 +42,223 @@ export default function About() {
 /*  The book                                                                 */
 /* ------------------------------------------------------------------------ */
 
-type Flip = import('page-flip/dist/js/page-flip.module.js').PageFlip;
+// one page, in CSS px: the markup is laid out at this size and printed onto the 3D paper
+const PAGE_W = 460;
+const PAGE_H = 620;
+// a leaf is two pages; `spread` counts leaves turned (0 = closed on the cover)
+const leafCount = () => Math.ceil(PAGES.length / 2);
+
+function spreadTitle(s: number) {
+  if (s === 0) return PAGES[0].title;
+  if (s >= leafCount()) return PAGES[PAGES.length - 1].title;
+  return PAGES[2 * s]?.title ?? PAGES[2 * s - 1].title;
+}
 
 function Diary() {
-  const templateRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const flipRef = useRef<Flip | null>(null);
-  const [page, setPage] = useState(0);
-  const [count, setCount] = useState(PAGES.length);
-  const [portrait, setPortrait] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const printRef = useRef<HTMLDivElement>(null);
+  const bookRef = useRef<DiaryBook | null>(null);
+  const [spread, setSpread] = useState(0);
+  const [armed, setArmed] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
 
+  // build the book (three.js + the page printer) only once the section is about a screen away
   useEffect(() => {
-    let cancelled = false;
-    let host: HTMLDivElement | null = null;
-    (async () => {
-      const { PageFlip } = await import('page-flip/dist/js/page-flip.module.js');
-      if (cancelled || !stageRef.current || !templateRef.current) return;
-      // page-flip removes its root on destroy, so give it one React doesn't own
-      host = document.createElement('div');
-      stageRef.current.appendChild(host);
-      const pages = Array.from(templateRef.current.children).map(n => n.cloneNode(true) as HTMLElement);
-      pages.forEach(p => {
-        host!.appendChild(p);
-        p.querySelectorAll('img').forEach(img => {
-          // load every page up front so a turning page never flashes an empty frame
-          img.loading = 'eager';
-          const miss = () => img.closest('[data-photo]')?.classList.add('is-missing');
-          if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) miss();
-          img.addEventListener('error', miss, { once: true });
-        });
-      });
-      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      // the whole spread should fit on screen with the arrows below it
-      const maxHeight = Math.round(Math.min(720, Math.max(420, innerHeight - 190)));
-      const maxWidth = Math.round((maxHeight * 460) / 620);
-      stageRef.current.style.maxWidth = `${maxWidth * 2}px`;
-      const flip = new PageFlip(host, {
-        width: 460,
-        height: 620,
-        size: 'stretch',
-        minWidth: 280,
-        maxWidth,
-        minHeight: 380,
-        maxHeight,
-        showCover: true,
-        usePortrait: true,
-        autoSize: true,
-        drawShadow: true,
-        maxShadowOpacity: 0.45,
-        flippingTime: reduced ? 1 : 1000,
-        mobileScrollSupport: true,
-        clickEventForward: true,
-        showPageCorners: true,
-        swipeDistance: 30,
-      });
-      flip.loadFromHTML(pages);
-      flipRef.current = flip;
-      setCount(flip.getPageCount());
-      setPortrait(flip.getOrientation() === 'portrait');
-      flip.on('flip', e => setPage(e.data as number));
-      flip.on('changeOrientation', e => setPortrait(e.data === 'portrait'));
-    })();
-    return () => {
-      cancelled = true;
-      flipRef.current?.destroy();
-      flipRef.current = null;
-      host?.remove();
-    };
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        setArmed(true);
+        io.disconnect();
+      },
+      { rootMargin: '100% 0px' },
+    );
+    io.observe(wrapRef.current!);
+    return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!armed) return;
+    let cancelled = false;
+    let frame = 0;
+    let visible = true;
+    let book: DiaryBook | null = null;
+    const canvas = canvasRef.current!;
+
+    const loop = () => {
+      frame = 0;
+      if (!book || !visible || document.hidden) return;
+      book.tick();
+      frame = requestAnimationFrame(loop);
+    };
+    const start = () => {
+      if (!frame && book && visible && !document.hidden) {
+        book.resetClock();
+        frame = requestAnimationFrame(loop);
+      }
+    };
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible) start();
+    });
+    const ro = new ResizeObserver(() => book?.resize(canvas.clientWidth, canvas.clientHeight));
+    const onVis = () => start();
+
+    (async () => {
+      try {
+        const [{ DiaryBook }, printer] = await Promise.all([import('./diary/book'), import('html-to-image')]);
+        if (cancelled) return;
+        book = new DiaryBook(canvas, PAGES, PAGE_H / PAGE_W);
+        bookRef.current = book;
+        book.onChange = setSpread;
+        book.resize(canvas.clientWidth, canvas.clientHeight);
+        await book.warm();
+        if (cancelled) return;
+        ro.observe(canvas);
+        io.observe(canvas);
+        document.addEventListener('visibilitychange', onVis);
+        start();
+        setReady(true);
+
+        // print the pages onto the paper, cover first, without hogging the main thread
+        await document.fonts.ready;
+        const host = printRef.current!;
+        const nodes = Array.from(host.children) as HTMLElement[];
+        await Promise.all(
+          Array.from(host.querySelectorAll('img')).map(img => {
+            // off screen, so lazy images would never start
+            img.loading = 'eager';
+            return
+            img.decode().catch(() => img.closest('[data-photo]')?.classList.add('is-missing'));
+          }),
+        );
+        const fontEmbedCSS = await printer.getFontEmbedCSS(host);
+        const pixelRatio = Math.min(2, Math.max(1.4, devicePixelRatio || 1));
+        for (let i = 0; i < nodes.length; i++) {
+          if (cancelled) return;
+          const sheet = await printer.toCanvas(nodes[i], {
+            width: PAGE_W,
+            height: PAGE_H,
+            pixelRatio,
+            fontEmbedCSS,
+            cacheBust: false,
+            backgroundColor: PAGES[i].hard ? '#2f4c8f' : '#fbf8f0',
+          });
+          if (cancelled) return;
+          book.setPage(i, sheet);
+          await new Promise(r => setTimeout(r, 0));
+        }
+      } catch (err) {
+        console.error('Diary failed to start', err);
+        if (!cancelled) setFailed(true);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      io.disconnect();
+      ro.disconnect();
+      document.removeEventListener('visibilitychange', onVis);
+      book?.dispose();
+      bookRef.current = null;
+    };
+  }, [armed]);
+
+  const go = (d: 1 | -1) => {
+    if (failed) setSpread(s => Math.min(leafCount(), Math.max(0, s + d)));
+    else if (d === 1) bookRef.current?.next();
+    else bookRef.current?.prev();
+  };
   // keyboard: arrows turn pages while the book is focused
   const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowRight') flipRef.current?.flipNext();
-    if (e.key === 'ArrowLeft') flipRef.current?.flipPrev();
+    if (e.key === 'ArrowRight') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
   };
 
-  const atStart = page === 0;
-  const atEnd = portrait ? page >= count - 1 : page >= count - 2;
-  const label = PAGES[page]?.title ?? '';
+  const label = spreadTitle(spread);
+  const showing = [2 * spread - 1, 2 * spread].filter(i => i >= 0 && i < PAGES.length);
 
   return (
-    <div className="mt-14 md:mt-16">
+    <div ref={wrapRef} className="mt-14 md:mt-16">
       <div
         tabIndex={0}
         onKeyDown={onKey}
         role="group"
         aria-roledescription="diary"
         aria-label={`Manya’s diary, ${label}. Use the left and right arrow keys to turn pages.`}
-        className="relative mx-auto max-w-[1120px] outline-none"
+        className="relative mx-auto max-w-[1180px] outline-none focus-visible:rounded-[28px] focus-visible:ring-2 focus-visible:ring-blue/50"
       >
-        {/* soft desk shadow under the book */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-[8%] bottom-[-3%] h-[10%] rounded-[50%] bg-[#243a56]/20 blur-2xl" />
-        <div ref={stageRef} className="diary-stage relative mx-auto" />
+        <canvas
+          ref={canvasRef}
+          aria-hidden="true"
+          className={`block aspect-[4/5] max-h-[80svh] w-full touch-pan-y md:aspect-[16/10] transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'} ${failed ? 'hidden' : ''}`}
+        />
+        {failed && <FlatSpread pages={showing} />}
+        {/* what's on the open pages, for screen readers */}
+        <div className="sr-only" aria-live="polite">
+          {showing.map(i => (
+            <div key={PAGES[i].id}>{PAGES[i].body}</div>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-8 flex items-center justify-center gap-5">
-        <button
-          type="button"
-          onClick={() => flipRef.current?.flipPrev()}
-          disabled={atStart}
-          aria-label="Previous page"
-          className="flex size-11 items-center justify-center rounded-full bg-[#f8f6ef] text-ink shadow-[0_6px_18px_-8px_rgb(36_58_86/0.4)] transition-[opacity,transform] hover:-translate-x-0.5 disabled:opacity-30"
-        >
-          <ChevronLeft className="size-5" strokeWidth={1.75} />
-        </button>
-        <p className="min-w-[13ch] text-center font-hand text-[22px] leading-none text-ink-soft" aria-live="polite">
+      {/* the page name sits under the book on a fixed-height line, the arrows below it, so a longer
+          name never nudges anything */}
+      <div className="relative z-10 -mt-6 flex flex-col items-center gap-4 md:-mt-14">
+        <p className="h-[26px] max-w-full truncate px-4 text-center font-hand text-[22px] leading-[26px] text-ink-soft" aria-hidden="true">
           {label}
         </p>
-        <button
-          type="button"
-          onClick={() => flipRef.current?.flipNext()}
-          disabled={atEnd}
-          aria-label="Next page"
-          className="flex size-11 items-center justify-center rounded-full bg-[#f8f6ef] text-ink shadow-[0_6px_18px_-8px_rgb(36_58_86/0.4)] transition-[opacity,transform] hover:translate-x-0.5 disabled:opacity-30"
-        >
-          <ChevronRight className="size-5" strokeWidth={1.75} />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            disabled={spread === 0}
+            aria-label="Previous page"
+            className="flex size-11 items-center justify-center rounded-full bg-[#f8f6ef] text-ink shadow-[0_6px_18px_-8px_rgb(36_58_86/0.4)] transition-[opacity,transform] hover:-translate-x-0.5 disabled:opacity-30"
+          >
+            <ChevronLeft className="size-5" strokeWidth={1.75} />
+          </button>
+          <button
+            type="button"
+            onClick={() => go(1)}
+            disabled={spread >= leafCount()}
+            aria-label="Next page"
+            className="flex size-11 items-center justify-center rounded-full bg-[#f8f6ef] text-ink shadow-[0_6px_18px_-8px_rgb(36_58_86/0.4)] transition-[opacity,transform] hover:translate-x-0.5 disabled:opacity-30"
+          >
+            <ChevronRight className="size-5" strokeWidth={1.75} />
+          </button>
+        </div>
       </div>
 
-      {/* the pages, rendered once; page-flip turns clones of these */}
-      <div ref={templateRef} hidden>
-        {PAGES.map(p => (
-          <div key={p.id} className={`diary-page ${p.hard ? 'diary-hard' : ''}`} data-density={p.hard ? 'hard' : 'soft'}>
-            <div className="diary-sheet">{p.body}</div>
-          </div>
-        ))}
-      </div>
+      {/* the printing plates: every page laid out at full size, off screen, then photographed onto the paper */}
+      {armed && !failed && (
+        <div ref={printRef} aria-hidden="true" inert className="pointer-events-none fixed left-[-200vw] top-0">
+          {PAGES.map(p => (
+            <PageFace key={p.id} page={p} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PageFace({ page, className = '' }: { page: Page; className?: string }) {
+  return (
+    <div className={`diary-page ${page.hard ? 'diary-hard' : ''} ${className}`} style={className ? undefined : { width: PAGE_W, height: PAGE_H }}>
+      <div className="diary-sheet">{page.body}</div>
+    </div>
+  );
+}
+
+/** Without WebGL: the open pages, flat, side by side. */
+function FlatSpread({ pages }: { pages: number[] }) {
+  return (
+    <div className="mx-auto flex max-w-[920px] justify-center shadow-[0_30px_60px_-30px_rgb(36_58_86/0.45)]">
+      {pages.map(i => (
+        <PageFace key={PAGES[i].id} page={PAGES[i]} className="relative aspect-[460/620] w-1/2" />
+      ))}
     </div>
   );
 }
@@ -262,7 +354,7 @@ const PAGES: Page[] = [
           <em>of being Manya</em>
         </h3>
         <figure data-photo className="diary-kid">
-          <img src={`${D}/kid.png`} alt="Manya as a little girl, hands on her hips" loading="lazy" draggable={false} />
+          <img src={`${D}/kid.webp`} alt="Manya as a little girl, hands on her hips" loading="lazy" draggable={false} />
           <span className="polaroid-missing">little Manya</span>
         </figure>
         <div className="diary-cover-tag">
@@ -284,7 +376,7 @@ const PAGES: Page[] = [
         <div className="relative mt-[7cqw] w-[86%]">
           <Tape className="left-[38%] top-[-2.5cqw]" rotate={2} />
           <figure className="polaroid pb-[3%]" style={{ rotate: '-1.5deg' }}>
-            <img src={`${D}/snapshots.png`} alt="Four snapshots: presenting to a room, sketching at a table, showing an app, and talking with a group" className="block w-full" loading="lazy" draggable={false} />
+            <img src={`${D}/snapshots.webp`} alt="Four snapshots: presenting to a room, sketching at a table, showing an app, and talking with a group" className="block w-full" loading="lazy" draggable={false} />
           </figure>
         </div>
         <div className="mt-[6cqw] flex flex-wrap justify-center gap-[2.4cqw]">
@@ -449,7 +541,7 @@ const PAGES: Page[] = [
           <Tape className="left-[8%] top-[-2.5cqw]" rotate={-6} />
           <Tape className="right-[8%] top-[-2.5cqw]" rotate={5} />
           <img
-            src={`${D}/loves-strip.png`}
+            src={`${D}/loves-strip.webp`}
             alt="Polaroids of Manya creating content, travelling, dancing and playing the ukulele"
             className="block w-full rounded-[1cqw] shadow-[0_1.4cqw_3cqw_-1.6cqw_rgb(40_36_20/0.4)]"
             style={{ rotate: '-1deg' }}
@@ -492,7 +584,7 @@ const PAGES: Page[] = [
         </div>
         <p className="diary-hand mt-[7cqw] text-[5.6cqw] text-ink-soft">games I play &amp; where I drop reviews —</p>
         <div className="mt-[3cqw] flex flex-wrap items-center gap-[4cqw]">
-          <img src={`${D}/gravity-falls.png`} alt="Gravity Falls" className="h-[13cqw] w-auto drop-shadow-[0_1cqw_1.4cqw_rgb(40_36_20/0.35)]" loading="lazy" draggable={false} />
+          <img src={`${D}/gravity-falls.webp`} alt="Gravity Falls" className="h-[13cqw] w-auto drop-shadow-[0_1cqw_1.4cqw_rgb(40_36_20/0.35)]" loading="lazy" draggable={false} />
           <img src="/assets/tiny-glade.webp" alt="Tiny Glade" className="diary-app" loading="lazy" draggable={false} />
           <img src="/assets/letterboxd.webp" alt="Letterboxd" className="diary-app" loading="lazy" draggable={false} />
           <Sticker tone="rose" rotate={-4}>

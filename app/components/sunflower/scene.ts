@@ -24,6 +24,8 @@ const STEM_TOP = 1.0;
 const NECK = new THREE.Vector3(0, 0.035, 0.115); // head centre, relative to the stem tip
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
 const DEG = Math.PI / 180;
+const Y_UP = new THREE.Vector3(0, 1, 0);
+const Z_UP = new THREE.Vector3(0, 0, 1);
 
 const clamp = THREE.MathUtils.clamp;
 const lerp = THREE.MathUtils.lerp;
@@ -145,37 +147,37 @@ function sampleShots(shots: Shot[], p: number, resolve: (f: Focus) => THREE.Vect
 
 export const DEFAULT_PARAMS = {
   // bloom
-  bloomStart: 0.6, // how open the flower is at the top of the page (0 = closed bud)
-  bloomEnd: 0.14, // scroll progress at which it is fully open
-  bloomStiffness: 26,
-  bloomDamping: 7.5,
+  bloomStart: 0.28, // how open the flower is at the top of the page (0 = closed bud)
+  bloomEnd: 0.25, // scroll progress at which it is fully open
+  bloomStiffness: 52,
+  bloomDamping: 12.9,
   // feel
-  scrollSensitivity: 1,
-  pointerSensitivity: 1,
-  wind: 1,
-  flutter: 1,
+  scrollSensitivity: 0.7,
+  pointerSensitivity: 1.46,
+  wind: 0.87,
+  flutter: 0.41,
   breeze: 1,
   headStiffness: 1,
   headDamping: 1,
   stemStiffness: 1,
   stemDamping: 1,
   petalStiffness: 1,
-  petalDamping: 1,
+  petalDamping: 3.04,
   leafSway: 1,
   // look
-  headSize: 1,
+  headSize: 1.3,
   headTilt: 0, // degrees; positive tips the face down
   petalLength: 1,
   petalWidth: 1,
   petalArch: 0, // extra curl when open; positive arches the tips back
-  petalBase: '#c86f04',
-  petalMid: '#f9b409',
-  petalTip: '#ffd447',
-  stemColor: '#3c6b22',
+  petalBase: '#e05a00',
+  petalMid: '#ffad00',
+  petalTip: '#ffdc2e',
+  stemColor: '#3f7d1c',
   // light
-  exposure: 0.96,
-  keyLight: 2.3,
-  envLight: 0.32,
+  exposure: 1.02,
+  keyLight: 2.4,
+  envLight: 0.26,
   shadow: 0.15,
   pollen: true,
   // camera
@@ -285,7 +287,7 @@ function petalMaterial(kind: 'ray' | 'bract', colours: PetalColours) {
   // a soft velvet sheen keeps the rays from reading as plastic
   const m =
     kind === 'ray'
-      ? new THREE.MeshPhysicalMaterial({ side: THREE.DoubleSide, roughness: 0.55, metalness: 0, sheen: 0.55, sheenColor: new THREE.Color('#fff0b0'), sheenRoughness: 0.45 })
+      ? new THREE.MeshPhysicalMaterial({ side: THREE.DoubleSide, roughness: 0.5, metalness: 0, sheen: 0.35, sheenColor: new THREE.Color('#ffe27a'), sheenRoughness: 0.45 })
       : new THREE.MeshStandardMaterial({ side: THREE.DoubleSide, roughness: 0.7, metalness: 0 });
   m.onBeforeCompile = shader => {
     Object.assign(shader.uniforms, colours);
@@ -298,15 +300,15 @@ function petalMaterial(kind: 'ray' | 'bract', colours: PetalColours) {
         ? `
         vec3 base = mix(uPetalBase, uPetalMid, smoothstep(0.0, 0.3, v));
         vec3 col = mix(base, uPetalTip, smoothstep(0.35, 0.95, v));
-        col = mix(col, col * vec3(1.0, 0.8, 0.55), vTone);
+        col = mix(col, col * vec3(1.0, 0.86, 0.6), vTone * 0.7);
         float vein = pow(abs(sin((u - 0.5) * 3.14159 * 9.0 * (1.0 - 0.35 * v))), 12.0);
         col *= 1.0 - 0.08 * vein * smoothstep(0.04, 0.3, v);
         col *= 1.0 - 0.08 * smoothstep(0.34, 0.5, abs(u - 0.5));
-        if (!gl_FrontFacing) col = mix(col, vec3(0.9, 0.56, 0.06), 0.3);
+        if (!gl_FrontFacing) col = mix(col, vec3(1.0, 0.5, 0.0), 0.3);
         glow = col;`
         : `
-        vec3 col = mix(vec3(0.02, 0.07, 0.008), vec3(0.11, 0.24, 0.03), smoothstep(0.0, 0.8, v));
-        col = mix(col, vec3(0.2, 0.3, 0.05), smoothstep(0.8, 1.0, v) * 0.6);
+        vec3 col = mix(vec3(0.03, 0.09, 0.008), vec3(0.14, 0.32, 0.03), smoothstep(0.0, 0.8, v));
+        col = mix(col, vec3(0.26, 0.4, 0.05), smoothstep(0.8, 1.0, v) * 0.6);
         float vein = pow(abs(sin((u - 0.5) * 3.14159 * 5.0)), 10.0);
         col *= 1.0 + 0.25 * vein;
         col *= 0.85 + 0.3 * vTone;
@@ -343,12 +345,12 @@ function floretMaterial(bloom: { value: number }) {
         '#include <color_fragment>',
         `#include <color_fragment>
         {
-          vec3 col = mix(vec3(0.17, 0.2, 0.025), vec3(0.04, 0.016, 0.004), smoothstep(0.04, 0.24, vR));
-          col = mix(col, vec3(0.12, 0.045, 0.01), smoothstep(0.5, 0.85, vR));
+          vec3 col = mix(vec3(0.24, 0.3, 0.02), vec3(0.05, 0.015, 0.003), smoothstep(0.04, 0.24, vR));
+          col = mix(col, vec3(0.16, 0.05, 0.008), smoothstep(0.5, 0.85, vR));
           // disc florets open in rings, from the rim towards the centre
           float front = 1.0 - clamp(uBloom, 0.0, 1.0) * 0.24;
           float open = smoothstep(front, front + 0.07, vR);
-          col = mix(col, vec3(0.42, 0.2, 0.012), open * 0.85);
+          col = mix(col, vec3(0.6, 0.24, 0.0), open * 0.85);
           col *= 0.75 + 0.5 * vSeed;
           col *= mix(0.55, 1.2, smoothstep(-0.6, 1.0, vH));
           diffuseColor.rgb = col;
@@ -370,10 +372,10 @@ function leafMaterial() {
       `#include <color_fragment>
       {
         float u = vLUv.x; float v = vLUv.y; float ax = abs(u - 0.5);
-        vec3 col = mix(vec3(0.03, 0.1, 0.012), vec3(0.07, 0.17, 0.02), smoothstep(0.0, 0.6, v));
+        vec3 col = mix(vec3(0.04, 0.13, 0.012), vec3(0.1, 0.25, 0.025), smoothstep(0.0, 0.6, v));
         float midrib = 1.0 - smoothstep(0.0, 0.03, ax);
         float lateral = pow(abs(sin((v - ax * 0.9) * 3.14159 * 9.0)), 16.0) * smoothstep(0.03, 0.08, ax);
-        col = mix(col, vec3(0.16, 0.3, 0.06), max(midrib * 0.8, lateral * 0.45));
+        col = mix(col, vec3(0.22, 0.42, 0.07), max(midrib * 0.8, lateral * 0.45));
         col *= 1.0 - 0.25 * smoothstep(0.3, 0.5, ax);
         if (!gl_FrontFacing) col = mix(col, vec3(0.16, 0.26, 0.08), 0.35);
         diffuseColor.rgb = col;
@@ -431,7 +433,6 @@ function makePollen(count: number) {
 /*  Scene                                                                                    */
 /* ---------------------------------------------------------------------------------------- */
 
-export type Projected = { id: string; x: number; y: number; visible: number };
 export type FrameInfo = { bloom: number };
 
 type PetalState = { theta: number; ring: number; delay: number; seed: number; roll: number; pitch: Spring; curl: Spring; ph: number; w: number };
@@ -487,10 +488,14 @@ export class SunflowerScene {
   private v1 = new THREE.Vector3();
   private v2 = new THREE.Vector3();
   private v3 = new THREE.Vector3();
+  private scratch = [0, 0, 0, 0, 0, 0].map(() => new THREE.Vector3());
+  private q1 = new THREE.Quaternion();
+  private q2 = new THREE.Quaternion();
+  private e1 = new THREE.Euler();
   progress = 0;
   /** Bloom after springs, 0..1 (exposed for the dev panel). */
   bloomNow = 0;
-  onFrame?: (projected: Projected[], info: FrameInfo) => void;
+  onFrame?: (info: FrameInfo) => void;
 
   constructor(canvas: HTMLCanvasElement, params?: Partial<SunflowerParams>) {
     Object.assign(this.params, params);
@@ -501,7 +506,8 @@ export class SunflowerScene {
     this.renderer.toneMapping = THREE.NeutralToneMapping;
     this.renderer.toneMappingExposure = 0.92;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.VSMShadowMap;
+    // PCF, not VSM: VSM turns every receiver into a caster and bleeds through thin moving petals, which shimmers
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
 
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -527,9 +533,9 @@ export class SunflowerScene {
     key.target.position.set(0, 0.7, 0);
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
-    key.shadow.radius = 12;
-    key.shadow.blurSamples = 16;
-    key.shadow.bias = -0.0005;
+    key.shadow.radius = 3;
+    key.shadow.bias = -0.0004;
+    key.shadow.normalBias = 0.012;
     const sc = key.shadow.camera as THREE.OrthographicCamera;
     sc.left = -1.3;
     sc.right = 1.3;
@@ -541,7 +547,7 @@ export class SunflowerScene {
     fill.position.set(2, 0.8, 1.4);
     const rim = new THREE.DirectionalLight('#ffd27a', 1.8);
     rim.position.set(0.6, 1.8, -2.2);
-    const hemi = new THREE.HemisphereLight('#fffaf0', '#8c8a5a', 0.6);
+    const hemi = new THREE.HemisphereLight('#fffaf0', '#a39550', 0.6);
     this.scene.add(key, key.target, fill, rim, hemi);
     this.keyLight = key;
 
@@ -623,7 +629,7 @@ export class SunflowerScene {
     this.head.add(cup);
 
     const face = new THREE.Mesh(new THREE.CircleGeometry(DISC_R * 1.01, 64), new THREE.MeshStandardMaterial({ color: '#1c0d04', roughness: 0.9 }));
-    face.position.z = -0.002;
+    face.position.z = -0.006;
     this.head.add(face);
 
     // disc florets in a Fibonacci spiral
@@ -658,7 +664,6 @@ export class SunflowerScene {
       const mesh = new THREE.InstancedMesh(geo, petalMaterial(kind, this.colours), n);
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       mesh.castShadow = true;
-      mesh.receiveShadow = true;
       mesh.frustumCulled = false;
       this.head.add(mesh);
       return mesh;
@@ -720,7 +725,6 @@ export class SunflowerScene {
       blade.position.y = 0.09;
       blade.scale.setScalar(s.size);
       petiole.castShadow = blade.castShadow = true;
-      blade.receiveShadow = true;
       group.add(petiole, blade);
       this.scene.add(group);
       this.leaves.push({ ...s, yaw: s.yaw * DEG, pitch: s.pitch * DEG, group, sway: new Spring(18, 1.4), lift: new Spring(16, 1.3) });
@@ -779,7 +783,6 @@ export class SunflowerScene {
         geo.setAttribute('aTone', new THREE.InstancedBufferAttribute(new Float32Array(n), 1));
         const mesh = new THREE.InstancedMesh(geo, petalMaterial(kind, this.colours), n);
         mesh.castShadow = true;
-        mesh.receiveShadow = true;
         mesh.frustumCulled = false;
         head.add(mesh);
         return mesh;
@@ -814,17 +817,20 @@ export class SunflowerScene {
   /* ---------- per-frame ---------- */
 
   private placePetal(mesh: THREE.InstancedMesh, i: number, theta: number, phi: number, roll: number, radius: number, z: number, len: number, width: number) {
-    const r = this.v1.set(Math.cos(theta), Math.sin(theta), 0);
-    const t = this.v2.set(-Math.sin(theta), Math.cos(theta), 0);
-    const d = this.v3.copy(r).multiplyScalar(Math.sin(phi)).add(new THREE.Vector3(0, 0, Math.cos(phi)));
-    const X = t.clone().negate();
-    const Z = new THREE.Vector3().crossVectors(X, d);
+    const c = Math.cos(theta);
+    const sn = Math.sin(theta);
+    const d = this.v1.set(c * Math.sin(phi), sn * Math.sin(phi), Math.cos(phi));
+    const X = this.v2.set(sn, -c, 0);
+    const Z = this.v3.crossVectors(X, d);
     if (roll) {
       X.applyAxisAngle(d, roll);
       Z.applyAxisAngle(d, roll);
     }
-    this.tmpM.makeBasis(X.multiplyScalar(width * len), d.clone().multiplyScalar(len), Z.multiplyScalar(len));
-    this.tmpM.setPosition(r.x * radius, r.y * radius, z);
+    X.multiplyScalar(width * len);
+    Z.multiplyScalar(len);
+    d.multiplyScalar(len);
+    this.tmpM.makeBasis(X, d, Z);
+    this.tmpM.setPosition(c * radius, sn * radius, z);
     mesh.setMatrixAt(i, this.tmpM);
   }
 
@@ -855,7 +861,8 @@ export class SunflowerScene {
 
   resize(w: number, h: number) {
     this.size = { w, h };
-    const dpr = Math.min(window.devicePixelRatio || 1, w < 768 ? 1.75 : 2);
+    // cap the backbuffer (~4.5 MP): a full 2× on a large display is the main GPU cost, and MSAA hides the difference
+    const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, w < 768 ? 1.75 : 2, Math.sqrt(4.5e6 / Math.max(1, w * h))));
     this.renderer.setPixelRatio(dpr);
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
@@ -931,13 +938,7 @@ export class SunflowerScene {
 
     /* ---- stem ---- */
     const { SEG, RAD } = this.stem.userData as { SEG: number; RAD: number };
-    const pt = new THREE.Vector3();
-    const ahead = new THREE.Vector3();
-    const behind = new THREE.Vector3();
-    const T = new THREE.Vector3();
-    const side = new THREE.Vector3();
-    const B = new THREE.Vector3();
-    const Zup = new THREE.Vector3(0, 0, 1);
+    const [pt, ahead, behind, T, side, B] = this.scratch;
     const pos = this.stemPos.array as Float32Array;
     const nrm = this.stemNrm.array as Float32Array;
     for (let i = 0; i <= SEG; i++) {
@@ -946,7 +947,7 @@ export class SunflowerScene {
       this.spine(Math.min(1, t + 0.004), ahead);
       this.spine(Math.max(0, t - 0.004), behind);
       T.subVectors(ahead, behind).normalize();
-      side.crossVectors(T, Zup).normalize();
+      side.crossVectors(T, Z_UP).normalize();
       B.crossVectors(side, T);
       const rr = 0.021 * (1.15 - 0.35 * t) + 0.006 * smooth(0.9, 1, t);
       for (let j = 0; j <= RAD; j++) {
@@ -971,8 +972,8 @@ export class SunflowerScene {
     this.spine(0.99, behind);
     T.subVectors(pt, behind).normalize();
     this.neck.position.copy(pt);
-    const tilt = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), T);
-    const swing = new THREE.Quaternion().setFromEuler(new THREE.Euler(this.nod.x - 0.12, this.twist.x * 0.5, -this.sway.x, 'YXZ'));
+    const tilt = this.q1.setFromUnitVectors(Y_UP, T);
+    const swing = this.q2.setFromEuler(this.e1.set(this.nod.x - 0.12, this.twist.x * 0.5, -this.sway.x, 'YXZ'));
     this.neck.quaternion.copy(tilt).multiply(swing);
     // the bud is smaller; the head swells as it opens
     this.head.scale.setScalar((0.7 + 0.3 * smooth(0, 1, bloom)) * P.headSize);
@@ -1051,18 +1052,7 @@ export class SunflowerScene {
     this.pollen.visible = P.pollen;
     this.pollen.position.set(0, 0.45, 0.05);
 
-    if (this.onFrame) {
-      this.scene.updateMatrixWorld();
-      const out: Projected[] = [];
-      const add = (id: string, v: THREE.Vector3) => {
-        const s = v.project(this.camera);
-        const inside = s.z < 1 && Math.abs(s.x) < 1.05 && Math.abs(s.y) < 1.05;
-        out.push({ id, x: (s.x * 0.5 + 0.5) * this.size.w, y: (-s.y * 0.5 + 0.5) * this.size.h, visible: inside ? 1 : 0 });
-      };
-      add('rays', this.petalPoint(this.petals, 14, 0.78, new THREE.Vector3()));
-      add('disc', new THREE.Vector3(-0.035, 0.05, 0.016).applyMatrix4(this.head.matrixWorld));
-      this.onFrame(out, { bloom });
-    }
+    this.onFrame?.({ bloom });
   }
 
   private updateCamera(dt: number) {
@@ -1091,10 +1081,10 @@ export class SunflowerScene {
     this.renderer.render(this.scene, this.camera);
   }
 
-  /** Compile shaders and upload buffers up front so the first scroll never hitches. */
-  warm() {
+  /** Compile shaders (in parallel, off the main thread where the GPU allows) and upload buffers up front so the first scroll never hitches. */
+  async warm() {
     this.update(0);
-    this.renderer.compile(this.scene, this.camera);
+    await this.renderer.compileAsync(this.scene, this.camera);
     this.render();
   }
 

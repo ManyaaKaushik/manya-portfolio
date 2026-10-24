@@ -10,14 +10,14 @@ Source board: https://www.figma.com/design/iXariOVvEL3FH2NnXOEm7f/NID-SEM-4?node
 | leaves-right.png | 1729:6334 |
 | botanical.png | 1729:6338 |
 | lotus.png | 1729:6378 |
-| sunflower.png | 1729:6358 |
+| sunflower.webp | 1729:6358 |
 
 Downloaded via Figma's supplied curl instructions. All runtime paths are local. Original images preserved; source board reference posters were not reused as portfolio work.
 
 Project images copied from the existing `../site/assets/images`:
-- scam.png: CMASqALuM9THCc8myrMtRHl5rF4-5ec134.png
-- celebto.png: Mqwj1ty0FUX8ENVfpozwXzYmPM-5cb1b7.png
-- sakhi.png: WHISf89KVnJUW5iGHzS4A1XmZnM-566ef8.png
+- scam.webp: CMASqALuM9THCc8myrMtRHl5rF4-5ec134.png
+- celebto.webp: Mqwj1ty0FUX8ENVfpozwXzYmPM-5cb1b7.png
+- sakhi.webp: WHISf89KVnJUW5iGHzS4A1XmZnM-566ef8.png
 - zeevam.png: JF0Ts8BylWTR4uLax0b6cusDnAs.png
 - life360.png: 5IIEDbaOzA6Gaz7jcgem5TLoAg.png
 
@@ -32,8 +32,8 @@ Production portrait is proportionally resized to 900px wide and encoded as manya
 | family-grandma.webp | Figma node 1624:24; proportional 1000px long edge, rotated clockwise to match the board orientation, WebP quality 88. |
 | family-together.webp | Figma node 1624:25; proportional 1000px long edge, WebP quality 88. |
 | canopy.webp | Figma reference node 1729:6405; original tree-canopy image, WebP quality 88; softly cropped in CSS. |
-| carey.png | Figma node 1729:6354, dithered botanical. |
-| sceneria.png | Figma node 1729:6362, dithered tree. |
+| carey.webp | Figma node 1729:6354, dithered botanical. |
+| sceneria.webp | Figma node 1729:6362, dithered tree. |
 | hills.webp | Original image created with built-in image generation for this portfolio, proportionally resized to 1672×941 and encoded WebP quality 88. |
 
 Family and canopy PNG sources are preserved locally in ignored original-assets/. No movie posters or film stills are used.

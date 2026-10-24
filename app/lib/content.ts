@@ -28,7 +28,17 @@ export type CaseStudy = {
   tint: string;
   ink: string;
   year?: string;
+  facets: Record<FacetKey, string>;
 };
+
+/** Filter dimensions for the case studies, in display order. */
+export const facets = [
+  { key: 'interface', label: 'Interface' },
+  { key: 'distribution', label: 'Distribution' },
+  { key: 'domain', label: 'Domain' },
+] as const;
+
+export type FacetKey = (typeof facets)[number]['key'];
 
 export const caseStudies: CaseStudy[] = [
   {
@@ -39,10 +49,11 @@ export const caseStudies: CaseStudy[] = [
     description:
       'An assistance layer within existing operating systems that helps people recognise digital scams — and find a clearer path to recovery.',
     tags: ['Systems thinking', 'Responsible technology'],
-    image: '/assets/scam.png',
+    image: '/assets/scam.webp',
     url: 'https://manyaa.me/works/scam-prevention',
     tint: '#e7e6f0',
     ink: '#3d3755',
+    facets: { interface: 'Mobile', distribution: 'B2C', domain: 'Digital Safety' },
   },
   {
     id: 'sakhi',
@@ -52,10 +63,11 @@ export const caseStudies: CaseStudy[] = [
     description:
       'Designed with and for Self-Help Groups, Sakhi makes bookkeeping a voice-driven collaboration between women and AI.',
     tags: ['Human–AI collaboration', 'Multimodal interaction'],
-    image: '/assets/sakhi.png',
+    image: '/assets/sakhi.webp',
     url: 'https://manyaa.me/works/sakhi',
     tint: '#efe0d3',
     ink: '#593a32',
+    facets: { interface: 'Voice', distribution: 'Social Impact', domain: 'Financial Inclusion' },
   },
   {
     id: 'celebto',
@@ -65,10 +77,11 @@ export const caseStudies: CaseStudy[] = [
     description:
       'A personalised travel companion that turns trip planning into journeys shaped around each traveller’s own rhythm.',
     tags: ['Launched product', 'Web app design'],
-    image: '/assets/celebto.png',
+    image: '/assets/celebto.webp',
     url: 'https://manyaa.me/works/celebto',
     tint: '#dce7eb',
     ink: '#293e49',
+    facets: { interface: 'Web', distribution: 'B2C', domain: 'Travel Bookings' },
   },
 ];
 
@@ -77,7 +90,7 @@ export const studies = [
     id: 'carey',
     name: 'CAREY',
     type: 'Service design',
-    plant: '/assets/carey.png',
+    plant: '/assets/carey.webp',
     tint: '#e3dfed',
     description: 'A space to explore the relationships between people, systems, and care.',
   },
@@ -85,7 +98,7 @@ export const studies = [
     id: 'solis',
     name: 'Solis',
     type: 'Internet of things',
-    plant: '/assets/sunflower.png',
+    plant: '/assets/sunflower.webp',
     tint: '#efe3af',
     description: 'One of the ways I explore connections between the digital and the physical.',
   },
@@ -93,7 +106,7 @@ export const studies = [
     id: 'sceneria',
     name: 'SCENERIA',
     type: 'Tangible user interface',
-    plant: '/assets/sceneria.png',
+    plant: '/assets/sceneria.webp',
     tint: '#dce8d3',
     description: 'Exploring interaction beyond the screen.',
   },
@@ -130,6 +143,40 @@ export const whatIfs = [
 ];
 
 /** Skills, as listed on the résumé. */
+/** Writing on Medium, each with the colour its title was set in on the old site. */
+export const blogs = [
+  {
+    id: 'finch',
+    title: 'How a virtual pet bird helped me rebuild small habits',
+    note: 'on the Finch app',
+    date: 'May 2025',
+    read: '2 min read',
+    image: '/assets/blog/finch.webp',
+    ink: '#b0453a',
+    url: 'https://medium.com/@manya.manuseema/how-a-virtual-pet-bird-helped-me-rebuild-small-habits-3d10d00cef22',
+  },
+  {
+    id: 'grandma',
+    title: 'Making it a great experience for Grandma at home',
+    note: 'published in Bootcamp',
+    date: 'March 2025',
+    read: '3 min read',
+    image: '/assets/blog/grandma.webp',
+    ink: '#3f8a45',
+    url: 'https://medium.com/design-bootcamp/making-it-a-great-experience-for-grandma-at-home-d0acfcb8bb4d',
+  },
+  {
+    id: 'airport',
+    title: 'Unexpected airport interactions',
+    note: 'my thoughts',
+    date: 'November 2024',
+    read: '2 min read',
+    image: '/assets/blog/airport.webp',
+    ink: '#3a6fd0',
+    url: 'https://medium.com/@manya.manuseema/unexpected-airport-interactions-715b2459140e',
+  },
+];
+
 export const skills = [
   'User experience design',
   'Interaction design',
